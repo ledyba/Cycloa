@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_layout_file>
+	<ActiveTarget name="Release" />
+	<File name="CycloaApp.cpp" open="1" top="0" tabpos="10">
+		<Cursor position="585" topLine="4" />
+	</File>
+	<File name="CycloaMain.cpp" open="1" top="1" tabpos="11">
+		<Cursor position="3032" topLine="75" />
+	</File>
+	<File name="emulator\IOPort.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\IOPort.h" open="1" top="0" tabpos="4">
+		<Cursor position="40" topLine="0" />
+	</File>
+	<File name="emulator\Processor.cpp" open="1" top="0" tabpos="9">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\Processor.h" open="1" top="0" tabpos="8">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\Ram.cpp" open="1" top="0" tabpos="7">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\Ram.h" open="1" top="0" tabpos="6">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\VirtualMachine.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="126" topLine="0" />
+	</File>
+	<File name="emulator\VirtualMachine.h" open="1" top="0" tabpos="2">
+		<Cursor position="257" topLine="0" />
+	</File>
+</CodeBlocks_layout_file>

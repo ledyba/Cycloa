@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Cycloa" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\Cycloa" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__WXDEBUG__" />
+					<Add directory="$(#wx)\lib\gcc_lib\mswud" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(#wx)\lib\gcc_lib\mswud" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libwxmsw29ud_richtext.a" />
+					<Add library="libwxmsw29ud_xrc.a" />
+					<Add library="libwxmsw29ud_aui.a" />
+					<Add library="libwxmsw29ud_media.a" />
+					<Add library="libwxbase29ud_net.a" />
+					<Add library="libwxmsw29ud_gl.a" />
+					<Add library="libwxbase29ud_xml.a" />
+					<Add library="libwxmsw29ud_adv.a" />
+					<Add library="libwxmsw29ud_html.a" />
+					<Add library="libwxmsw29ud_core.a" />
+					<Add library="libwxbase29ud.a" />
+					<Add library="libwxpngd.a" />
+					<Add library="libwxjpegd.a" />
+					<Add library="libwxtiffd.a" />
+					<Add library="libwxzlibd.a" />
+					<Add library="libwxregexud.a" />
+					<Add library="libwxexpatd.a" />
+					<Add directory="$(#wx)\lib\gcc_lib" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\Cycloa" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="0" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="$(#wx)\lib\gcc_lib\mswu" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="$(#wx)\lib\gcc_lib\mswu" />
+				</ResourceCompiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="libwxmsw29u_richtext.a" />
+					<Add library="libwxmsw29u_xrc.a" />
+					<Add library="libwxmsw29u_aui.a" />
+					<Add library="libwxmsw29u_media.a" />
+					<Add library="libwxbase29u_net.a" />
+					<Add library="libwxmsw29u_gl.a" />
+					<Add library="libwxbase29u_xml.a" />
+					<Add library="libwxmsw29u_adv.a" />
+					<Add library="libwxmsw29u_html.a" />
+					<Add library="libwxmsw29u_core.a" />
+					<Add library="libwxbase29u.a" />
+					<Add library="libwxpng.a" />
+					<Add library="libwxjpeg.a" />
+					<Add library="libwxtiff.a" />
+					<Add library="libwxzlib.a" />
+					<Add library="libwxregexu.a" />
+					<Add library="libwxexpat.a" />
+					<Add directory="$(#wx)\lib\gcc_lib" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-pipe" />
+			<Add option="-mthreads" />
+			<Add option='[[if (PLATFORM == PLATFORM_MSW &amp;&amp; (GetCompilerFactory().GetCompilerVersionString(_T(&quot;gcc&quot;)) &gt;= _T(&quot;4.0.0&quot;))) print(_T(&quot;-Wno-attributes&quot;));]]' />
+			<Add option="-D__GNUWIN32__" />
+			<Add option="-D__WXMSW__" />
+			<Add option="-DwxUSE_UNICODE" />
+			<Add directory="$(#wx)\include" />
+			<Add directory="$(#wx)\contrib\include" />
+		</Compiler>
+		<ResourceCompiler>
+			<Add directory="$(#wx)\include" />
+		</ResourceCompiler>
+		<Linker>
+			<Add option="-mthreads" />
+			<Add library="libkernel32.a" />
+			<Add library="libuser32.a" />
+			<Add library="libgdi32.a" />
+			<Add library="libwinspool.a" />
+			<Add library="libcomdlg32.a" />
+			<Add library="libadvapi32.a" />
+			<Add library="libshell32.a" />
+			<Add library="libole32.a" />
+			<Add library="liboleaut32.a" />
+			<Add library="libuuid.a" />
+			<Add library="libcomctl32.a" />
+			<Add library="libwsock32.a" />
+			<Add library="libodbc32.a" />
+			<Add library="libopengl32.a" />
+		</Linker>
+		<Unit filename="CycloaApp.cpp" />
+		<Unit filename="CycloaApp.h" />
+		<Unit filename="CycloaMain.cpp" />
+		<Unit filename="CycloaMain.h" />
+		<Unit filename="emulator\IOPort.cpp" />
+		<Unit filename="emulator\IOPort.h" />
+		<Unit filename="emulator\Processor.cpp" />
+		<Unit filename="emulator\Processor.h" />
+		<Unit filename="emulator\Ram.cpp" />
+		<Unit filename="emulator\Ram.h" />
+		<Unit filename="emulator\VirtualMachine.cpp" />
+		<Unit filename="emulator\VirtualMachine.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+		</Unit>
+		<Unit filename="wxsmith\Cycloaframe.wxs" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<wxsmith version="1">
+				<gui name="wxWidgets" src="CycloaApp.cpp" main="CycloaFrame" init_handlers="necessary" language="CPP" />
+				<resources>
+					<wxFrame wxs="wxsmith/Cycloaframe.wxs" src="CycloaMain.cpp" hdr="CycloaMain.h" name="CycloaFrame" language="CPP" />
+				</resources>
+			</wxsmith>
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
