@@ -2114,7 +2114,7 @@
 1312642712 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
 	"VirtualMachine.h"
 
-1312884602 d:\dropbox\src\cycloa\emulator\virtualmachine.h
+1312976710 d:\dropbox\src\cycloa\emulator\virtualmachine.h
 	<stdint.h>
 
 1312641844 d:\dropbox\src\cycloa\emulator\classdefine.h
@@ -2126,9 +2126,10 @@
 	"EmulatorPanel.h"
 	<wx/log.h>
 
-1312959889 d:\dropbox\src\cycloa\emulatorthread.h
+1312976421 d:\dropbox\src\cycloa\emulatorthread.h
 	"EmulatorPanel.h"
 	"emulator/VirtualMachine.h"
+	<wx/msgqueue.h>
 
 1309814771 d:\software\utl\lib\core\wxwidgets-2.9.2\include\wx\dcclient.h
 	"wx/dc.h"
@@ -3188,4 +3189,11 @@
 
 1309814771 d:\software\utl\lib\core\wxwidgets-2.9.2\include\wx\cocoa\mdi.h
 	"wx/frame.h"
+
+1309814771 d:\software\utl\lib\core\wxwidgets-2.9.2\include\wx\msgqueue.h
+	"wx/thread.h"
+	"wx/stopwatch.h"
+	"wx/beforestd.h"
+	<queue>
+	"wx/afterstd.h"
 

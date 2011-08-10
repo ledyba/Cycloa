@@ -38,10 +38,10 @@ class Ram
     public:
         explicit Ram(VirtualMachine& vm);
         ~Ram();
-        static const uint16_t WRAM_LENGTH = 2 * 1024;
     protected:
     private:
         VirtualMachine& VM;
+        static const uint16_t WRAM_LENGTH = 2 * 1024;
         uint8_t wram[WRAM_LENGTH]; //2KB WRAM
 };
 
@@ -182,7 +182,6 @@ class IOPort
         ~IOPort();
         uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t value);
-
     protected:
     private:
         VirtualMachine& VM;
@@ -193,11 +192,11 @@ class VirtualMachine
     public:
         explicit VirtualMachine();
         ~VirtualMachine();
+    protected:
+    private:
         IOPort ioPort;
         Ram ram;
         Processor processor;
-    protected:
-    private:
 };
 
 
