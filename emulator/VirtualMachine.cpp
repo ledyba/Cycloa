@@ -1,6 +1,9 @@
 #include "VirtualMachine.h"
 
-VirtualMachine::VirtualMachine()
+VirtualMachine::VirtualMachine() :
+ioPort(*this),
+ram(*this),
+processor(*this)
 {
     //ctor
 }

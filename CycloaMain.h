@@ -10,6 +10,9 @@
 #ifndef CYCLOAMAIN_H
 #define CYCLOAMAIN_H
 
+#include "EmulatorPanel.h"
+#include "EmulatorThread.h"
+
 //(*Headers(CycloaFrame)
 #include <wx/menu.h>
 #include <wx/glcanvas.h>
@@ -25,6 +28,7 @@ class CycloaFrame: public wxFrame
         virtual ~CycloaFrame();
 
     private:
+        EmulatorThread* emulatorThread;
 
         //(*Handlers(CycloaFrame)
         void OnQuit(wxCommandEvent& event);
@@ -39,7 +43,7 @@ class CycloaFrame: public wxFrame
         //*)
 
         //(*Declarations(CycloaFrame)
-        wxGLCanvas* screenCanvas;
+        EmulatorPanel* ScreenCanvas;
         wxStatusBar* StatusBar1;
         //*)
 

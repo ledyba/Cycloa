@@ -1,12 +1,12 @@
 #include "VirtualMachine.h"
 
-Ram::Ram(VirtualMachine& vm):
+Auduo::Audio(VirtualMachine& vm):
     VM(vm)
 {
     //ctor
 }
 
-Ram::~Ram()
+Audio::~Audio()
 {
     //dtor
 }

@@ -13,6 +13,7 @@
 #include "CycloaMain.h"
 #include <wx/image.h>
 //*)
+#include <iostream>
 
 IMPLEMENT_APP(CycloaApp);
 
@@ -29,5 +30,4 @@ bool CycloaApp::OnInit()
     }
     //*)
     return wxsOK;
-
 }

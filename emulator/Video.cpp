@@ -1,12 +1,12 @@
 #include "VirtualMachine.h"
 
-Ram::Ram(VirtualMachine& vm):
+Video::Video()(VirtualMachine& vm):
     VM(vm)
 {
     //ctor
 }
 
-Ram::~Ram()
+Video::~Video()
 {
     //dtor
 }

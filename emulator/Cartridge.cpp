@@ -1,12 +1,12 @@
 #include "VirtualMachine.h"
 
-Ram::Ram(VirtualMachine& vm):
+Cartridge::Cartridge(VirtualMachine& vm):
     VM(vm)
 {
     //ctor
 }
 
-Ram::~Ram()
+Cartridge::~Cartridge()
 {
     //dtor
 }

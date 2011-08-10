@@ -9,6 +9,7 @@
 
 #include "CycloaMain.h"
 #include <wx/msgdlg.h>
+#include <wx/dcclient.h>
 
 //(*InternalHeaders(CycloaFrame)
 #include <wx/intl.h>
@@ -61,15 +62,16 @@ CycloaFrame::CycloaFrame(wxWindow* parent,wxWindowID id)
     wxMenu* Menu1;
     wxMenuBar* MenuBar1;
     wxMenu* Menu2;
-    
-    Create(parent, id, _("Cycloa"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("id"));
+
+    Create(parent, wxID_ANY, _("Cycloa"), wxDefaultPosition, wxDefaultSize, wxDEFAULT_FRAME_STYLE, _T("wxID_ANY"));
+    SetClientSize(wxSize(640,480));
     int GLCanvasAttributes_1[] = {
     	WX_GL_RGBA,
     	WX_GL_DOUBLEBUFFER,
     	WX_GL_DEPTH_SIZE,      16,
     	WX_GL_STENCIL_SIZE,    0,
     	0, 0 };
-    screenCanvas = new wxGLCanvas(this, ID_GLCANVAS1, wxPoint(64,336), wxDefaultSize, 0, _T("ID_GLCANVAS1"), GLCanvasAttributes_1);
+    ScreenCanvas = new EmulatorPanel(this, ID_GLCANVAS1, wxPoint(0,0), wxDefaultSize, 0, _T("ID_GLCANVAS1"), GLCanvasAttributes_1);
     MenuBar1 = new wxMenuBar();
     Menu1 = new wxMenu();
     MenuItem1 = new wxMenuItem(Menu1, idMenuQuit, _("Quit\tAlt-F4"), _("Quit the application"), wxITEM_NORMAL);
@@ -86,10 +88,14 @@ CycloaFrame::CycloaFrame(wxWindow* parent,wxWindowID id)
     StatusBar1->SetFieldsCount(1,__wxStatusBarWidths_1);
     StatusBar1->SetStatusStyles(1,__wxStatusBarStyles_1);
     SetStatusBar(StatusBar1);
-    
+
     Connect(idMenuQuit,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&CycloaFrame::OnQuit);
     Connect(idMenuAbout,wxEVT_COMMAND_MENU_SELECTED,(wxObjectEventFunction)&CycloaFrame::OnAbout);
     //*)
+
+    emulatorThread = new EmulatorThread(ScreenCanvas);
+    emulatorThread->Create();
+    emulatorThread->Run();
 }
 
 CycloaFrame::~CycloaFrame()

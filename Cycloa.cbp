@@ -112,12 +112,13 @@
 		<Unit filename="CycloaApp.h" />
 		<Unit filename="CycloaMain.cpp" />
 		<Unit filename="CycloaMain.h" />
+		<Unit filename="EmulatorPanel.cpp" />
+		<Unit filename="EmulatorPanel.h" />
+		<Unit filename="EmulatorThread.cpp" />
+		<Unit filename="EmulatorThread.h" />
 		<Unit filename="emulator\IOPort.cpp" />
-		<Unit filename="emulator\IOPort.h" />
 		<Unit filename="emulator\Processor.cpp" />
-		<Unit filename="emulator\Processor.h" />
 		<Unit filename="emulator\Ram.cpp" />
-		<Unit filename="emulator\Ram.h" />
 		<Unit filename="emulator\VirtualMachine.cpp" />
 		<Unit filename="emulator\VirtualMachine.h" />
 		<Unit filename="resource.rc">

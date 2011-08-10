@@ -2,9 +2,11 @@
 <wxsmith>
 	<object class="wxFrame" name="CycloaFrame">
 		<title>Cycloa</title>
-		<object class="wxGLCanvas" name="ID_GLCANVAS1" variable="screenCanvas" member="yes">
+		<size>640,480</size>
+		<id_arg>0</id_arg>
+		<object class="wxGLCanvas" name="ID_GLCANVAS1" subclass="EmulatorPanel" variable="ScreenCanvas" member="yes">
 			<mDepthSize>16</mDepthSize>
-			<pos>64,336</pos>
+			<pos>0,0</pos>
 		</object>
 		<object class="wxMenuBar" variable="MenuBar1" member="no">
 			<object class="wxMenu" variable="Menu1" member="no">
