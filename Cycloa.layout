@@ -16,25 +16,34 @@
 	<File name="EmulatorPanel.h" open="0" top="0" tabpos="1">
 		<Cursor position="827" topLine="23" />
 	</File>
-	<File name="EmulatorThread.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="359" topLine="0" />
+	<File name="EmulatorThread.cpp" open="0" top="0" tabpos="1">
+		<Cursor position="359" topLine="9" />
 	</File>
-	<File name="EmulatorThread.h" open="1" top="0" tabpos="2">
-		<Cursor position="293" topLine="10" />
+	<File name="EmulatorThread.h" open="0" top="0" tabpos="2">
+		<Cursor position="293" topLine="0" />
 	</File>
-	<File name="emulator\IOPort.cpp" open="0" top="0" tabpos="3">
-		<Cursor position="196" topLine="0" />
+	<File name="emulator\Audio.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="135" topLine="0" />
+	</File>
+	<File name="emulator\Cartridge.cpp" open="1" top="0" tabpos="3">
+		<Cursor position="59" topLine="0" />
+	</File>
+	<File name="emulator\NesFile.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="249" topLine="93" />
 	</File>
 	<File name="emulator\Processor.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="29583" topLine="1089" />
+		<Cursor position="22169" topLine="685" />
 	</File>
 	<File name="emulator\Ram.cpp" open="0" top="0" tabpos="6">
-		<Cursor position="29" topLine="0" />
+		<Cursor position="335" topLine="0" />
 	</File>
-	<File name="emulator\VirtualMachine.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="175" topLine="0" />
+	<File name="emulator\Video.cpp" open="0" top="0" tabpos="0">
+		<Cursor position="209" topLine="0" />
 	</File>
-	<File name="emulator\VirtualMachine.h" open="1" top="1" tabpos="4">
-		<Cursor position="4738" topLine="172" />
+	<File name="emulator\VirtualMachine.cpp" open="0" top="0" tabpos="3">
+		<Cursor position="0" topLine="0" />
+	</File>
+	<File name="emulator\VirtualMachine.h" open="1" top="0" tabpos="2">
+		<Cursor position="8536" topLine="181" />
 	</File>
 </CodeBlocks_layout_file>

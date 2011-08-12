@@ -706,7 +706,7 @@ void Processor::updateFlagZN(const uint8_t& val)
 
 void Processor::consumeClock(uint8_t clock)
 {
-    VM.consumeClock(clock);
+    VM.consumeCpuClock(clock);
 }
 
 // -- 以下、アドレッシングモード --

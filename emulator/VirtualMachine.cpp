@@ -1,3 +1,4 @@
+#include <cstddef>
 #include "VirtualMachine.h"
 
 VirtualMachine::VirtualMachine() :
@@ -26,16 +27,16 @@ void VirtualMachine::run()
         this->hardResetFlag = false;
 
         this->processor.onHardReset();
-        this->cpuClockDelta = 0;
+        this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
         this->cartridge->onHardReset();
-        this->cartridgeClockDelta = 0;
+        this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
 
         this->video.onHardReset();
-        this->videoClockDelta = 0;
+        this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
 
         this->audio.onHardReset();
-        this->audioClockDelta = 0;
+        this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
 
         return;
     }else if(this->resetFlag){
@@ -46,30 +47,30 @@ void VirtualMachine::run()
         this->resetFlag = false;
 
         this->processor.onReset();
-        this->cpuClockDelta = 0;
+        this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
         this->cartridge->onReset();
-        this->cartridgeClockDelta = 0;
+        this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
 
         this->video.onReset();
-        this->videoClockDelta = 0;
+        this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
 
         this->audio.onReset();
-        this->audioClockDelta = 0;
+        this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
 
         return;
     }
-    this->processor.run(this->cpuClockDelta);
-    this->cpuClockDelta = 0;
+    this->processor.run(this->cpuClockDelta / CPU_CLOCK_FACTOR);
+    this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
-    this->cartridge->run(this->cartridgeClockDelta);
-    this->cartridgeClockDelta = 0;
+    this->cartridge->run(this->cartridgeClockDelta / CARTRIDGE_CLOCK_FACTOR);
+    this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
 
-    this->video.run(this->videoClockDelta);
-    this->videoClockDelta = 0;
-void VirtualMachine::sendHardReset()
-    this->audio.run(this->audioClockDelta);
-    this->audioClockDelta = 0;
+    this->video.run(this->videoClockDelta / VIDEO_CLOCK_FACTOR);
+    this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
+
+    this->audio.run(this->audioClockDelta / AUDIO_CLOCK_FACTOR);
+    this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
 }
 uint8_t VirtualMachine::read(uint16_t addr)
 {
@@ -88,7 +89,7 @@ uint8_t VirtualMachine::read(uint16_t addr)
         case 0xC000:
         case 0xE000:
             //Cartridges
-            return cartridge->read(addr);
+            return cartridge->readCpu(addr);
         default:
             throw "FIXME!!";
     }
@@ -97,22 +98,31 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
 {
     switch(addr & 0x0E00){
         case 0x0000:
-            return ram.write(addr, value);
+            ram.write(addr, value);
         case 0x2000:
-            return video.writeReg(addr, value);
+            video.writeReg(addr, value);
         case 0x4000:
             if(addr < 0x4018){
-                return audio.writeReg(addr, value);
+                audio.writeReg(addr, value);
             }
         case 0x6000:
         case 0x8000:
         case 0xA000:
         case 0xC000:
         case 0xE000:
-            return cartridge->write(addr, value);
+            cartridge->writeCpu(addr, value);
         default:
             throw "FIXME!!";
     }
+}
+
+void VirtualMachine::consumeCpuClock(uint8_t clock)
+{
+    consumeClock(clock * CPU_CLOCK_FACTOR);
+}
+void VirtualMachine::consumeAudioClock(uint8_t clock)
+{
+    consumeClock(clock * AUDIO_CLOCK_FACTOR);
 }
 
 void VirtualMachine::consumeClock(uint8_t clock)
@@ -125,7 +135,7 @@ void VirtualMachine::consumeClock(uint8_t clock)
 
 void VirtualMachine::sendScanlineEnd(uint16_t scanline)
 {
-    this->cartridge->onScanlineEnd(scanline);
+    this->cartridge->onHSync(scanline);
 }
 
 void VirtualMachine::sendVideoOut()

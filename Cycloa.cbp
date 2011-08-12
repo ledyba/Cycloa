@@ -116,9 +116,14 @@
 		<Unit filename="EmulatorPanel.h" />
 		<Unit filename="EmulatorThread.cpp" />
 		<Unit filename="EmulatorThread.h" />
-		<Unit filename="emulator\IOPort.cpp" />
+		<Unit filename="emulator\Audio.cpp" />
+		<Unit filename="emulator\Cartridge.cpp" />
+		<Unit filename="emulator\NesFile.cpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="emulator\Processor.cpp" />
 		<Unit filename="emulator\Ram.cpp" />
+		<Unit filename="emulator\Video.cpp" />
 		<Unit filename="emulator\VirtualMachine.cpp" />
 		<Unit filename="emulator\VirtualMachine.h" />
 		<Unit filename="resource.rc">

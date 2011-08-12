@@ -2068,7 +2068,7 @@
 1312641907 d:\dropbox\src\cycloa\emulator\ram.h
 	"VirtualMachine.h"
 
-1313068040 source:d:\dropbox\src\cycloa\emulator\processor.cpp
+1313113975 source:d:\dropbox\src\cycloa\emulator\processor.cpp
 	"VirtualMachine.h"
 
 1312641648 d:\dropbox\src\cycloa\emulator\processor.h
@@ -2111,11 +2111,13 @@
 	"wx/window.h"
 	<OpenGL/gl.h>
 
-1313067636 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
+1313141529 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
+	<cstddef>
 	"VirtualMachine.h"
 
-1313107429 d:\dropbox\src\cycloa\emulator\virtualmachine.h
+1313145242 d:\dropbox\src\cycloa\emulator\virtualmachine.h
 	<stdint.h>
+	<string>
 
 1312641844 d:\dropbox\src\cycloa\emulator\classdefine.h
 
@@ -3197,9 +3199,18 @@
 	<queue>
 	"wx/afterstd.h"
 
-1313068195 source:d:\dropbox\src\cycloa\emulator\audio.cpp
+1313106849 source:d:\dropbox\src\cycloa\emulator\audio.cpp
 	"VirtualMachine.h"
 
-1313068293 source:d:\dropbox\src\cycloa\emulator\video.cpp
+1313106884 source:d:\dropbox\src\cycloa\emulator\video.cpp
+	"VirtualMachine.h"
+
+1313142029 source:d:\dropbox\src\cycloa\emulator\cartridge.cpp
+	"VirtualMachine.h"
+
+1313145313 source:d:\dropbox\src\cycloa\emulator\nesfile.cpp
+	<cstddef>
+	<fstream>
+	<string.h>
 	"VirtualMachine.h"
 

@@ -2,22 +2,72 @@
 #define VIRTUALMACHINE_H
 
 #include <stdint.h>
+#include <string>
 
 class VirtualMachine;
 
+class NesFile
+{
+    public:
+        enum MirrorType {HORIZONTAL, VERTICAL, FOUR_SCREEN};
+        static const uint16_t NES_FORMAT_SIZE = 16;
+        static const uint16_t TRAINER_SIZE = 512;
+        static const uint16_t PRG_ROM_PAGE_SIZE = 16 * 1024;
+        static const uint16_t CHR_ROM_PAGE_SIZE = 8 * 1024;
+    public:
+        explicit NesFile(const char* filename);
+        explicit NesFile(const uint32_t filesize, const uint8_t* data);
+        ~NesFile();
+        MirrorType getMirrorType() const;
+
+        bool hasTrainer() const;
+        bool hasSram() const;
+        uint8_t getMapperNo() const;
+        uint32_t getPrgSize() const;
+        uint32_t getChrSize() const;
+        uint8_t readTrainer(uint16_t addr) const;
+        uint8_t readPrg(uint16_t page, uint16_t addr) const;
+        uint8_t readPrg(uint32_t addr) const;
+        uint8_t readChr(uint16_t page, uint16_t addr) const;
+        uint8_t readChr(uint32_t addr) const;
+    private:
+        const std::string& filename;
+        uint8_t mapperNo;
+        const uint8_t* prgRom;
+        const uint8_t* chrRom;
+        uint8_t trainer[512];
+
+        MirrorType mirrorType;
+        bool trainerFlag;
+        bool sramFlag;
+        uint32_t prgSize;
+        uint32_t chrSize;
+
+        void analyzeFile(const uint8_t* const header, const uint32_t filesize, const uint8_t* data);
+};
+
 class Cartridge { //カートリッジデータ＋マッパー
     public:
-        explicit Cartridge(VirtualMachine& vm);
+        static const uint16_t SRAM_SIZE = 8192;
+    public:
+        explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile);
         virtual ~Cartridge();
         virtual void run(uint16_t clockDelta);
-        virtual void onScanlineEnd(uint16_t scanline);
+        virtual void onHSync(uint16_t scanline);
+        virtual void onVSync();
         virtual void onHardReset();
         virtual void onReset();
-        virtual uint8_t read(uint16_t addr);
-        virtual void write(uint16_t addr, uint8_t value);
+        virtual uint8_t readVideo(uint16_t addr);
+        virtual void writeVideo(uint16_t addr, uint8_t value);
+        virtual uint8_t readCpu(uint16_t addr);
+        virtual void writeCpu(uint16_t addr, uint8_t value);
     protected:
+        uint8_t readSram(uint16_t addr) const;
+        void writeSram(uint16_t addr, uint8_t value);
     private:
         VirtualMachine& VM;
+        const NesFile* const nesFile;
+        uint8_t sram[SRAM_SIZE];
 };
 
 class Audio {
@@ -54,13 +104,14 @@ class Video
 class Ram
 {
     public:
+        static const uint16_t WRAM_LENGTH = 2 * 1024;
+    public:
         explicit Ram(VirtualMachine& vm);
         ~Ram();
         void onHardReset();
         void onReset();
         uint8_t read(uint16_t addr);
         void write(uint16_t addr, uint8_t value);
-        static const uint16_t WRAM_LENGTH = 2 * 1024;
     protected:
     private:
         VirtualMachine& VM;
@@ -211,7 +262,8 @@ class VirtualMachine
         void sendReset(); //from user to all subsystems.
         uint8_t read(uint16_t addr); //from processor to ram
         void write(uint16_t addr, uint8_t value); // from processor to ram.
-        void consumeClock(uint8_t clock); //from processor and video.
+        void consumeCpuClock(uint8_t clock);
+        void consumeAudioClock(uint8_t clock);
         class Fairy //connect emulator and ui.
         {
             explicit Fairy();
@@ -220,7 +272,12 @@ class VirtualMachine
         };
     protected:
     private:
-        static const int CPU_CLOCK = 21477272;//21.28MHz(NTSC)
+        static const int MAIN_CLOCK = 21477272;//21.28MHz(NTSC)
+        static const int CPU_CLOCK_FACTOR = 12;
+        static const int AUDIO_CLOCK_FACTOR = 12;
+        static const int VIDEO_CLOCK_FACTOR = 4;
+        static const int CARTRIDGE_CLOCK_FACTOR = 12;
+        void consumeClock(uint8_t clock);
         Ram ram;
         Processor processor;
         Audio audio;
