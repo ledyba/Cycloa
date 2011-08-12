@@ -37,6 +37,7 @@ void Processor::onHardReset()
     for(uint16_t i=0x4000;i<=0x400f;i++){
         this->write(i, 0x00);
     }
+    this->PC = (read(0xFFFC) | (read(0xFFFD) << 8));
 }
 
 void Processor::onReset()

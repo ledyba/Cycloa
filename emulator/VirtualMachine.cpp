@@ -74,7 +74,7 @@ void VirtualMachine::run()
 }
 uint8_t VirtualMachine::read(uint16_t addr)
 {
-    switch(addr & 0x0E00){
+    switch(addr & 0xE000){
         case 0x0000:
             return ram.read(addr);
         case 0x2000:
@@ -96,14 +96,17 @@ uint8_t VirtualMachine::read(uint16_t addr)
 }
 void VirtualMachine::write(uint16_t addr, uint8_t value)
 {
-    switch(addr & 0x0E00){
+    switch(addr & 0xE000){
         case 0x0000:
             ram.write(addr, value);
+            break;
         case 0x2000:
             video.writeReg(addr, value);
+            break;
         case 0x4000:
             if(addr < 0x4018){
                 audio.writeReg(addr, value);
+				break;
             }
         case 0x6000:
         case 0x8000:
@@ -111,6 +114,7 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
         case 0xC000:
         case 0xE000:
             cartridge->writeCpu(addr, value);
+            break;
         default:
             throw "FIXME!!";
     }
@@ -133,7 +137,7 @@ void VirtualMachine::consumeClock(uint8_t clock)
     this->cartridgeClockDelta += clock;
 }
 
-void VirtualMachine::sendScanlineEnd(uint16_t scanline)
+void VirtualMachine::sendHSync(uint16_t scanline)
 {
     this->cartridge->onHSync(scanline);
 }
@@ -159,4 +163,12 @@ void VirtualMachine::sendHardReset()
 void VirtualMachine::sendReset()
 {
     this->hardResetFlag = true;
+}
+
+void VirtualMachine::loadCartridge(const char* filename)
+{
+	if(this->cartridge){
+		delete this->cartridge;
+	}
+	this->cartridge = Cartridge::loadCartridge(*this, filename);
 }

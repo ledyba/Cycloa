@@ -118,14 +118,14 @@
 		<Unit filename="EmulatorThread.h" />
 		<Unit filename="emulator\Audio.cpp" />
 		<Unit filename="emulator\Cartridge.cpp" />
-		<Unit filename="emulator\NesFile.cpp">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="emulator\NesFile.cpp" />
 		<Unit filename="emulator\Processor.cpp" />
 		<Unit filename="emulator\Ram.cpp" />
 		<Unit filename="emulator\Video.cpp" />
 		<Unit filename="emulator\VirtualMachine.cpp" />
 		<Unit filename="emulator\VirtualMachine.h" />
+		<Unit filename="emulator\mapper\Mapper0.cpp" />
+		<Unit filename="emulator\mapper\Mapper0.h" />
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>

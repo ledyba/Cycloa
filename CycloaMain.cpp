@@ -96,6 +96,8 @@ CycloaFrame::CycloaFrame(wxWindow* parent,wxWindowID id)
     emulatorThread = new EmulatorThread(ScreenCanvas);
     emulatorThread->Create();
     emulatorThread->Run();
+    emulatorThread->sendLoadCartridgeSignal(".\\nestest.nes");
+    emulatorThread->sendStartSignal();
 }
 
 CycloaFrame::~CycloaFrame()

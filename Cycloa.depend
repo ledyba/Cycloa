@@ -1956,7 +1956,7 @@
 	"wx/list.h"
 	"wx/dynarray.h"
 
-1312959758 source:d:\dropbox\src\cycloa\cycloamain.cpp
+1313151202 source:d:\dropbox\src\cycloa\cycloamain.cpp
 	"CycloaMain.h"
 	<wx/msgdlg.h>
 	<wx/dcclient.h>
@@ -2062,13 +2062,13 @@
 1312642433 d:\dropbox\src\cycloa\emulator\ioport.h
 	"VirtualMachine.h"
 
-1313068153 source:d:\dropbox\src\cycloa\emulator\ram.cpp
+1313156063 source:d:\dropbox\src\cycloa\emulator\ram.cpp
 	"VirtualMachine.h"
 
 1312641907 d:\dropbox\src\cycloa\emulator\ram.h
 	"VirtualMachine.h"
 
-1313113975 source:d:\dropbox\src\cycloa\emulator\processor.cpp
+1313151460 source:d:\dropbox\src\cycloa\emulator\processor.cpp
 	"VirtualMachine.h"
 
 1312641648 d:\dropbox\src\cycloa\emulator\processor.h
@@ -2111,11 +2111,11 @@
 	"wx/window.h"
 	<OpenGL/gl.h>
 
-1313141529 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
+1313156036 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
 	<cstddef>
 	"VirtualMachine.h"
 
-1313145242 d:\dropbox\src\cycloa\emulator\virtualmachine.h
+1313154286 d:\dropbox\src\cycloa\emulator\virtualmachine.h
 	<stdint.h>
 	<string>
 
@@ -2123,12 +2123,12 @@
 
 1309814771 d:\software\utl\lib\core\wxwidgets-2.9.2\lib\gcc_lib\mswud\wx\setup.h
 
-1312976621 source:d:\dropbox\src\cycloa\emulatorthread.cpp
+1313154810 source:d:\dropbox\src\cycloa\emulatorthread.cpp
 	"EmulatorThread.h"
 	"EmulatorPanel.h"
 	<wx/log.h>
 
-1312976421 d:\dropbox\src\cycloa\emulatorthread.h
+1313150231 d:\dropbox\src\cycloa\emulatorthread.h
 	"EmulatorPanel.h"
 	"emulator/VirtualMachine.h"
 	<wx/msgqueue.h>
@@ -3205,12 +3205,21 @@
 1313106884 source:d:\dropbox\src\cycloa\emulator\video.cpp
 	"VirtualMachine.h"
 
-1313142029 source:d:\dropbox\src\cycloa\emulator\cartridge.cpp
+1313156052 source:d:\dropbox\src\cycloa\emulator\cartridge.cpp
 	"VirtualMachine.h"
+	"mapper/Mapper0.h"
+	<string>
+	<sstream>
 
-1313145313 source:d:\dropbox\src\cycloa\emulator\nesfile.cpp
+1313152482 source:d:\dropbox\src\cycloa\emulator\nesfile.cpp
 	<cstddef>
 	<fstream>
 	<string.h>
 	"VirtualMachine.h"
+
+1313156649 d:\dropbox\src\cycloa\emulator\mapper\mapper0.h
+	"../VirtualMachine.h"
+
+1313156687 source:d:\dropbox\src\cycloa\emulator\mapper\mapper0.cpp
+	"Mapper0.h"
 

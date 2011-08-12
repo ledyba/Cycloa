@@ -17,10 +17,13 @@ class EmulatorThreadMessage {
             KILL,
         };
         explicit EmulatorThreadMessage(enum SignalType signalType = NONE);
-        SignalType getSignalType();
+        SignalType getSignalType() const;
+        const std::string& getFilename() const;
+        void setFilename(const std::string& filename);
         EmulatorThreadMessage& operator=(const EmulatorThreadMessage& msg);
     private:
         enum SignalType signalType;
+        std::string filename;
 };
 
 class EmulatorThread : public wxThread
@@ -28,6 +31,13 @@ class EmulatorThread : public wxThread
     public:
         explicit EmulatorThread(EmulatorPanel* const emulatorPanel);
         virtual ~EmulatorThread();
+
+		void sendStartSignal();
+		void sendPauseSignal();
+		void sendResetSignal();
+		void sendHardResetSignal();
+		void sendKillSignal();
+        void sendLoadCartridgeSignal(const std::string& filename);
     protected:
         virtual ExitCode Entry();
     private:

@@ -6,6 +6,17 @@
 
 class VirtualMachine;
 
+class EmulatorException
+{
+	public:
+		EmulatorException(const char* msg);
+		EmulatorException(const std::string msg);
+		~EmulatorException();
+		std::string& getMessage() const;
+	private:
+		const std::string msg;
+};
+
 class NesFile
 {
     public:
@@ -49,8 +60,9 @@ class NesFile
 class Cartridge { //カートリッジデータ＋マッパー
     public:
         static const uint16_t SRAM_SIZE = 8192;
+        static Cartridge* loadCartridge(VirtualMachine& vm, const char* filename);
     public:
-        explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile);
+        explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile = 0);
         virtual ~Cartridge();
         virtual void run(uint16_t clockDelta);
         virtual void onHSync(uint16_t scanline);
@@ -64,9 +76,9 @@ class Cartridge { //カートリッジデータ＋マッパー
     protected:
         uint8_t readSram(uint16_t addr) const;
         void writeSram(uint16_t addr, uint8_t value);
+        const NesFile* const nesFile;
     private:
         VirtualMachine& VM;
-        const NesFile* const nesFile;
         uint8_t sram[SRAM_SIZE];
 };
 
@@ -104,7 +116,7 @@ class Video
 class Ram
 {
     public:
-        static const uint16_t WRAM_LENGTH = 2 * 1024;
+        static const uint16_t WRAM_LENGTH = 2048;
     public:
         explicit Ram(VirtualMachine& vm);
         ~Ram();
@@ -257,9 +269,10 @@ class VirtualMachine
         void sendVideoOut(); //from video to user.
         void sendNMI(); //from video to processor
         void sendIRQ(); //from catreidge and audio to processor.
-        void sendScanlineEnd(uint16_t scanline); //from video to cartridge
+        void sendHSync(uint16_t scanline); //from video to cartridge
         void sendHardReset(); //from user to all subsystems.
         void sendReset(); //from user to all subsystems.
+        void loadCartridge(const char* filename); //from user
         uint8_t read(uint16_t addr); //from processor to ram
         void write(uint16_t addr, uint8_t value); // from processor to ram.
         void consumeCpuClock(uint8_t clock);
