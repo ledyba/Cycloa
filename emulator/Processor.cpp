@@ -5,7 +5,7 @@ Processor::Processor(VirtualMachine& vm):
 {
 }
 
-void Processor::startup()
+void Processor::onHardReset()
 {
     //from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
     this->P = 0x34;
@@ -16,33 +16,43 @@ void Processor::startup()
     for(uint16_t i=0;i<Ram::WRAM_LENGTH;i++){
         switch(i){
             case 0x8:
-                this->VM.ioPort.write(i, 0xf7);
+                this->write(i, 0xf7);
                 break;
             case 0x9:
-                this->VM.ioPort.write(i, 0xef);
+                this->write(i, 0xef);
                 break;
             case 0xa:
-                this->VM.ioPort.write(i, 0xdf);
+                this->write(i, 0xdf);
                 break;
             case 0xf:
-                this->VM.ioPort.write(i, 0xbf);
+                this->write(i, 0xbf);
                 break;
             default:
-                this->VM.ioPort.write(i, 0xff);
+                this->write(i, 0xff);
                 break;
         }
     }
-    this->VM.ioPort.write(0x4017, 0x00);
-    this->VM.ioPort.write(0x4015, 0x00);
+    this->write(0x4017, 0x00);
+    this->write(0x4015, 0x00);
     for(uint16_t i=0x4000;i<=0x400f;i++){
-        this->VM.ioPort.write(i, 0x00);
+        this->write(i, 0x00);
     }
 }
 
-void Processor::sendReset()
+void Processor::onReset()
 {
-    this->Reset = true;
+    //from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
+    //from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
+    consumeClock(6);
+    this->SP -= 0x03;
+    this->P |= FLAG_I;
+    this->write(0x4015, 0x0);
+    this->PC = (read(0xFFFC) | (read(0xFFFD) << 8));
+
+    this->NMI = false;
+    this->IRQ = false;
 }
+
 void Processor::sendNMI()
 {
     this->NMI = true;
@@ -52,14 +62,12 @@ void Processor::sendIRQ()
     this->IRQ = true;
 }
 
-void Processor::run()
+void Processor::run(uint16_t clockDelta)
 {
-    uint8_t opcode = this->VM.ioPort.read(this->PC);
+    uint8_t opcode = this->read(this->PC);
     this->PC++;
 
-    if(this->Reset){
-        this->onReset();
-    }else if(this->NMI){
+    if(this->NMI){
         this->onNMI();
     }else if(this->IRQ){
         this->onIRQ();
@@ -634,22 +642,9 @@ Processor::~Processor()
 {
 }
 
+
 // -- 割り込みなう --
 
-void Processor::onReset()
-{
-    //from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
-    //from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
-    consumeClock(6);
-    this->SP -= 0x03;
-    this->P |= FLAG_I;
-    this->VM.ioPort.write(0x4015, 0x0);
-    this->PC = (VM.ioPort.read(0xFFFC) | (VM.ioPort.read(0xFFFD) << 8));
-
-    this->Reset = false;
-    this->NMI = false;
-    this->IRQ = false;
-}
 void Processor::onNMI()
 {
     //from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
@@ -660,7 +655,7 @@ void Processor::onNMI()
     push(static_cast<uint8_t>(this->PC & 0xFF));
     push(this->P);
     this->P |= FLAG_I;
-    this->PC = (VM.ioPort.read(0xFFFA) | (VM.ioPort.read(0xFFFB) << 8));
+    this->PC = (read(0xFFFA) | (read(0xFFFB) << 8));
     this->NMI = false;
 }
 void Processor::onIRQ()
@@ -676,22 +671,31 @@ void Processor::onIRQ()
     push(static_cast<uint8_t>(this->PC & 0xFF));
     push(this->P);
     this->P |= FLAG_I;
-    this->PC = (VM.ioPort.read(0xFFFE) | (VM.ioPort.read(0xFFFF) << 8));
+    this->PC = (read(0xFFFE) | (read(0xFFFF) << 8));
     this->IRQ = false;
 }
 
 
 // -- よく使いそうな関数 --
 
+uint8_t Processor::read(uint16_t addr)
+{
+    return VM.read(addr);
+}
+void Processor::write(uint16_t addr, uint8_t value){
+    VM.write(addr, value);
+}
+
+
 void Processor::push(uint8_t val)
 {
-    VM.ioPort.write(0x1000 | this->SP, val);
+    write(0x1000 | this->SP, val);
     this->SP--;
 }
 uint8_t Processor::pop()
 {
     this->SP++;
-    return VM.ioPort.read(0x1000 | this->SP);
+    return read(0x1000 | this->SP);
 }
 
 
@@ -702,7 +706,7 @@ void Processor::updateFlagZN(const uint8_t& val)
 
 void Processor::consumeClock(uint8_t clock)
 {
-
+    VM.consumeClock(clock);
 }
 
 // -- 以下、アドレッシングモード --
@@ -714,35 +718,35 @@ uint16_t Processor::addrImmediate()
 }
 uint16_t Processor::addrAbsolute()
 {
-    uint16_t addr = VM.ioPort.read(this->PC);
+    uint16_t addr = read(this->PC);
     this->PC++;
-    addr = addr | (VM.ioPort.read(this->PC) << 8);
+    addr = addr | (read(this->PC) << 8);
     this->PC++;
     return addr;
 }
 uint16_t Processor::addrZeroPage()
 {
-    uint16_t addr = static_cast<uint16_t>(VM.ioPort.read(this->PC));
+    uint16_t addr = static_cast<uint16_t>(read(this->PC));
     this->PC++;
     return addr;
 }
 uint16_t Processor::addrZeroPageIdxX()
 {
-    uint8_t val = VM.ioPort.read(this->PC) + this->X;
+    uint8_t val = read(this->PC) + this->X;
     this->PC++;
     return static_cast<uint16_t>(val);
 }
 uint16_t Processor::addrZeroPageIdxY()
 {
-    uint8_t val = VM.ioPort.read(this->PC) + this->Y;
+    uint8_t val = read(this->PC) + this->Y;
     this->PC++;
     return static_cast<uint16_t>(val);
 }
 uint16_t Processor::addrAbsoluteIdxX()
 {
-    uint16_t orig = VM.ioPort.read(this->PC);
+    uint16_t orig = read(this->PC);
     this->PC++;
-    orig = orig | (VM.ioPort.read(this->PC) << 8);
+    orig = orig | (read(this->PC) << 8);
     this->PC++;
     const uint16_t addr = orig + this->X;
     if(((addr ^ orig) & 0x0100) != 0){
@@ -752,9 +756,9 @@ uint16_t Processor::addrAbsoluteIdxX()
 }
 uint16_t Processor::addrAbsoluteIdxY()
 {
-    uint16_t orig = VM.ioPort.read(this->PC);
+    uint16_t orig = read(this->PC);
     this->PC++;
-    orig = orig | (VM.ioPort.read(this->PC) << 8);
+    orig = orig | (read(this->PC) << 8);
     this->PC++;
     const uint16_t addr = orig + this->Y;
     if(((addr ^ orig) & 0x0100) != 0){
@@ -764,24 +768,24 @@ uint16_t Processor::addrAbsoluteIdxY()
 }
 uint16_t Processor::addrRelative()
 {
-    int8_t offset = static_cast<int8_t>(VM.ioPort.read(this->PC));
+    int8_t offset = static_cast<int8_t>(read(this->PC));
     this->PC++;
     return this->PC + offset;
 }
 uint16_t Processor::addrIndirectX()
 {
-    uint8_t idx = VM.ioPort.read(this->PC) + this->X;
-    uint16_t addr = VM.ioPort.read(idx);
+    uint8_t idx = read(this->PC) + this->X;
+    uint16_t addr = read(idx);
     idx++;
-    addr = addr | (VM.ioPort.read(idx) << 8);
+    addr = addr | (read(idx) << 8);
     return addr;
 }
 uint16_t Processor::addrIndirextY()
 {
-    uint8_t idx = VM.ioPort.read(this->PC);
-    uint16_t orig = VM.ioPort.read(idx);
+    uint8_t idx = read(this->PC);
+    uint16_t orig = read(idx);
     idx++;
-    orig = orig | (VM.ioPort.read(idx) << 8);
+    orig = orig | (read(idx) << 8);
     const uint16_t addr = orig + this->Y;
     if(((addr ^ orig) & 0x0100) != 0){
         consumeClock(1);
@@ -790,41 +794,41 @@ uint16_t Processor::addrIndirextY()
 }
 uint16_t Processor::addrAbsoluteIndirect()
 {
-    uint16_t srcAddr = VM.ioPort.read(this->PC);
+    uint16_t srcAddr = read(this->PC);
     this->PC++;
-    srcAddr = srcAddr | (VM.ioPort.read(this->PC) << 8);
+    srcAddr = srcAddr | (read(this->PC) << 8);
     this->PC++;
-    return VM.ioPort.read(srcAddr) | (VM.ioPort.read(srcAddr+1) << 8);
+    return read(srcAddr) | (read(srcAddr+1) << 8);
 }
 
 //-- 以下、個別命令 --
 void Processor:: LDA(uint16_t addr)
 {
-    this->A = this->VM.ioPort.read(addr);
+    this->A = this->read(addr);
     updateFlagZN(this->A);
 }
 void Processor:: LDY(uint16_t addr)
 {
-    this->Y = this->VM.ioPort.read(addr);
+    this->Y = this->read(addr);
     updateFlagZN(this->Y);
 }
 void Processor:: LDX(uint16_t addr)
 {
-    this->X = this->VM.ioPort.read(addr);
+    this->X = this->read(addr);
     updateFlagZN(this->X);
 }
 
 void Processor::STA(uint16_t addr)
 {
-    this->VM.ioPort.write(addr, this->A);
+    this->write(addr, this->A);
 }
 void Processor::STX(uint16_t addr)
 {
-    this->VM.ioPort.write(addr, this->X);
+    this->write(addr, this->X);
 }
 void Processor::STY(uint16_t addr)
 {
-    this->VM.ioPort.write(addr, this->Y);
+    this->write(addr, this->Y);
 }
 
 void Processor:: TXA()
@@ -885,21 +889,21 @@ void Processor:: SBC(uint16_t addr)
 }
 void Processor:: CPX(uint16_t addr)
 {
-    const uint16_t val = this->X - VM.ioPort.read(addr);
+    const uint16_t val = this->X - read(addr);
     const uint8_t val8 = static_cast<uint8_t>(val & 0xff);
     updateFlagZN(val8);
     this->P = (this->P & 0xfe) | (((val >> 8) & 0x1) ^ 0x1);
 }
 void Processor:: CPY(uint16_t addr)
 {
-    const uint16_t val = this->Y - VM.ioPort.read(addr);
+    const uint16_t val = this->Y - read(addr);
     const uint8_t val8 = static_cast<uint8_t>(val & 0xff);
     updateFlagZN(val8);
     this->P = (this->P & 0xfe) | (((val >> 8) & 0x1) ^ 0x1);
 }
 void Processor:: CMP(uint16_t addr)
 {
-    const uint16_t val = this->A - VM.ioPort.read(addr);
+    const uint16_t val = this->A - read(addr);
     const uint8_t val8 = static_cast<uint8_t>(val & 0xff);
     updateFlagZN(val8);
     this->P = (this->P & 0xfe) | (((val >> 8) & 0x1) ^ 0x1);
@@ -907,22 +911,22 @@ void Processor:: CMP(uint16_t addr)
 
 void Processor::AND(uint16_t addr)
 {
-    this->A &= VM.ioPort.read(addr);
+    this->A &= read(addr);
     updateFlagZN(this->A);
 }
 void Processor::EOR(uint16_t addr)
 {
-    this->A ^= VM.ioPort.read(addr);
+    this->A ^= read(addr);
     updateFlagZN(this->A);
 }
 void Processor::ORA(uint16_t addr)
 {
-    this->A |= VM.ioPort.read(addr);
+    this->A |= read(addr);
     updateFlagZN(this->A);
 }
 void Processor::BIT(uint16_t addr)
 {
-    uint8_t val = VM.ioPort.read(addr);
+    uint8_t val = read(addr);
     this->P = (this->P & (0xff & ~(FLAG_V | FLAG_N | FLAG_Z)))
         | (val & (FLAG_V | FLAG_N))
         | (ZNFlagCache[this->A & val] & FLAG_Z);
@@ -937,7 +941,7 @@ void Processor:: ASL()
 }
 void Processor:: ASL(uint16_t addr)
 {
-    uint8_t val = this->VM.ioPort.read(addr);
+    uint8_t val = this->read(addr);
     this->P = (this->P & 0x7f) | val >> 7;
     val <<= 1;
     updateFlagZN(val);
@@ -950,7 +954,7 @@ void Processor:: LSR()
 }
 void Processor:: LSR(uint16_t addr)
 {
-    uint8_t val = this->VM.ioPort.read(addr);
+    uint8_t val = this->read(addr);
     this->P = (this->P & 0x7f) | (val & 0x01);
     val >>= 1;
     updateFlagZN(val);
@@ -964,12 +968,12 @@ void Processor:: ROL()
 }
 void Processor:: ROL(uint16_t addr)
 {
-    uint8_t val = this->VM.ioPort.read(addr);
+    uint8_t val = this->read(addr);
     const uint8_t carry = val >> 7;
     val = (val << 1) | (this->P & 0x01);
     this->P = (this->P & 0x7f) | carry;
     updateFlagZN(val);
-    this->VM.ioPort.write(addr, val);
+    this->write(addr, val);
 }
 void Processor:: ROR()
 {
@@ -980,12 +984,12 @@ void Processor:: ROR()
 }
 void Processor:: ROR(uint16_t addr)
 {
-    uint8_t val = this->VM.ioPort.read(addr);
+    uint8_t val = this->read(addr);
     const uint8_t carry = val & 0x01;
     val = (val >> 1) | ((this->P & 0x01) << 7);
     this->P = (this->P & 0x7f) | carry;
     updateFlagZN(val);
-    this->VM.ioPort.write(addr, val);
+    this->write(addr, val);
 }
 
 void Processor:: INX()
@@ -1000,10 +1004,10 @@ void Processor:: INY()
 }
 void Processor:: INC(uint16_t addr)
 {
-    uint8_t val = VM.ioPort.read(addr);
+    uint8_t val = read(addr);
     val++;
     updateFlagZN(val);
-    VM.ioPort.write(addr, val);
+    write(addr, val);
 }
 void Processor:: DEX()
 {
@@ -1017,10 +1021,10 @@ void Processor:: DEY()
 }
 void Processor:: DEC(uint16_t addr)
 {
-    uint8_t val = VM.ioPort.read(addr);
+    uint8_t val = read(addr);
     val--;
     updateFlagZN(val);
-    VM.ioPort.write(addr, val);
+    write(addr, val);
 }
 
 void Processor:: CLC()
@@ -1064,7 +1068,7 @@ void Processor:: BRK()
     this->P |= FLAG_B;
     push(this->P);
     this->P |= FLAG_I;
-    this->PC = (VM.ioPort.read(0xFFFE) | (VM.ioPort.read(0xFFFF) << 8));
+    this->PC = (read(0xFFFE) | (read(0xFFFF) << 8));
 }
 
 void Processor:: BCC(uint16_t addr)

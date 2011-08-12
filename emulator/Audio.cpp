@@ -1,6 +1,6 @@
 #include "VirtualMachine.h"
 
-Auduo::Audio(VirtualMachine& vm):
+Audio::Audio(VirtualMachine& vm):
     VM(vm)
 {
     //ctor
@@ -9,4 +9,26 @@ Auduo::Audio(VirtualMachine& vm):
 Audio::~Audio()
 {
     //dtor
+}
+
+void Audio::run(uint16_t clockDelta)
+{
+
+}
+
+void Audio::onHardReset()
+{
+
+}
+void Audio::onReset()
+{
+
+}
+uint8_t Audio::readReg(uint16_t addr)
+{
+
+}
+void Audio::writeReg(uint16_t addr, uint8_t value)
+{
+
 }

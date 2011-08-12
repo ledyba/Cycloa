@@ -9,6 +9,12 @@ class Cartridge { //カートリッジデータ＋マッパー
     public:
         explicit Cartridge(VirtualMachine& vm);
         virtual ~Cartridge();
+        virtual void run(uint16_t clockDelta);
+        virtual void onScanlineEnd(uint16_t scanline);
+        virtual void onHardReset();
+        virtual void onReset();
+        virtual uint8_t read(uint16_t addr);
+        virtual void write(uint16_t addr, uint8_t value);
     protected:
     private:
         VirtualMachine& VM;
@@ -18,6 +24,11 @@ class Audio {
     public:
         explicit Audio(VirtualMachine& vm);
         ~Audio();
+        void run(uint16_t clockDelta);
+        void onHardReset();
+        void onReset();
+        uint8_t readReg(uint16_t addr);
+        void writeReg(uint16_t addr, uint8_t value);
     protected:
     private:
         VirtualMachine& VM;
@@ -28,9 +39,16 @@ class Video
     public:
         explicit Video(VirtualMachine& vm);
         ~Video();
+        void run(uint16_t clockDelta);
+        void onHardReset();
+        void onReset();
+        uint8_t readReg(uint16_t addr);
+        void writeReg(uint16_t addr, uint8_t value);
     protected:
     private:
         VirtualMachine& VM;
+        uint8_t read(uint16_t addr);
+        void write(uint16_t addr, uint8_t value);
 };
 
 class Ram
@@ -38,10 +56,14 @@ class Ram
     public:
         explicit Ram(VirtualMachine& vm);
         ~Ram();
+        void onHardReset();
+        void onReset();
+        uint8_t read(uint16_t addr);
+        void write(uint16_t addr, uint8_t value);
+        static const uint16_t WRAM_LENGTH = 2 * 1024;
     protected:
     private:
         VirtualMachine& VM;
-        static const uint16_t WRAM_LENGTH = 2 * 1024;
         uint8_t wram[WRAM_LENGTH]; //2KB WRAM
 };
 
@@ -50,13 +72,15 @@ class Processor
     public:
         explicit Processor(VirtualMachine& vm);
         ~Processor();
-        void startup();
-        void run();
-        void sendReset();
+        void run(uint16_t clockDelta);
+        void onHardReset();
+        void onReset();
         void sendNMI();
         void sendIRQ();
     protected:
     private:
+        uint8_t read(uint16_t addr);
+        void write(uint16_t addr, uint8_t value);
         //定数
         static const uint8_t ZNFlagCache[0x100];
         static const uint8_t CycleTable[0x100];
@@ -76,7 +100,6 @@ class Processor
         uint8_t SP;
         uint8_t P;
         //
-        bool Reset;
         bool NMI;
         bool IRQ;
         //
@@ -85,7 +108,6 @@ class Processor
         void consumeClock(uint8_t clock);
         void updateFlagZN(const uint8_t& val);
         //ハードウェア☆割り込み
-        void onReset();
         void onNMI();
         void onIRQ();
 
@@ -175,28 +197,43 @@ class Processor
         void RTS();
 };
 
-class IOPort
-{
-    public:
-        explicit IOPort(VirtualMachine& vm);
-        ~IOPort();
-        uint8_t read(uint16_t addr);
-        void write(uint16_t addr, uint8_t value);
-    protected:
-    private:
-        VirtualMachine& VM;
-};
-
 class VirtualMachine
 {
     public:
         explicit VirtualMachine();
         ~VirtualMachine();
+        void run();
+        void sendVideoOut(); //from video to user.
+        void sendNMI(); //from video to processor
+        void sendIRQ(); //from catreidge and audio to processor.
+        void sendScanlineEnd(uint16_t scanline); //from video to cartridge
+        void sendHardReset(); //from user to all subsystems.
+        void sendReset(); //from user to all subsystems.
+        uint8_t read(uint16_t addr); //from processor to ram
+        void write(uint16_t addr, uint8_t value); // from processor to ram.
+        void consumeClock(uint8_t clock); //from processor and video.
+        class Fairy //connect emulator and ui.
+        {
+            explicit Fairy();
+            virtual ~Fairy();
+            virtual void onVideoOut();
+        };
     protected:
     private:
-        IOPort ioPort;
+        static const int CPU_CLOCK = 21477272;//21.28MHz(NTSC)
         Ram ram;
         Processor processor;
+        Audio audio;
+        Video video;
+        Cartridge* cartridge;
+
+        uint16_t cpuClockDelta;
+        uint16_t audioClockDelta;
+        uint16_t videoClockDelta;
+        uint16_t cartridgeClockDelta;
+
+        bool resetFlag;
+        bool hardResetFlag;
 };
 
 

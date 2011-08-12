@@ -2062,13 +2062,13 @@
 1312642433 d:\dropbox\src\cycloa\emulator\ioport.h
 	"VirtualMachine.h"
 
-1312642669 source:d:\dropbox\src\cycloa\emulator\ram.cpp
+1313068153 source:d:\dropbox\src\cycloa\emulator\ram.cpp
 	"VirtualMachine.h"
 
 1312641907 d:\dropbox\src\cycloa\emulator\ram.h
 	"VirtualMachine.h"
 
-1312884654 source:d:\dropbox\src\cycloa\emulator\processor.cpp
+1313068040 source:d:\dropbox\src\cycloa\emulator\processor.cpp
 	"VirtualMachine.h"
 
 1312641648 d:\dropbox\src\cycloa\emulator\processor.h
@@ -2111,17 +2111,17 @@
 	"wx/window.h"
 	<OpenGL/gl.h>
 
-1312642712 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
+1313067636 source:d:\dropbox\src\cycloa\emulator\virtualmachine.cpp
 	"VirtualMachine.h"
 
-1312976710 d:\dropbox\src\cycloa\emulator\virtualmachine.h
+1313107429 d:\dropbox\src\cycloa\emulator\virtualmachine.h
 	<stdint.h>
 
 1312641844 d:\dropbox\src\cycloa\emulator\classdefine.h
 
 1309814771 d:\software\utl\lib\core\wxwidgets-2.9.2\lib\gcc_lib\mswud\wx\setup.h
 
-1312969746 source:d:\dropbox\src\cycloa\emulatorthread.cpp
+1312976621 source:d:\dropbox\src\cycloa\emulatorthread.cpp
 	"EmulatorThread.h"
 	"EmulatorPanel.h"
 	<wx/log.h>
@@ -3196,4 +3196,10 @@
 	"wx/beforestd.h"
 	<queue>
 	"wx/afterstd.h"
+
+1313068195 source:d:\dropbox\src\cycloa\emulator\audio.cpp
+	"VirtualMachine.h"
+
+1313068293 source:d:\dropbox\src\cycloa\emulator\video.cpp
+	"VirtualMachine.h"
 
