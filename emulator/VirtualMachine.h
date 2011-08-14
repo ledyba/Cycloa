@@ -152,6 +152,7 @@ class Processor
         static const uint8_t FLAG_I = 0b00000100;
         static const uint8_t FLAG_D = 0b00001000;
         static const uint8_t FLAG_B = 0b00010000; //not used in NES
+        static const uint8_t FLAG_ALWAYS_SET = 0b00100000;
         static const uint8_t FLAG_V = 0b01000000;
         static const uint8_t FLAG_N = 0b10000000;
         //
@@ -184,7 +185,7 @@ class Processor
         uint16_t addrAbsoluteIdxY();
         uint16_t addrRelative();
         uint16_t addrIndirectX();
-        uint16_t addrIndirextY();
+        uint16_t addrIndirectY();
         uint16_t addrAbsoluteIndirect();
 
         //命令一覧 from http://nesdev.parodius.com/opcodes.txt

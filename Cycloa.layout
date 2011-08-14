@@ -16,40 +16,40 @@
 	<File name="EmulatorPanel.h" open="0" top="0" tabpos="1">
 		<Cursor position="827" topLine="23" />
 	</File>
-	<File name="EmulatorThread.cpp" open="1" top="0" tabpos="11">
+	<File name="EmulatorThread.cpp" open="0" top="0" tabpos="11">
 		<Cursor position="453" topLine="21" />
 	</File>
 	<File name="EmulatorThread.h" open="0" top="0" tabpos="2">
 		<Cursor position="293" topLine="0" />
 	</File>
-	<File name="emulator\Audio.cpp" open="1" top="0" tabpos="5">
+	<File name="emulator\Audio.cpp" open="0" top="0" tabpos="5">
 		<Cursor position="293" topLine="5" />
 	</File>
-	<File name="emulator\Cartridge.cpp" open="1" top="0" tabpos="6">
+	<File name="emulator\Cartridge.cpp" open="0" top="0" tabpos="6">
 		<Cursor position="832" topLine="37" />
 	</File>
-	<File name="emulator\NesFile.cpp" open="1" top="0" tabpos="7">
+	<File name="emulator\NesFile.cpp" open="1" top="0" tabpos="6">
 		<Cursor position="2224" topLine="63" />
 	</File>
-	<File name="emulator\Processor.cpp" open="1" top="1" tabpos="4">
-		<Cursor position="20667" topLine="627" />
+	<File name="emulator\Processor.cpp" open="1" top="1" tabpos="1">
+		<Cursor position="14887" topLine="457" />
 	</File>
-	<File name="emulator\Ram.cpp" open="1" top="0" tabpos="1">
-		<Cursor position="187" topLine="0" />
+	<File name="emulator\Ram.cpp" open="1" top="0" tabpos="4">
+		<Cursor position="259" topLine="0" />
 	</File>
-	<File name="emulator\Video.cpp" open="1" top="0" tabpos="8">
+	<File name="emulator\Video.cpp" open="0" top="0" tabpos="8">
 		<Cursor position="243" topLine="12" />
 	</File>
-	<File name="emulator\VirtualMachine.cpp" open="1" top="0" tabpos="3">
-		<Cursor position="3307" topLine="110" />
+	<File name="emulator\VirtualMachine.cpp" open="1" top="0" tabpos="2">
+		<Cursor position="2179" topLine="72" />
 	</File>
-	<File name="emulator\VirtualMachine.h" open="1" top="0" tabpos="2">
-		<Cursor position="8501" topLine="274" />
+	<File name="emulator\VirtualMachine.h" open="1" top="0" tabpos="3">
+		<Cursor position="5707" topLine="163" />
 	</File>
-	<File name="emulator\mapper\Mapper0.cpp" open="1" top="0" tabpos="9">
-		<Cursor position="757" topLine="13" />
+	<File name="emulator\mapper\Mapper0.cpp" open="1" top="0" tabpos="5">
+		<Cursor position="850" topLine="9" />
 	</File>
-	<File name="emulator\mapper\Mapper0.h" open="1" top="0" tabpos="10">
-		<Cursor position="452" topLine="0" />
+	<File name="emulator\mapper\Mapper0.h" open="0" top="0" tabpos="10">
+		<Cursor position="477" topLine="0" />
 	</File>
 </CodeBlocks_layout_file>

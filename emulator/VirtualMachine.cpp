@@ -6,7 +6,9 @@ ram(*this),
 processor(*this),
 audio(*this),
 video(*this),
-cartridge(NULL)
+cartridge(NULL),
+resetFlag(false),
+hardResetFlag(false)
 {
     //ctor
 }
@@ -158,11 +160,11 @@ void VirtualMachine::sendIRQ()
 
 void VirtualMachine::sendHardReset()
 {
-    this->resetFlag = true;
+    this->hardResetFlag = true;
 }
 void VirtualMachine::sendReset()
 {
-    this->hardResetFlag = true;
+    this->resetFlag = true;
 }
 
 void VirtualMachine::loadCartridge(const char* filename)

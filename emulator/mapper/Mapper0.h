@@ -15,6 +15,7 @@ class Mapper0 : public Cartridge
         virtual void writeCpu(uint16_t addr, uint8_t value);
 	protected:
 	private:
+		const uint16_t addrMask;
 };
 
 #endif // MAPPER0_H

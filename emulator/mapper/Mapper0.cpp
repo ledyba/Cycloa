@@ -1,7 +1,9 @@
 #include "Mapper0.h"
 
 Mapper0::Mapper0(VirtualMachine& vm, const NesFile* nesFile) :
-Cartridge(vm, nesFile)
+Cartridge(vm, nesFile),
+// 16KBなら、同じ内容が繰り返される
+addrMask((nesFile->getPrgSize()/NesFile::PRG_ROM_PAGE_SIZE) > 1 ? 0x7fff : 0x3fff)
 {
 }
 Mapper0::~Mapper0()
@@ -29,7 +31,7 @@ uint8_t Mapper0::readCpu(uint16_t addr)
         case 0xA000:
         case 0xC000:
         case 0xE000:
-			return this->nesFile->readPrg(addr & 0x3FFF);
+			return this->nesFile->readPrg(addr & this->addrMask);
         default:
             throw "FIXME!!";
     }

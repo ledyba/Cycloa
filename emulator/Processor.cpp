@@ -1,14 +1,23 @@
 #include "VirtualMachine.h"
+#include <stdio.h>
 
 Processor::Processor(VirtualMachine& vm):
-    VM(vm)
+    VM(vm),
+	A(0),
+	X(0),
+	Y(0),
+	PC(0),
+	SP(0),
+	P(0),
+	NMI(false),
+	IRQ(false)
 {
 }
 
 void Processor::onHardReset()
 {
     //from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
-    this->P = 0x34;
+    this->P = 0x24;
     this->A = 0x0;
     this->X = 0x0;
     this->Y = 0x0;
@@ -38,6 +47,9 @@ void Processor::onHardReset()
         this->write(i, 0x00);
     }
     this->PC = (read(0xFFFC) | (read(0xFFFD) << 8));
+
+    this->NMI = false;
+    this->IRQ = false;
 }
 
 void Processor::onReset()
@@ -66,6 +78,25 @@ void Processor::sendIRQ()
 void Processor::run(uint16_t clockDelta)
 {
     uint8_t opcode = this->read(this->PC);
+    char flag[9];
+    flag[0] = (this->P & FLAG_N) ? 'N' : 'n';
+    flag[1] = (this->P & FLAG_V) ? 'V' : 'v';
+    flag[2] = (this->P & FLAG_ALWAYS_SET) ? 'U' : 'u';
+    flag[3] = (this->P & FLAG_B) ? 'B' : 'b';
+    flag[4] = (this->P & FLAG_D) ? 'D' : 'd';
+    flag[5] = (this->P & FLAG_I) ? 'I' : 'i';
+    flag[6] = (this->P & FLAG_Z) ? 'Z' : 'z';
+    flag[7] = (this->P & FLAG_C) ? 'C' : 'c';
+    flag[8] = '\0';
+    printf("%04x op:%02x a:%02x x:%02x y:%02x sp:%02x p:%s 0x0180:%02x\n", this->PC, opcode, this->A, this->X, this->Y, this->SP, flag, this->read(0x0400));
+    fflush(stdout);
+    /*
+    if(this->PC == 0xCE1E){
+		fflush(stdout);
+		this->PC++;
+		this->PC--;
+    }
+    */
     this->PC++;
 
     if(this->NMI){
@@ -113,7 +144,7 @@ void Processor::run(uint16_t clockDelta)
             this->BPL(addrRelative());
             break;
         case 0x11: // ORA - (Indirect),Y
-            this->ORA(addrIndirextY());
+            this->ORA(addrIndirectY());
             break;
         //case 0x12: // Future Expansion
         //case 0x13: // Future Expansion
@@ -141,8 +172,8 @@ void Processor::run(uint16_t clockDelta)
             this->ASL(addrAbsoluteIdxX());
             break;
         //case 0x1F: // Future Expansion
-        case 0x20: // JSR
-            this->JSR(addrRelative());
+        case 0x20: // JSR - Absolute
+            this->JSR(addrAbsolute());
             break;
         case 0x21: // AND - (Indirect,X)
             this->AND(addrIndirectX());
@@ -183,7 +214,7 @@ void Processor::run(uint16_t clockDelta)
             this->BMI(addrRelative());
             break;
         case 0x31: // AND - (Indirect),Y
-            this->AND(addrIndirextY());
+            this->AND(addrIndirectY());
             break;
         //case 0x32: // Future Expansion
         //case 0x33: // Future Expansion
@@ -251,7 +282,7 @@ void Processor::run(uint16_t clockDelta)
             this->BVC(addrRelative());
             break;
         case 0x51: // EOR - (Indirect),Y
-            this->EOR(addrIndirectX());
+            this->EOR(addrIndirectY());
             break;
         //case 0x52: // Future Expansion
         //case 0x53: // Future Expansion
@@ -319,7 +350,7 @@ void Processor::run(uint16_t clockDelta)
             this->BVS(addrRelative());
             break;
         case 0x71: // ADC - (Indirect),Y
-            this->ADC(addrIndirextY());
+            this->ADC(addrIndirectY());
             break;
         //case 0x72: // Future Expansion
         //case 0x73: // Future Expansion
@@ -374,7 +405,7 @@ void Processor::run(uint16_t clockDelta)
         case 0x8C: // STY - Absolute
             this->STY(addrAbsolute());
             break;
-        case 0x80: // STA - Absolute
+        case 0x8D: // STA - Absolute
             this->STA(addrAbsolute());
             break;
         case 0x8E: // STX - Absolute
@@ -385,7 +416,7 @@ void Processor::run(uint16_t clockDelta)
             this->BCC(addrRelative());
             break;
         case 0x91: // STA - (Indirect),Y
-            this->STA(addrIndirextY());
+            this->STA(addrIndirectY());
             break;
         //case 0x92: // Future Expansion
         //case 0x93: // Future Expansion
@@ -459,7 +490,7 @@ void Processor::run(uint16_t clockDelta)
             this->BCS(addrRelative());
             break;
         case 0xB1: // LDA - (Indirect),Y
-            this->LDA(addrIndirextY());
+            this->LDA(addrIndirectY());
             break;
         //case 0xB2: // Future Expansion
         //case 0xB3: // Future Expansion
@@ -535,7 +566,7 @@ void Processor::run(uint16_t clockDelta)
             this->BNE(addrRelative());
             break;
         case 0xD1: // CMP   (Indirect),Y
-            this->CMP(addrIndirextY());
+            this->CMP(addrIndirectY());
             break;
         //case 0xD2: // Future Expansion
         //case 0xD3: // Future Expansion
@@ -605,7 +636,7 @@ void Processor::run(uint16_t clockDelta)
             this->BEQ(addrRelative());
             break;
         case 0xF1: // SBC - (Indirect),Y
-            this->SBC(addrIndirextY());
+            this->SBC(addrIndirectY());
             break;
         //case 0xF2: // Future Expansion
         //case 0xF3: // Future Expansion
@@ -634,9 +665,10 @@ void Processor::run(uint16_t clockDelta)
             break;
         //case 0xFF: // Future Expansion
         default:
-            throw opcode;
+            throw opcode; //未定義命令なんてなかった
     }
     consumeClock(CycleTable[opcode]);
+    this->P |= FLAG_ALWAYS_SET;
 }
 
 Processor::~Processor()
@@ -690,13 +722,13 @@ void Processor::write(uint16_t addr, uint8_t value){
 
 void Processor::push(uint8_t val)
 {
-    write(0x1000 | this->SP, val);
+    write(0x0100 | this->SP, val);
     this->SP--;
 }
 uint8_t Processor::pop()
 {
     this->SP++;
-    return read(0x1000 | this->SP);
+    return read(0x0100 | this->SP);
 }
 
 
@@ -725,6 +757,7 @@ uint16_t Processor::addrAbsolute()
     this->PC++;
     return addr;
 }
+
 uint16_t Processor::addrZeroPage()
 {
     uint16_t addr = static_cast<uint16_t>(read(this->PC));
@@ -776,14 +809,16 @@ uint16_t Processor::addrRelative()
 uint16_t Processor::addrIndirectX()
 {
     uint8_t idx = read(this->PC) + this->X;
+    this->PC++;
     uint16_t addr = read(idx);
     idx++;
     addr = addr | (read(idx) << 8);
     return addr;
 }
-uint16_t Processor::addrIndirextY()
+uint16_t Processor::addrIndirectY()
 {
     uint8_t idx = read(this->PC);
+    this->PC++;
     uint16_t orig = read(idx);
     idx++;
     orig = orig | (read(idx) << 8);
@@ -793,13 +828,13 @@ uint16_t Processor::addrIndirextY()
     }
     return addr;
 }
-uint16_t Processor::addrAbsoluteIndirect()
+uint16_t Processor::addrAbsoluteIndirect() // used only in JMP
 {
     uint16_t srcAddr = read(this->PC);
     this->PC++;
     srcAddr = srcAddr | (read(this->PC) << 8);
     this->PC++;
-    return read(srcAddr) | (read(srcAddr+1) << 8);
+    return read(srcAddr) | (read((srcAddr & 0xff00) | ((srcAddr+1) & 0x00ff)) << 8); //bug of NES
 }
 
 //-- 以下、個別命令 --
@@ -845,7 +880,6 @@ void Processor:: TYA()
 void Processor:: TXS()
 {
     this->SP = this->X;
-    updateFlagZN(this->SP);
 }
 void Processor:: TAY()
 {
@@ -865,7 +899,7 @@ void Processor:: TSX()
 
 void Processor:: PHP()
 {
-    push(this->P);
+    push(this->P | FLAG_B); // bug of 6502! from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
 }
 void Processor:: PLP()
 {
@@ -878,15 +912,31 @@ void Processor:: PHA()
 void Processor:: PLA()
 {
     this->A = pop();
+    this->updateFlagZN(this->A);
 }
 
 void Processor:: ADC(uint16_t addr)
 {
-    //TODO:
+    const uint8_t val = read(addr);
+    const uint16_t result = this->A + val + (this->P & FLAG_C);
+    const uint8_t newA = static_cast<uint8_t>(result & 0xff);
+	this->P = (this->P & ~(FLAG_V | FLAG_C))
+		| ((((this->A ^ val) & 0x80) ^ 0x80) & ((this->A ^ newA) & 0x80)) >> 1 //set V flag //いまいちよくわかってない（
+		| ((result >> 8) & FLAG_C); //set C flag
+	this->A = newA;
+	updateFlagZN(this->A);
 }
 void Processor:: SBC(uint16_t addr)
 {
-    //TODO:
+    const uint8_t val = read(addr);
+    const uint16_t result = this->A - val - ((this->P & FLAG_C) ^ FLAG_C);
+    const uint8_t newA = static_cast<uint8_t>(result & 0xff);
+	this->P = (this->P & ~(FLAG_V | FLAG_C))
+		| ((this->A ^ val) & (this->A ^ newA) & 0x80) >> 1 //set V flag //いまいちよくわかってない（
+		| (((result >> 8) & FLAG_C) ^ FLAG_C);
+
+	this->A = newA;
+	updateFlagZN(this->A);
 }
 void Processor:: CPX(uint16_t addr)
 {
@@ -936,35 +986,37 @@ void Processor::BIT(uint16_t addr)
 
 void Processor:: ASL()
 {
-    this->P = (this->P & 0x7f) | this->A >> 7;
+    this->P = (this->P & 0xFE) | this->A >> 7;
     this->A <<= 1;
     updateFlagZN(this->A);
 }
 void Processor:: ASL(uint16_t addr)
 {
     uint8_t val = this->read(addr);
-    this->P = (this->P & 0x7f) | val >> 7;
+    this->P = (this->P & 0xFE) | val >> 7;
     val <<= 1;
+    this->write(addr, val);
     updateFlagZN(val);
 }
 void Processor:: LSR()
 {
-    this->P = (this->P & 0x7f) | (this->A & 0x01);
+    this->P = (this->P & 0xFE) | (this->A & 0x01);
     this->A >>= 1;
     updateFlagZN(this->A);
 }
 void Processor:: LSR(uint16_t addr)
 {
     uint8_t val = this->read(addr);
-    this->P = (this->P & 0x7f) | (val & 0x01);
+    this->P = (this->P & 0xFE) | (val & 0x01);
     val >>= 1;
+    this->write(addr, val);
     updateFlagZN(val);
 }
 void Processor:: ROL()
 {
     const uint8_t carry = this->A >> 7;
     this->A = (this->A << 1) | (this->P & 0x01);
-    this->P = (this->P & 0x7f) | carry;
+    this->P = (this->P & 0xFE) | carry;
     updateFlagZN(this->A);
 }
 void Processor:: ROL(uint16_t addr)
@@ -972,7 +1024,7 @@ void Processor:: ROL(uint16_t addr)
     uint8_t val = this->read(addr);
     const uint8_t carry = val >> 7;
     val = (val << 1) | (this->P & 0x01);
-    this->P = (this->P & 0x7f) | carry;
+    this->P = (this->P & 0xFE) | carry;
     updateFlagZN(val);
     this->write(addr, val);
 }
@@ -980,7 +1032,7 @@ void Processor:: ROR()
 {
     const uint8_t carry = this->A & 0x01;
     this->A = (this->A >> 1) | ((this->P & 0x01) << 7);
-    this->P = (this->P & 0x7f) | carry;
+    this->P = (this->P & 0xFE) | carry;
     updateFlagZN(this->A);
 }
 void Processor:: ROR(uint16_t addr)
@@ -988,7 +1040,7 @@ void Processor:: ROR(uint16_t addr)
     uint8_t val = this->read(addr);
     const uint8_t carry = val & 0x01;
     val = (val >> 1) | ((this->P & 0x01) << 7);
-    this->P = (this->P & 0x7f) | carry;
+    this->P = (this->P & 0xFE) | carry;
     updateFlagZN(val);
     this->write(addr, val);
 }
@@ -1116,7 +1168,7 @@ void Processor:: BPL(uint16_t addr)
 }
 void Processor:: BMI(uint16_t addr)
 {
-    if((this->P & FLAG_N) == 1){
+    if((this->P & FLAG_N) == FLAG_N){
         this->PC = addr;
     }
 }
@@ -1135,12 +1187,12 @@ void Processor:: RTI()
 {
     this->P = pop();
     this->PC = pop();
-    this->PC = (this->PC << 8) | pop();
+    this->PC = this->PC | (pop() << 8);
 }
 void Processor:: RTS()
 {
     this->PC = pop();
-    this->PC = (this->PC << 8) + pop() + 1;
+    this->PC = (this->PC + (pop() << 8)) + 1;
 }
 
 // -- cache --
