@@ -160,6 +160,8 @@ void Video::buildSpriteLine()
 
 void Video::buildBgLine()
 {
+	if(this->backgroundVisibility){
+	}
 	const uint16_t y = this->nowY+this->verticalScrollOrigin-1;
 	const uint16_t tileY = y>>3;
 	const uint16_t tileYofScreen = tileY % 30;
