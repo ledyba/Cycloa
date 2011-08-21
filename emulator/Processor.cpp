@@ -77,7 +77,18 @@ void Processor::sendIRQ()
 
 void Processor::run(uint16_t clockDelta)
 {
+    this->P |= FLAG_ALWAYS_SET;
+
+    if(this->NMI){
+        this->onNMI();
+        return;
+    }else if(this->IRQ){
+        this->onIRQ();
+        return;
+    }
+
     uint8_t opcode = this->read(this->PC);
+    #ifdef CPUTRACE
     char flag[9];
     flag[0] = (this->P & FLAG_N) ? 'N' : 'n';
     flag[1] = (this->P & FLAG_V) ? 'V' : 'v';
@@ -88,22 +99,10 @@ void Processor::run(uint16_t clockDelta)
     flag[6] = (this->P & FLAG_Z) ? 'Z' : 'z';
     flag[7] = (this->P & FLAG_C) ? 'C' : 'c';
     flag[8] = '\0';
-    printf("%04x op:%02x a:%02x x:%02x y:%02x sp:%02x p:%s 0x0180:%02x\n", this->PC, opcode, this->A, this->X, this->Y, this->SP, flag, this->read(0x0400));
+    printf("%04x op:%02x a:%02x x:%02x y:%02x sp:%02x p:%s\n", this->PC, opcode, this->A, this->X, this->Y, this->SP, flag);
     fflush(stdout);
-    /*
-    if(this->PC == 0xCE1E){
-		fflush(stdout);
-		this->PC++;
-		this->PC--;
-    }
-    */
+    #endif
     this->PC++;
-
-    if(this->NMI){
-        this->onNMI();
-    }else if(this->IRQ){
-        this->onIRQ();
-    }
 
     switch(opcode){
         case 0x00: // BRK
@@ -665,10 +664,11 @@ void Processor::run(uint16_t clockDelta)
             break;
         //case 0xFF: // Future Expansion
         default:
-            throw opcode; //未定義命令なんてなかった
+            uint16_t opcodeBig = opcode;
+            uint16_t opcodePC = this->PC-1;
+            throw EmulatorException("[FIXME] Invalid opcode: 0x") << std::hex << opcodeBig << " in 0x" << opcodePC;
     }
     consumeClock(CycleTable[opcode]);
-    this->P |= FLAG_ALWAYS_SET;
 }
 
 Processor::~Processor()

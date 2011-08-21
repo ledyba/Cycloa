@@ -26,7 +26,7 @@ class EmulatorThreadMessage {
         std::string filename;
 };
 
-class EmulatorThread : public wxThread
+class EmulatorThread : public wxThread, public EmulatorFairy
 {
     public:
         explicit EmulatorThread(EmulatorPanel* const emulatorPanel);
@@ -38,14 +38,17 @@ class EmulatorThread : public wxThread
 		void sendHardResetSignal();
 		void sendKillSignal();
         void sendLoadCartridgeSignal(const std::string& filename);
+		virtual void onVSync(const ImageBuffer& img);
     protected:
         virtual ExitCode Entry();
     private:
         EmulatorPanel* const emulatorPanel;
         VirtualMachine vm;
         bool initialized;
+        bool videoOuted;
         wxMessageQueue<EmulatorThreadMessage> msgQueue;
         bool processQueue();
 };
+
 
 #endif // EMULATORTHREAD_H_INCLUDED

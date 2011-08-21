@@ -15,30 +15,22 @@
 				<Compiler>
 					<Add option="-g" />
 					<Add option="-D__WXDEBUG__" />
-					<Add directory="$(#wx)\lib\gcc_lib\mswud" />
+					<Add option="-DDEBUG" />
+					<Add directory="$(#wx)\lib\gcc_dll\mswud" />
 				</Compiler>
 				<ResourceCompiler>
-					<Add directory="$(#wx)\lib\gcc_lib\mswud" />
+					<Add directory="$(#wx)\lib\gcc_dll\mswud" />
 				</ResourceCompiler>
 				<Linker>
-					<Add library="libwxmsw29ud_richtext.a" />
-					<Add library="libwxmsw29ud_xrc.a" />
-					<Add library="libwxmsw29ud_aui.a" />
-					<Add library="libwxmsw29ud_media.a" />
-					<Add library="libwxbase29ud_net.a" />
 					<Add library="libwxmsw29ud_gl.a" />
-					<Add library="libwxbase29ud_xml.a" />
-					<Add library="libwxmsw29ud_adv.a" />
-					<Add library="libwxmsw29ud_html.a" />
-					<Add library="libwxmsw29ud_core.a" />
-					<Add library="libwxbase29ud.a" />
+					<Add library="libwxmsw29ud.a" />
 					<Add library="libwxpngd.a" />
 					<Add library="libwxjpegd.a" />
 					<Add library="libwxtiffd.a" />
 					<Add library="libwxzlibd.a" />
 					<Add library="libwxregexud.a" />
 					<Add library="libwxexpatd.a" />
-					<Add directory="$(#wx)\lib\gcc_lib" />
+					<Add directory="$(#wx)\lib\gcc_dll" />
 				</Linker>
 			</Target>
 			<Target title="Release">
@@ -118,6 +110,8 @@
 		<Unit filename="EmulatorThread.h" />
 		<Unit filename="emulator\Audio.cpp" />
 		<Unit filename="emulator\Cartridge.cpp" />
+		<Unit filename="emulator\EmulatorException.cpp" />
+		<Unit filename="emulator\ImageBuffer.cpp" />
 		<Unit filename="emulator\NesFile.cpp" />
 		<Unit filename="emulator\Processor.cpp" />
 		<Unit filename="emulator\Ram.cpp" />

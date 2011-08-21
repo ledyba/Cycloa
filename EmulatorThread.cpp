@@ -3,15 +3,17 @@
 #include <wx/log.h>
 
 EmulatorThread::EmulatorThread(EmulatorPanel* const emulatorPanel) :
+	wxThread(),
+	EmulatorFairy(),
     emulatorPanel(emulatorPanel),
-    initialized(false)
+    initialized(false),
+    videoOuted(false)
 {
-    //ctor
+    this->vm.setFairy(this);
 }
 
 EmulatorThread::~EmulatorThread()
 {
-    //dtor
 }
 
 wxThread::ExitCode EmulatorThread::Entry()
@@ -20,14 +22,28 @@ wxThread::ExitCode EmulatorThread::Entry()
 //    wxLog::SetActiveTarget(logger);
 	try {
 		while(processQueue()){
-			vm.run();
+			wxDateTime beforeRun = wxDateTime::Now();
+			if(this->initialized){
+				while(!this->videoOuted){
+					vm.run();
+				}
+				wxLongLong timeDelta = (wxDateTime::Now()-beforeRun).GetMilliseconds();
+				if(timeDelta < 16){
+					wxThread::Sleep(15-timeDelta.ToLong());
+				}
+				this->videoOuted = false;
+			}
 		}
 		return (wxThread::ExitCode)0;
-	} catch(std::string& str) {
-		wxMessageBox(str, "Error");
-	} catch (char* str){
-		wxMessageBox(str, "Error");
+	} catch(EmulatorException& msg) {
+        std::string emsg = msg.getMessage();
+		wxMessageBox(emsg, "Error");
+		return (wxThread::ExitCode)-1;
+	} catch (...){
+		wxMessageBox("Uncaught exception", "Error");
+		return (wxThread::ExitCode)-1;
 	}
+	return (wxThread::ExitCode)0;
 }
 
 
@@ -36,7 +52,8 @@ bool EmulatorThread::processQueue(){
     bool paused = !this->initialized;
     while((paused ? msgQueue.Receive(msg) : msgQueue.ReceiveTimeout(0, msg)) != wxMSGQUEUE_TIMEOUT){
         paused = false;
-        switch(msg.getSignalType()){
+        EmulatorThreadMessage::SignalType signalType = msg.getSignalType();
+        switch(signalType){
             case EmulatorThreadMessage::NONE:
                 break;
             case EmulatorThreadMessage::START:
@@ -58,7 +75,7 @@ bool EmulatorThread::processQueue(){
             case EmulatorThreadMessage::KILL:
                 return false;
             default:
-                throw "Invalid operation.";
+                throw EmulatorException("[FIXME] Invalid message: 0x") << std::hex << signalType;
         }
     }
     return true;
@@ -97,6 +114,12 @@ void EmulatorThread::sendKillSignal()
 	this->msgQueue.Post(msg);
 }
 
+void EmulatorThread::onVSync(const ImageBuffer& img)
+{
+	this->emulatorPanel->update(img.getPtr(), img.getActualWidth(), img.getActualHeight(), img.getWidth(), img.getHeight(), img.getBytesPerPixel());
+	this->videoOuted = true;
+}
+
 //----------------------------------------------------------
 
 EmulatorThreadMessage::EmulatorThreadMessage(enum SignalType signalType):
@@ -126,3 +149,4 @@ const std::string& EmulatorThreadMessage::getFilename() const
 void EmulatorThreadMessage::setFilename(const std::string& filename){
 	this->filename = filename;
 }
+

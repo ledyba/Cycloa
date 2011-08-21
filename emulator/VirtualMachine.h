@@ -1,20 +1,30 @@
 #ifndef VIRTUALMACHINE_H
 #define VIRTUALMACHINE_H
 
+#include <iostream>
 #include <stdint.h>
 #include <string>
+#include <sstream>
 
 class VirtualMachine;
 
 class EmulatorException
 {
 	public:
-		EmulatorException(const char* msg);
-		EmulatorException(const std::string msg);
+		EmulatorException();
+		EmulatorException(const char* fmsg);
+		EmulatorException(const std::string& fmsg);
+		EmulatorException(const EmulatorException& src);
 		~EmulatorException();
-		std::string& getMessage() const;
 	private:
-		const std::string msg;
+		std::stringstream msg;
+	public:
+		const std::string getMessage() const;
+		template<typename T> EmulatorException& operator<<(T& val)
+		{
+			this->msg << val;
+			return *this;
+		}
 };
 
 class NesFile
@@ -69,10 +79,19 @@ class Cartridge { //カートリッジデータ＋マッパー
         virtual void onVSync();
         virtual void onHardReset();
         virtual void onReset();
-        virtual uint8_t readVideo(uint16_t addr);
+
+        virtual uint8_t readVideo(uint16_t addr) const;
         virtual void writeVideo(uint16_t addr, uint8_t value);
+
+        virtual uint8_t readPatternTable(uint16_t addr) const;
+        virtual void writePatternTable(uint16_t addr, uint8_t val);
+        virtual uint8_t readNameTable(uint16_t addr) const;
+        virtual void writeNameTable(uint16_t addr, uint8_t val);
+
         virtual uint8_t readCpu(uint16_t addr);
         virtual void writeCpu(uint16_t addr, uint8_t value);
+
+        void connectInternalVram(uint8_t* internalVram);
     protected:
         uint8_t readSram(uint16_t addr) const;
         void writeSram(uint16_t addr, uint8_t value);
@@ -80,6 +99,8 @@ class Cartridge { //カートリッジデータ＋マッパー
     private:
         VirtualMachine& VM;
         uint8_t sram[SRAM_SIZE];
+        uint8_t* vramMirroring[4];
+        uint8_t fourScreenVram[4096];
 };
 
 class Audio {
@@ -96,6 +117,31 @@ class Audio {
         VirtualMachine& VM;
 };
 
+class ImageBuffer
+{
+	public:
+		explicit ImageBuffer(uint16_t actualWidth=256, uint16_t actualHeight=240, uint16_t width=256, uint16_t height=256, uint16_t bytesPerPixel=3);
+		~ImageBuffer();
+		uint8_t& operator[](uint32_t pos);
+		uint8_t* getPtr();
+		const uint8_t* getPtr() const;
+		uint8_t* getPtr(uint16_t y);
+		uint32_t getPos(uint16_t x, uint16_t y) const;
+		uint16_t getBytesPerPixel() const;
+		uint32_t getTotalSize() const;
+		uint16_t getWidth() const;
+		uint16_t getHeight() const;
+		uint16_t getActualWidth() const;
+		uint16_t getActualHeight() const;
+	private:
+		uint8_t* const data;
+		const uint16_t bytesPerPixel;
+		const uint16_t actualWidth;
+		const uint16_t actualHeight;
+		const uint16_t height;
+		const uint16_t width;
+};
+
 class Video
 {
     public:
@@ -106,11 +152,91 @@ class Video
         void onReset();
         uint8_t readReg(uint16_t addr);
         void writeReg(uint16_t addr, uint8_t value);
+        void executeDMA(uint8_t value);
+        void connectCartridge(Cartridge* cartridge);
     protected:
     private:
+		static const uint8_t nesPalette[64][3];
+		static const int screenWidth = 256;
+		static const int screenHeight = 240;
+		static const int clockPerScanline = 341;
+		static const int scanlinePerScreen = 262;
+		static const int defaultSpriteCnt = 8;
         VirtualMachine& VM;
-        uint8_t read(uint16_t addr);
-        void write(uint16_t addr, uint8_t value);
+        Cartridge* cartridge;
+        ImageBuffer image;
+        bool isEven;
+        uint16_t nowY;
+        uint16_t nowX;
+        uint8_t spRam[256];
+        uint8_t internalVram[2048];
+        uint8_t palette[9][4];
+
+        /* Rendering */
+        struct SpriteSlot {
+        	uint8_t y;
+        	uint8_t x;
+        	uint8_t paletteNo;
+        	uint16_t tileAddr;
+        	bool isForeground;
+        	bool flipHorizontal;
+        	bool flipVertical;
+        } spriteTable[defaultSpriteCnt];
+        uint8_t lineBuff[screenWidth];
+        void spriteEval();
+        void buildSpriteLine();
+        void buildBgLine();
+        void fillImage();
+
+        /* IO */
+
+        uint8_t readVram(uint16_t addr) const;
+        void writeVram(uint16_t addr, uint8_t value);
+        uint8_t readSprite(uint16_t addr) const;
+        void writeSprite(uint16_t addr, uint8_t value);
+
+		/* PPU Control Register 1 */
+		bool executeNMIonVBlank;
+		uint8_t spriteHeight;
+		uint16_t patternTableAddressBackground;
+		uint16_t patternTableAddress8x8Sprites;
+		uint8_t vramIncrementSize;
+		uint16_t nameTableScrollAddr;
+
+		/* PPU Control Register 2 */
+		uint8_t colorEmphasis;
+		bool spriteVisibility;
+		bool backgroundVisibility;
+		bool spriteClipping;
+		bool backgroundClipping;
+		uint8_t paletteMask;
+
+		/* PPU Status Register */
+        bool nowOnVBnank;
+        bool sprite0Hit;
+        bool lostSprites;
+
+        /* addressControl */
+        uint8_t vramBuffer;
+        uint8_t spriteAddr;
+        uint8_t horizontalScrollOrigin;
+        uint8_t verticalScrollOrigin;
+        uint16_t vramAddrRegister;
+        bool scrollRegisterWritten;
+        bool vramAddrRegisterWritten;
+
+        void analyzePPUControlRegister1(uint8_t value);
+        void analyzePPUControlRegister2(uint8_t value);
+        void analyzePPUBackgroundScrollingOffset(uint8_t value);
+        uint8_t buildPPUStatusRegister();
+        uint8_t readVramDataRegister();
+        uint8_t readSpriteDataRegister();
+        void analyzeVramAddrRegister(uint8_t value);
+        void analyzeSpriteAddrRegister(uint8_t value);
+        void writeVramDataRegister(uint8_t value);
+        void writeSpriteDataRegister(uint8_t value);
+
+        void startVBlank();
 };
 
 class Ram
@@ -261,6 +387,16 @@ class Processor
         void RTS();
 };
 
+class EmulatorFairy
+{
+	public:
+		explicit EmulatorFairy(){}
+		virtual ~EmulatorFairy(){}
+		virtual void onVSync(const ImageBuffer& img){}
+	protected:
+	private:
+};
+
 class VirtualMachine
 {
     public:
@@ -276,14 +412,10 @@ class VirtualMachine
         void loadCartridge(const char* filename); //from user
         uint8_t read(uint16_t addr); //from processor to ram
         void write(uint16_t addr, uint8_t value); // from processor to ram.
-        void consumeCpuClock(uint8_t clock);
-        void consumeAudioClock(uint8_t clock);
-        class Fairy //connect emulator and ui.
-        {
-            explicit Fairy();
-            virtual ~Fairy();
-            virtual void onVideoOut();
-        };
+        void showVideo(const ImageBuffer& img); //from video
+        void consumeCpuClock(uint32_t clock);
+        void consumeAudioClock(uint32_t clock);
+        void setFairy(EmulatorFairy* const fairy);
     protected:
     private:
         static const int MAIN_CLOCK = 21477272;//21.28MHz(NTSC)
@@ -291,21 +423,21 @@ class VirtualMachine
         static const int AUDIO_CLOCK_FACTOR = 12;
         static const int VIDEO_CLOCK_FACTOR = 4;
         static const int CARTRIDGE_CLOCK_FACTOR = 12;
-        void consumeClock(uint8_t clock);
+        void consumeClock(uint32_t clock);
+        EmulatorFairy* fairy;
         Ram ram;
         Processor processor;
         Audio audio;
         Video video;
         Cartridge* cartridge;
 
-        uint16_t cpuClockDelta;
-        uint16_t audioClockDelta;
-        uint16_t videoClockDelta;
-        uint16_t cartridgeClockDelta;
+        uint32_t cpuClockDelta;
+        uint32_t audioClockDelta;
+        uint32_t videoClockDelta;
+        uint32_t cartridgeClockDelta;
 
         bool resetFlag;
         bool hardResetFlag;
 };
-
 
 #endif // VIRTUALMACHINE_H

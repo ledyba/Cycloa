@@ -1,7 +1,9 @@
 #include <cstddef>
+#include <stdio.h>
 #include "VirtualMachine.h"
 
 VirtualMachine::VirtualMachine() :
+fairy(NULL),
 ram(*this),
 processor(*this),
 audio(*this),
@@ -73,6 +75,7 @@ void VirtualMachine::run()
 
     this->audio.run(this->audioClockDelta / AUDIO_CLOCK_FACTOR);
     this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
+
 }
 uint8_t VirtualMachine::read(uint16_t addr)
 {
@@ -82,6 +85,9 @@ uint8_t VirtualMachine::read(uint16_t addr)
         case 0x2000:
             return video.readReg(addr);
         case 0x4000:
+			if(addr == 0x4014){
+				return 0xff;
+			}
             if(addr < 0x4018){
                 return audio.readReg(addr);
             }
@@ -93,7 +99,7 @@ uint8_t VirtualMachine::read(uint16_t addr)
             //Cartridges
             return cartridge->readCpu(addr);
         default:
-            throw "FIXME!!";
+            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
     }
 }
 void VirtualMachine::write(uint16_t addr, uint8_t value)
@@ -106,6 +112,10 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
             video.writeReg(addr, value);
             break;
         case 0x4000:
+			if(addr == 0x4014){
+				video.executeDMA(value);
+				break;
+			}
             if(addr < 0x4018){
                 audio.writeReg(addr, value);
 				break;
@@ -118,20 +128,20 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
             cartridge->writeCpu(addr, value);
             break;
         default:
-            throw "FIXME!!";
+            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
     }
 }
 
-void VirtualMachine::consumeCpuClock(uint8_t clock)
+void VirtualMachine::consumeCpuClock(uint32_t clock)
 {
     consumeClock(clock * CPU_CLOCK_FACTOR);
 }
-void VirtualMachine::consumeAudioClock(uint8_t clock)
+void VirtualMachine::consumeAudioClock(uint32_t clock)
 {
     consumeClock(clock * AUDIO_CLOCK_FACTOR);
 }
 
-void VirtualMachine::consumeClock(uint8_t clock)
+void VirtualMachine::consumeClock(uint32_t clock)
 {
     this->cpuClockDelta += clock;
     this->audioClockDelta += clock;
@@ -173,4 +183,17 @@ void VirtualMachine::loadCartridge(const char* filename)
 		delete this->cartridge;
 	}
 	this->cartridge = Cartridge::loadCartridge(*this, filename);
+	this->video.connectCartridge(this->cartridge);
+}
+
+void VirtualMachine::showVideo(const ImageBuffer& img)
+{
+	if(this->fairy != NULL){
+		this->fairy->onVSync(img);
+	}
+}
+
+void VirtualMachine::setFairy(EmulatorFairy* const fairy)
+{
+	this->fairy = fairy;
 }

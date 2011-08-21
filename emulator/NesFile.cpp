@@ -17,21 +17,21 @@ chrRom(NULL)
     const uint32_t size = static_cast<uint32_t>(endPos - startPos);
 
     if(size <= NES_FORMAT_SIZE){
-        throw "Invalid file.";
+        throw EmulatorException("[FIXME] Invalid file format: ") << filename;
     }
 
     //read header
     uint8_t header[NES_FORMAT_SIZE];
     in.read(reinterpret_cast<char*>(header), NES_FORMAT_SIZE);
     if(in.gcount() != NES_FORMAT_SIZE){
-        throw "Failed to read file.";
+        throw EmulatorException("[FIXME] Invalid file: ") << filename;
     }
     //left
     const int32_t contentSize = size-NES_FORMAT_SIZE;
     uint8_t data[contentSize];
     in.read(reinterpret_cast<char*>(data), contentSize);
     if(in.gcount() != contentSize){
-        throw "Failed to read file.";
+        throw EmulatorException("[FIXME] Invalid file: ") << filename;
     }
 
     this->analyzeFile(header, contentSize, data);
@@ -104,7 +104,7 @@ uint8_t NesFile::readChr(uint32_t addr) const
 void NesFile::analyzeFile(const uint8_t* const header, const uint32_t filesize, const uint8_t* data)
 {
     if(!(header[0] == 'N' && header[1]=='E' && header[2]=='S' && header[3] == 0x1a)){
-        throw "Invalid header.";
+        throw EmulatorException("[FIXME] Invalid header: ") << filename;
     }
     this->prgSize = PRG_ROM_PAGE_SIZE * header[4];
     this->chrSize = CHR_ROM_PAGE_SIZE * header[5];
@@ -120,14 +120,14 @@ void NesFile::analyzeFile(const uint8_t* const header, const uint32_t filesize, 
     uint32_t fptr = 0;
     if(this->trainerFlag){
         if(fptr + TRAINER_SIZE > filesize){
-            throw "Invalid file.";
+            throw EmulatorException("[FIXME] Invalid file: ") << filename;
         }
         memcpy(this->trainer, &data[fptr], TRAINER_SIZE);
         fptr += TRAINER_SIZE;
     }
     uint8_t* prgRom = new uint8_t[this->prgSize];
     if(fptr + this->prgSize > filesize){
-        throw "Invalid file.";
+        throw EmulatorException("[FIXME] Invalid file: ") << filename;
     }
     memcpy(prgRom, &data[fptr], this->prgSize);
     fptr += this->prgSize;
@@ -135,7 +135,7 @@ void NesFile::analyzeFile(const uint8_t* const header, const uint32_t filesize, 
 
     uint8_t* chrRom = new uint8_t[this->prgSize];
     if(fptr + this->chrSize > filesize){
-        throw "Invalid file.";
+        throw EmulatorException("[FIXME] Invalid file: ") << filename;
     }
     memcpy(chrRom, &data[fptr], this->chrSize);
     fptr += this->chrSize;

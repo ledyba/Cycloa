@@ -71,9 +71,6 @@ EmulatorPanel::~EmulatorPanel()
 void EmulatorPanel::OnEvent(EmulatorPanelEvent &event)
 {
     switch(event.getType()){
-        case EmulatorPanelEvent::UPDATE:
-            update(event.getImage(), event.getImageWidth(), event.getImageHeight(), event.getImagebytesPerPixel());
-            break;
         default:
             throw "invalid";
     }
@@ -82,65 +79,47 @@ void EmulatorPanel::OnEvent(EmulatorPanelEvent &event)
 
 void EmulatorPanel::OnPaint(wxPaintEvent &event)
 {
+	/*
     if(!GetParent()->IsShown()){
         return;
     }
-    wxPaintDC dc(this);
+    //wxPaintDC dc(this);
     render();
+    */
 }
 
 
 void EmulatorPanel::OnSize(wxSizeEvent &event)
 {
+	/*
     if(!GetParent()->IsShown()){
         return;
     }
     render();
+    */
 }
 void EmulatorPanel::OnEraseBackground(wxEraseEvent& event)
 {
     //何もしない
 }
 
-GLuint getPowerOfTwo(GLuint size){
-    GLuint def = 1;
-    while(def < size){
-        def <<= 1;
-    }
-    return def;
-}
-void EmulatorPanel::update(const uint8_t* image, const int w, const int h, const int bytesPerPixel)
+void EmulatorPanel::update(const uint8_t* image, const int aw, const int ah,const int w, const int h, const int bytesPerPixel)
 {
-    const GLuint texWidth = getPowerOfTwo(w);
-    const GLuint texHeight = getPowerOfTwo(h);
-    this->imageSurfaceWidth = texWidth;
-    this->imageSurfaceHeight = texHeight;
-    this->imageWidth = w;
-    this->imageHeight = h;
+    this->imageSurfaceWidth = w;
+    this->imageSurfaceHeight = h;
+    this->imageWidth = aw;
+    this->imageHeight = ah;
+    this->SetCurrent(ctx);
     if(!imageLoaded){
         glGenTextures(1, &this->imageTexture);
         imageLoaded = true;
     }
     glBindTexture(GL_TEXTURE_2D, this->imageTexture);
-    if(texWidth != static_cast<GLuint>(w) || texHeight != static_cast<GLuint>(h)){
-        const int bytesPerLine = texWidth * bytesPerPixel;
-        const int origBytesPerLine = w * bytesPerPixel;
-        char bits[texHeight * bytesPerLine];
-        for(GLuint y=0;y<static_cast<GLuint>(h);y++){
-            memcpy(&bits[y * bytesPerLine], &image[y * origBytesPerLine], origBytesPerLine);
-        }
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, bytesPerPixel, texWidth, texHeight ,
-            0, GL_RGB ,GL_UNSIGNED_BYTE , bits
-        );
-    }else{
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, bytesPerPixel, texWidth, texHeight ,
-            0, GL_RGB ,GL_UNSIGNED_BYTE , image
-        );
-    }
-    wxPaintEvent paintEvt;
-    this->ProcessEvent(paintEvt);
+    glTexImage2D(
+				GL_TEXTURE_2D, 0, bytesPerPixel, w, h,
+				0, GL_RGB ,GL_UNSIGNED_BYTE , image
+				);
+    render();
 }
 
 void EmulatorPanel::render()
@@ -185,34 +164,23 @@ void EmulatorPanel::render()
     SwapBuffers();
 }
 
+//--------------------------------------------------------------------------------------
+
 EmulatorPanelEvent::EmulatorPanelEvent(enum EventType type, int winid):
     wxEvent(winid, EMULATOR_PANEL_EVENT),
-    type(type),
-    image(NULL)
+    type(type)
 {
 
 }
 
 EmulatorPanelEvent::~EmulatorPanelEvent()
 {
-    if(this->image != NULL){
-        delete[] this->image;
-        this->image = NULL;
-    }
 }
 
 EmulatorPanelEvent::EmulatorPanelEvent(const EmulatorPanelEvent& event) :
     wxEvent(event),
-    type(event.type),
-    image(NULL),
-    imageBytesPerPixel(event.imageBytesPerPixel),
-    imageWidth(event.imageWidth),
-    imageHeight(event.imageHeight)
+    type(event.type)
 {
-    const int imageSize = getImageSize();
-    uint8_t* copiedImage = new uint8_t[imageSize];
-    memcpy(copiedImage, event.image, imageSize);
-    this->image = copiedImage;
 }
 
 EmulatorPanelEvent::EventType EmulatorPanelEvent::getType() const
@@ -220,40 +188,6 @@ EmulatorPanelEvent::EventType EmulatorPanelEvent::getType() const
     return this->type;
 }
 
-void EmulatorPanelEvent::setImage(const uint8_t* const image, const int width, const int height, const int bytesPerPixel)
-{
-    this->imageBytesPerPixel = bytesPerPixel;
-    this->imageWidth = width;
-    this->imageHeight = height;
-    if(this->image != NULL){
-        delete [] this->image;
-    }
-    const int imageSize = getImageSize();
-    uint8_t* copiedImage = new uint8_t[imageSize];
-    memcpy(copiedImage, image, imageSize);
-    this->image = copiedImage;
-}
-
-const uint8_t* EmulatorPanelEvent::getImage() const
-{
-    return this->image;
-}
-int EmulatorPanelEvent::getImageSize() const
-{
-    return this->imageWidth * this->imageHeight * this->imageBytesPerPixel;
-}
-int EmulatorPanelEvent::getImagebytesPerPixel() const
-{
-    return this->imageBytesPerPixel;
-}
-int EmulatorPanelEvent::getImageWidth() const
-{
-    return this->imageWidth;
-}
-int EmulatorPanelEvent::getImageHeight() const
-{
-    return this->imageHeight;
-}
 wxEvent* EmulatorPanelEvent::Clone() const
 {
     return new EmulatorPanelEvent(*this);

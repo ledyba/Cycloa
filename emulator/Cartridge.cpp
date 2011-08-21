@@ -8,7 +8,20 @@ Cartridge::Cartridge(VirtualMachine& vm, const NesFile* nesFile) :
 	nesFile(nesFile),
 	VM(vm)
 {
-
+	if(nesFile == NULL){
+		throw EmulatorException("NES FILE CAN'T BE NULL!");
+	}
+	if(nesFile->getMirrorType() == NesFile::FOUR_SCREEN){
+		this->vramMirroring[0] = &this->fourScreenVram[0];
+		this->vramMirroring[1] = &this->fourScreenVram[0x400];
+		this->vramMirroring[2] = &this->fourScreenVram[0x800];
+		this->vramMirroring[3] = &this->fourScreenVram[0xC00];
+	}else{
+		this->vramMirroring[0] = NULL;
+		this->vramMirroring[1] = NULL;
+		this->vramMirroring[2] = NULL;
+		this->vramMirroring[3] = NULL;
+	}
 }
 Cartridge::~Cartridge()
 {
@@ -36,14 +49,40 @@ void Cartridge::onReset()
 {
 	//何もしない
 }
-uint8_t Cartridge::readVideo(uint16_t addr)
+uint8_t Cartridge::readVideo(uint16_t addr) const
 {
-	return 0xff;
+	if((addr & 0x2000) == 0x2000){
+		return readNameTable(addr);
+	}else{
+		return readPatternTable(addr);
+	}
 }
 void Cartridge::writeVideo(uint16_t addr, uint8_t value)
 {
-	//何もしない
+	if((addr & 0x2000) == 0x2000){
+		return writeNameTable(addr, value);
+	}else{
+		return writePatternTable(addr, value);
+	}
 }
+
+uint8_t Cartridge::readPatternTable(uint16_t addr) const
+{
+	throw EmulatorException("Unimplemented: Cartridge::readPatternTable");
+}
+void Cartridge::writePatternTable(uint16_t addr, uint8_t val)
+{
+	throw EmulatorException("Unimplemented: Cartridge::writePatternTable");
+}
+uint8_t Cartridge::readNameTable(uint16_t addr) const
+{
+	return vramMirroring[(addr >> 10) & 0x3][addr & 0x3ff];
+}
+void Cartridge::writeNameTable(uint16_t addr, uint8_t val)
+{
+	vramMirroring[(addr >> 10) & 0x3][addr & 0x3ff] = val;
+}
+
 uint8_t Cartridge::readCpu(uint16_t addr)
 {
     switch(addr & 0xE000){
@@ -57,7 +96,7 @@ uint8_t Cartridge::readCpu(uint16_t addr)
         case 0xE000:
 			return 0xff;
         default:
-            throw "FIXME!!";
+            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
     }
 }
 void Cartridge::writeCpu(uint16_t addr, uint8_t value)
@@ -72,6 +111,29 @@ void Cartridge::writeSram(uint16_t addr, uint8_t value)
 	this->sram[addr] = value;
 }
 
+void Cartridge::connectInternalVram(uint8_t* internalVram)
+{
+	switch(nesFile->getMirrorType())
+	{
+		case NesFile::FOUR_SCREEN:
+			break;
+		case NesFile::HORIZONTAL:
+			this->vramMirroring[0] = &internalVram[0];
+			this->vramMirroring[1] = &internalVram[0];
+			this->vramMirroring[2] = &internalVram[0x400];
+			this->vramMirroring[3] = &internalVram[0x400];
+			break;
+		case NesFile::VERTICAL:
+			this->vramMirroring[0] = &internalVram[0];
+			this->vramMirroring[1] = &internalVram[0x400];
+			this->vramMirroring[2] = &internalVram[0];
+			this->vramMirroring[3] = &internalVram[0x400];
+			break;
+		default:
+			throw EmulatorException("Invalid mirroring type!");
+	}
+}
+
 Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 {
 	NesFile* const nesFile = new NesFile(filename);
@@ -82,9 +144,8 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 			return new Mapper0(vm, nesFile);
 		default:
 		{
-			std::stringstream ss;
-			ss << "Not Supported Mapper" << mapperNo << "!";
-			throw ss.str();
+			uint32_t mapperNo32 = static_cast<uint32_t>(mapperNo);
+            throw EmulatorException("Not Supported Mapper") << mapperNo32 << "!";
 		}
 	}
 }

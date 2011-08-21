@@ -96,12 +96,14 @@ CycloaFrame::CycloaFrame(wxWindow* parent,wxWindowID id)
     emulatorThread = new EmulatorThread(ScreenCanvas);
     emulatorThread->Create();
     emulatorThread->Run();
-    emulatorThread->sendLoadCartridgeSignal(".\\nestest.nes");
+    //emulatorThread->sendLoadCartridgeSignal(".\\_roms\\vbl_clear_time.nes");
+    emulatorThread->sendLoadCartridgeSignal(".\\_roms\\mario.nes");
     emulatorThread->sendStartSignal();
 }
 
 CycloaFrame::~CycloaFrame()
 {
+	emulatorThread->sendKillSignal();
     //(*Destroy(CycloaFrame)
     //*)
 }

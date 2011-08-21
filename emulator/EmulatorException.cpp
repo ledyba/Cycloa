@@ -1,23 +1,27 @@
 #include "VirtualMachine.h"
 
-EmulatorException::EmulatorException(const char* msg):
-msg(msg)
+EmulatorException::EmulatorException()
 {
-
+}
+EmulatorException::EmulatorException(const char* fmsg)
+{
+	this->msg << fmsg;
+}
+EmulatorException::EmulatorException(const std::string& fmsg)
+{
+	this->msg << fmsg;
 }
 
-EmulatorException::EmulatorException(const std::string msg):
-msg(msg)
+EmulatorException::EmulatorException(const EmulatorException& src)
 {
-
+	this->msg << src.msg.str();
 }
-
 EmulatorException::~EmulatorException()
 {
 
 }
 
-const std::string& EmulatorException::getMessage() const
+const std::string EmulatorException::getMessage() const
 {
-	return this->msg;
+	return this->msg.str();
 }

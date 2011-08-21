@@ -24,9 +24,9 @@ bool CycloaApp::OnInit()
     wxInitAllImageHandlers();
     if ( wxsOK )
     {
-    	CycloaFrame* Frame = new CycloaFrame(0);
-    	Frame->Show();
-    	SetTopWindow(Frame);
+    CycloaFrame* Frame = new CycloaFrame(0);
+    Frame->Show();
+    SetTopWindow(Frame);
     }
     //*)
     return wxsOK;
