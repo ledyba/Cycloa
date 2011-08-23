@@ -37,7 +37,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1555238995" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;D:\software\utl\lib\core\sdl13\include&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.optimization.flags.785603055" superClass="gnu.c.compiler.option.optimization.flags" value="" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.785603055" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.230420074" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug.632914466" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.debug"/>
@@ -92,7 +92,7 @@
 									<listOptionValue builtIn="false" value="&quot;D:\software\utl\lib\core\sdl13\include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.111870201" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0" valueType="string"/>
-								<option id="gnu.cpp.compiler.option.optimization.flags.1220267192" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-march=native -ffast-math" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.optimization.flags.1220267192" name="Other optimization flags" superClass="gnu.cpp.compiler.option.optimization.flags" value="-march=native -ffast-math -fomit-frame-pointer" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.478391219" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.2054623902" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release">
@@ -101,7 +101,7 @@
 								<option id="gnu.c.compiler.option.include.paths.1765681954" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;D:\software\utl\lib\core\sdl13\include&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.optimization.flags.277674864" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-march=native -ffast-math" valueType="string"/>
+								<option id="gnu.c.compiler.option.optimization.flags.277674864" name="Other optimization flags" superClass="gnu.c.compiler.option.optimization.flags" value="-march=native -ffast-math -fomit-frame-pointer" valueType="string"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.2131934572" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.275999227" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release"/>
@@ -147,5 +147,8 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.832248843;cdt.managedbuild.config.gnu.mingw.exe.release.832248843.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1995754031;cdt.managedbuild.tool.gnu.cpp.compiler.input.478391219">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
+	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/Cycloa"/>
 	</storageModule>
 </cproject>

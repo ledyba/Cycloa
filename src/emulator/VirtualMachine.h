@@ -123,10 +123,10 @@ class Video
 			bool flipVertical;
 		} spriteTable[defaultSpriteCnt];
 		uint8_t lineBuff[screenWidth];
-		void spriteEval();
-		void buildSpriteLine();
-		void buildBgLine();
-		void fillImage();
+		inline void spriteEval();
+		inline void buildSpriteLine();
+		inline void buildBgLine();
+		inline void fillImage();
 
 		/* IO */
 		inline uint8_t readVram(uint16_t addr) const;
