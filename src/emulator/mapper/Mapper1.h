@@ -1,0 +1,42 @@
+#ifndef MAPPER1_H
+#define MAPPER1_H
+
+#include "../VirtualMachine.h"
+#include "../file/NesFile.h"
+
+class Mapper1 : public Cartridge
+{
+	public:
+		Mapper1(VirtualMachine& vm, const NesFile* nesFile);
+		virtual ~Mapper1();
+		/* for PPU */
+        uint8_t readPatternTableHigh(uint16_t addr) const;
+        uint8_t readPatternTableLow(uint16_t addr) const;
+
+		/* for CPU */
+		uint8_t readBankHigh(uint16_t addr);
+		void writeBankHigh(uint16_t addr, uint8_t val);
+		uint8_t readBankLow(uint16_t addr);
+		void writeBankLow(uint16_t addr, uint8_t val);
+	protected:
+	private:
+		const uint16_t lastPrgBank;
+		uint8_t chrMode;
+		uint8_t prgMode;
+
+		uint8_t highChrBank;
+		uint8_t lowChrBank;
+		uint8_t prgBank;
+
+		uint16_t highPrgBank;
+		uint16_t lowPrgBank;
+		uint16_t highChrAddrBase;
+		uint16_t lowChrAddrBase;
+
+		uint8_t reg;
+		uint8_t regCnt;
+
+		inline void updateBank();
+};
+
+#endif // MAPPER1_H
