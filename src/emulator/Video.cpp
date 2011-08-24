@@ -10,12 +10,12 @@ Video::Video(VirtualMachine& vm, VideoFairy& videoFairy):
     isEven(false),
     nowY(0),
     nowX(0),
+    spriteHitCnt(0),
 	executeNMIonVBlank(false),
 	spriteHeight(8),
 	patternTableAddressBackground(0),
 	patternTableAddress8x8Sprites(0),
 	vramIncrementSize(1),
-	nameTableScrollAddr(0),
 	colorEmphasis(0),
 	spriteVisibility(false),
 	backgroundVisibility(false),
@@ -27,10 +27,9 @@ Video::Video(VirtualMachine& vm, VideoFairy& videoFairy):
 	lostSprites(false),
 	vramBuffer(0),
 	spriteAddr(0),
-	horizontalScrollOrigin(0),
-	verticalScrollOrigin(0),
 	vramAddrRegister(0x0),
-	vramAddrRegisterBuffer(0x0),
+	vramAddrReloadRegister(0),
+	horizontalScrollBits(0),
 	scrollRegisterWritten(false),
 	vramAddrRegisterWritten(false)
 {
@@ -53,8 +52,19 @@ void Video::run(uint16_t clockDelta)
 			}
 			memset(lineBuff, 0xff, screenWidth); //oxffをBGカラーに後で置き換える
 			spriteEval();
-			buildBgLine();
-			buildSpriteLine();
+			if(this->backgroundVisibility | this->spriteVisibility){
+				// from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
+				vramAddrRegister = (vramAddrRegister & 0x7BE0) | (vramAddrReloadRegister & 0x041F);
+				buildBgLine();
+				buildSpriteLine();
+				vramAddrRegister += (1 << 12);
+				vramAddrRegister += (vramAddrRegister & 0x8000) >> 10;
+				vramAddrRegister &= 0x7fff;
+				if((vramAddrRegister & 0x03e0) == 0x3c0){
+					vramAddrRegister &= 0xFC1F;
+					vramAddrRegister ^= 0x800;
+				}
+			}
 			fillImage();
 		}else if(this->nowY == 241){
 			//241: The PPU just idles during this scanline. Despite this, this scanline still occurs before the VBlank flag is set.
@@ -68,7 +78,6 @@ void Video::run(uint16_t clockDelta)
 			this->VM.sendVBlank();
 			this->videoFairy.leave();
 			this->videoFairy.dispatchRendering();
-			this->vramAddrRegister = nameTableScrollAddr;
 		}else if(this->nowY <= 261){
 			//nowVBlank.
 		}else if(this->nowY == 262){
@@ -78,6 +87,11 @@ void Video::run(uint16_t clockDelta)
 				this->nowX++;
 			}
 			this->isEven = !this->isEven;
+			// the reload value is automatically loaded into the Pointer at the end of the vblank period (vertical reload bits)
+			// from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
+			if(this->backgroundVisibility | this->spriteVisibility){
+				this->vramAddrRegister = (vramAddrRegister & 0x041F) | (vramAddrReloadRegister & 0x7BE0);
+			}
 		}else{
 			throw EmulatorException("Invalid scanline") << this->nowY;
 		}
@@ -88,7 +102,7 @@ void Video::run(uint16_t clockDelta)
 inline void Video::spriteEval()
 {
 	const uint16_t y = this->nowY-1;
-	uint8_t spriteHitCnt = 0;
+	uint8_t _spriteHitCnt = 0;
 	this->lostSprites = false;
 	const uint8_t _sprightHeight = this->spriteHeight;
 	bool bigSprite = _sprightHeight == 16;
@@ -98,9 +112,9 @@ inline void Video::spriteEval()
 		uint16_t spYend = spY+_sprightHeight;
 		bool hit = false;
 		if(spY <= y && y < spYend){//Hit!
-			if(spriteHitCnt < defaultSpriteCnt){
+			if(_spriteHitCnt < Video::defaultSpriteCnt){
 				hit = true;
-				struct SpriteSlot& slot = spriteTable[spriteHitCnt];
+				struct SpriteSlot& slot = spriteTable[_spriteHitCnt];
 				slot.idx = i>>2;
 				slot.y = spY;
 				slot.x = readSprite(i+3);
@@ -110,14 +124,14 @@ inline void Video::spriteEval()
 					slot.tileAddr = (val & 1) << 12 | (val & 0xfe) << 4;
 				}else{
 					//8x8
-					slot.tileAddr = (readSprite(i+1) << 4) + spriteTileAddrBase;
+					slot.tileAddr = (readSprite(i+1) << 4) | spriteTileAddrBase;
 				}
 				const uint8_t attr = readSprite(i+2);
-				slot.paletteNo = 4 + (attr & 3);
+				slot.paletteNo = 4 | (attr & 3);
 				slot.isForeground = (attr & (1<<5)) == 0;
 				slot.flipHorizontal = (attr & (1<<6)) != 0;
 				slot.flipVertical = (attr & (1<<7)) != 0;
-				spriteHitCnt++;
+				_spriteHitCnt++;
 			}else{
 				//本当はもっと複雑な仕様みたいなものの、省略。
 				//http://wiki.nesdev.com/w/index.php/PPU_sprite_evaluation
@@ -127,7 +141,8 @@ inline void Video::spriteEval()
 		}
 	}
 	//残りは無効化
-	for(uint16_t i=spriteHitCnt;i<defaultSpriteCnt;i++){
+	this->spriteHitCnt = _spriteHitCnt;
+	for(uint16_t i=_spriteHitCnt;i<Video::defaultSpriteCnt;i++){
 		spriteTable[i].y=255;
 	}
 }
@@ -137,43 +152,45 @@ inline void Video::buildSpriteLine()
 		return;
 	}
 	const uint16_t y = this->nowY-1;
-	const uint16_t spriteHeight = this->spriteHeight;
+	const uint16_t _spriteHeight = this->spriteHeight;
 	bool searchSprite0Hit = !this->sprite0Hit;
-	for(uint8_t i=0;i<defaultSpriteCnt;i++){
+	const uint16_t _spriteHitCnt = this->spriteHitCnt;
+	for(uint8_t i=0;i<_spriteHitCnt;i++){
 		const struct SpriteSlot slot = this->spriteTable[i];
 		searchSprite0Hit &= (slot.idx == 0);
-		uint16_t offY = y-slot.y;
-		if(slot.y <= y && offY < spriteHeight){
-			if(slot.flipVertical){
-				offY = spriteHeight-offY-1;
-			}
-			const uint16_t off = slot.tileAddr+(((offY & 0x8) << 1) + (offY&7));
-			const uint8_t firstPlane = readVram(off);
-			const uint8_t secondPlane = readVram(off+8);
-			const uint16_t endX = std::min(screenWidth-slot.x, 8);
-			if(slot.flipHorizontal){
-				for(size_t x=0;x<endX;x++){
-					const uint8_t color = ((firstPlane >> x) & 1) | (((secondPlane >> x) & 1)<<1);
-					uint8_t& target = this->lineBuff[slot.x + x];
-					if(searchSprite0Hit && (color != 0 && target != 0xff)){
-						this->sprite0Hit = true;
-						searchSprite0Hit = false;
-					}
-					if(color != 0 && (target == 0xff || slot.isForeground)){
-						target = this->palette[slot.paletteNo][color];
-					}
+		uint16_t offY = 0;
+
+		if(slot.flipVertical){
+			offY = _spriteHeight+slot.y-y-1;
+		}else{
+			offY = y-slot.y;
+		}
+		const uint16_t off = slot.tileAddr | ((offY & 0x8) << 1) | (offY&7);
+		const uint8_t firstPlane = readVram(off);
+		const uint8_t secondPlane = readVram(off+8);
+		const uint16_t endX = std::min(screenWidth-slot.x, 8);
+		if(slot.flipHorizontal){
+			for(size_t x=0;x<endX;x++){
+				const uint8_t color = ((firstPlane >> x) & 1) | (((secondPlane >> x) & 1)<<1);
+				uint8_t& target = this->lineBuff[slot.x + x];
+				if(searchSprite0Hit && (color != 0 && target != 0xff)){
+					this->sprite0Hit = true;
+					searchSprite0Hit = false;
 				}
-			}else{
-				for(size_t x=0;x<endX;x++){
-					const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
-					uint8_t& target = this->lineBuff[slot.x + x];
-					if(searchSprite0Hit && (color != 0 && target != 0xff)){
-						this->sprite0Hit = true;
-						searchSprite0Hit = false;
-					}
-					if(color != 0 && (target == 0xff || slot.isForeground)){
-						target = this->palette[slot.paletteNo][color];
-					}
+				if(color != 0 && (target == 0xff || slot.isForeground)){
+					target = this->palette[slot.paletteNo][color];
+				}
+			}
+		}else{
+			for(size_t x=0;x<endX;x++){
+				const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
+				uint8_t& target = this->lineBuff[slot.x + x];
+				if(searchSprite0Hit && (color != 0 && target != 0xff)){
+					this->sprite0Hit = true;
+					searchSprite0Hit = false;
+				}
+				if(color != 0 && (target == 0xff || slot.isForeground)){
+					target = this->palette[slot.paletteNo][color];
 				}
 			}
 		}
@@ -185,44 +202,43 @@ inline void Video::buildBgLine()
 	if(!this->backgroundVisibility){
 		return;
 	}
-	const uint16_t y = this->nowY+this->verticalScrollOrigin-1;
-	const uint16_t tileY = y>>3;
-	const uint16_t tileYofScreen = tileY % 30;
-	const uint16_t tileYoff = y & 7;
-
-	const uint16_t offX = this->horizontalScrollOrigin;
-	const uint16_t endX = offX+screenWidth;
+	uint16_t nameTableAddr = 0x2000 | (vramAddrRegister & 0xfff);
+	const uint8_t offY = (vramAddrRegister >> 12);
+	uint8_t offX = this->horizontalScrollBits;
 
 	const uint16_t bgTileAddrBase = this->patternTableAddressBackground;
-	const uint16_t nameTableBase = this->nameTableScrollAddr;
-	const uint16_t nameTableOffBase = (tileY < 30) ? nameTableBase : (nameTableBase ^ 0x800);
 
-	uint16_t renderX=0;
-	for(uint16_t tileX = (offX>>3);tileX<=((endX-1)>>3);tileX++){
-		const int16_t tileXoff = -std::min(0, (tileX << 3)-offX);
-		const int16_t tileXend = std::min(8,endX-(tileX << 3));
-		const uint16_t nameTableOff = nameTableOffBase ^ ((tileX & 32) << 5);//((tileX < 32) ? nameTableOffBase : (nameTableOffBase ^ 0x0400));
-
-		const uint16_t tileNo = readVram(nameTableOff | ((tileYofScreen << 5) | (tileX & 31)));
+	for(uint16_t renderX=0;;){
+		const uint16_t tileNo = readVram(nameTableAddr);
+		const uint16_t tileYofScreen = (nameTableAddr & 0x03e0) >> 5;
 		const uint8_t palNo =
 				(
-					readVram(nameTableOff | 0x3c0 | ((tileYofScreen & 0b11100) << 1) | ((tileX >> 2) & 7))
-								>> (((tileYofScreen & 2) << 1) | (tileX & 2))
+					readVram((nameTableAddr & 0x2f00) | 0x3c0 | ((tileYofScreen & 0b11100) << 1) | ((nameTableAddr >> 2) & 7))
+								>> (((tileYofScreen & 2) << 1) | (nameTableAddr & 2))
 				) & 0x3;
-
-
-		const uint16_t off = bgTileAddrBase | (tileNo << 4) | tileYoff;
-
+		//タイルのサーフェイスデータを取得
+		const uint16_t off = bgTileAddrBase | (tileNo << 4) | offY;
 		const uint8_t firstPlane = readVram(off);
 		const uint8_t secondPlane = readVram(off+8);
-
-		for(int16_t x=tileXoff;x<tileXend;x++){
+		const uint8_t* const thisPalette = this->palette[palNo];
+		//書く！
+		for(int8_t x=offX;x<8;x++){
 			const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
 			if(color != 0){
-				this->lineBuff[renderX] = this->palette[palNo][color];
+				this->lineBuff[renderX] = thisPalette[color];
 			}
 			renderX++;
+			if(renderX >= screenWidth){
+				return;
+			}
 		}
+		if((nameTableAddr & 0x001f) == 0x001f){
+			nameTableAddr &= 0xFFE0;
+			nameTableAddr ^= 0x400;
+		}else{
+			nameTableAddr++;
+		}
+		offX = 0;//次からは最初のピクセルから書ける。
 	}
 }
 
@@ -257,7 +273,8 @@ void Video::onHardReset()
 	patternTableAddressBackground = 0x0000;
 	patternTableAddress8x8Sprites = 0x0000;
 	vramIncrementSize = 1;
-	nameTableScrollAddr = 0x2000;
+	//0x2005 & 0x2000
+	vramAddrReloadRegister = 0x0000;
     //0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;
@@ -270,9 +287,6 @@ void Video::onHardReset()
 	//0x2005/0x2006
 	vramAddrRegisterWritten = false;
 	scrollRegisterWritten = false;
-	//0x2005
-	verticalScrollOrigin = 0;
-	horizontalScrollOrigin = 0;
 	//0x2006
 	vramAddrRegister = 0;
 }
@@ -285,7 +299,8 @@ void Video::onReset()
 	patternTableAddressBackground = 0x0000;
 	patternTableAddress8x8Sprites = 0x0000;
 	vramIncrementSize = 1;
-	nameTableScrollAddr = 0x2000;
+	//0x2005 & 0x2000
+	vramAddrReloadRegister = 0x0000;
     //0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;
@@ -296,9 +311,6 @@ void Video::onReset()
 	//0x2005/0x2006
 	vramAddrRegisterWritten = false;
 	scrollRegisterWritten = false;
-	//0x2005
-	verticalScrollOrigin = 0;
-	horizontalScrollOrigin = 0;
 	//0x2007
 	vramBuffer = 0;
 }
@@ -379,7 +391,7 @@ inline void Video::analyzePPUControlRegister1(uint8_t value)
 	patternTableAddressBackground = ((value & 0b10000) != 0) ? 0x1000 : 0x0000;
 	patternTableAddress8x8Sprites = ((value & 0b1000) != 0) ? 0x10000 : 0x0000;
 	vramIncrementSize = ((value & 0b100) != 0) ? 32 : 1;
-	nameTableScrollAddr = 0x2000 | ((value & 0b11) << 10);
+	vramAddrReloadRegister = (vramAddrReloadRegister & 0x73ff) | ((value & 0b11) << 10);
 }
 inline void Video::analyzePPUControlRegister2(uint8_t value)
 {
@@ -392,23 +404,21 @@ inline void Video::analyzePPUControlRegister2(uint8_t value)
 }
 inline void Video::analyzePPUBackgroundScrollingOffset(uint8_t value)
 {
-	if(scrollRegisterWritten){
-		verticalScrollOrigin = value;
-	}else{
-		horizontalScrollOrigin = value;
+	if(scrollRegisterWritten){ //Y
+		vramAddrReloadRegister = (vramAddrReloadRegister & 0x8C1F) | ((value & 0xf8) << 2) | ((value & 7) << 12);
+	}else{ //X
+		vramAddrReloadRegister = (vramAddrReloadRegister & 0xFFE0) | value >> 3;
+		horizontalScrollBits = value & 7;
 	}
 	scrollRegisterWritten = !scrollRegisterWritten;
 }
 inline void Video::analyzeVramAddrRegister(uint8_t value)
 {
 	if(vramAddrRegisterWritten){
-		vramAddrRegister = (vramAddrRegisterBuffer |= value);
-		verticalScrollOrigin =  (verticalScrollOrigin & 0b11000111) | ((value >> 2) & 0b00111000);
-		horizontalScrollOrigin = (horizontalScrollOrigin & 0x111) | value << 3;
+		vramAddrReloadRegister = (vramAddrReloadRegister & 0xff00) | value;
+		vramAddrRegister = vramAddrReloadRegister & 0x3fff;
 	} else {
-		vramAddrRegisterBuffer = (value & 0x3f) << 8;
-		nameTableScrollAddr = 0x2000 | (value & 0b1100) << 8;
-		verticalScrollOrigin =  (verticalScrollOrigin & 0b00111000) | ((value & 3) << 6) | (value & 0b1110000)>>4;
+		vramAddrReloadRegister =(vramAddrReloadRegister & 0x00ff) | ((value & 0x7f) << 8);
 	}
 	vramAddrRegisterWritten = !vramAddrRegisterWritten;
 }

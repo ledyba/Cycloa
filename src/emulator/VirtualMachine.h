@@ -122,6 +122,7 @@ class Video
 			bool flipHorizontal;
 			bool flipVertical;
 		} spriteTable[defaultSpriteCnt];
+		uint16_t spriteHitCnt;
 		uint8_t lineBuff[screenWidth];
 		inline void spriteEval();
 		inline void buildSpriteLine();
@@ -144,7 +145,6 @@ class Video
 		uint16_t patternTableAddressBackground;
 		uint16_t patternTableAddress8x8Sprites;
 		uint8_t vramIncrementSize;
-		uint16_t nameTableScrollAddr;
 
 		/* PPU Control Register 2 */
 		uint8_t colorEmphasis;
@@ -162,10 +162,9 @@ class Video
 		/* addressControl */
 		uint8_t vramBuffer;
 		uint8_t spriteAddr;
-		uint8_t horizontalScrollOrigin;
-		uint8_t verticalScrollOrigin;
 		uint16_t vramAddrRegister;
-		uint16_t vramAddrRegisterBuffer;
+		uint16_t vramAddrReloadRegister;
+		uint8_t horizontalScrollBits;
 		bool scrollRegisterWritten;
 		bool vramAddrRegisterWritten;
 

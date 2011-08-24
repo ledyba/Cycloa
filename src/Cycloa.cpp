@@ -11,17 +11,14 @@
 #include "emulator/VirtualMachine.h"
 
 int main(int argc, char** argv) {
-	/*
 	if(argc <= 1){
 		std::cout << "Please input filename";
 		return -1;
 	}
-	*/
 	try{
 		SDLVideoFairy videoFairy("Cycloa");
 		VirtualMachine vm(videoFairy);
 		vm.loadCartridge(argv[1]);
-		//vm.loadCartridge("_roms\\smb.nes");
 		vm.sendHardReset();
 		while(true){
 			vm.run();
