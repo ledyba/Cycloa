@@ -14,9 +14,6 @@ hasChrRam(nesFile->getChrPageCnt() == 0)
 }
 Mapper0::~Mapper0()
 {
-	FILE* file = fopen("test.chr", "wb");
-	fwrite(chrRam, 8192, 1, file);
-	fclose(file);
 }
 
 /* for PPU */

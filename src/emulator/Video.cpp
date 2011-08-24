@@ -388,8 +388,8 @@ inline void Video::analyzePPUControlRegister1(uint8_t value)
 {
 	executeNMIonVBlank = ((value & 0b10000000) != 0) ? true : false;
 	spriteHeight = ((value & 0b100000) != 0) ? 16 : 8;
-	patternTableAddressBackground = ((value & 0b10000) != 0) ? 0x1000 : 0x0000;
-	patternTableAddress8x8Sprites = ((value & 0b1000) != 0) ? 0x10000 : 0x0000;
+	patternTableAddressBackground = (value & 0b10000) << 8;
+	patternTableAddress8x8Sprites = (value & 0b1000) << 9;
 	vramIncrementSize = ((value & 0b100) != 0) ? 32 : 1;
 	vramAddrReloadRegister = (vramAddrReloadRegister & 0x73ff) | ((value & 0b11) << 10);
 }
@@ -415,7 +415,7 @@ inline void Video::analyzePPUBackgroundScrollingOffset(uint8_t value)
 inline void Video::analyzeVramAddrRegister(uint8_t value)
 {
 	if(vramAddrRegisterWritten){
-		vramAddrReloadRegister = (vramAddrReloadRegister & 0xff00) | value;
+		vramAddrReloadRegister = (vramAddrReloadRegister & 0x7f00) | value;
 		vramAddrRegister = vramAddrReloadRegister & 0x3fff;
 	} else {
 		vramAddrReloadRegister =(vramAddrReloadRegister & 0x00ff) | ((value & 0x7f) << 8);
