@@ -7,6 +7,7 @@
 #include <string.h>
 #include "file/NesFile.h"
 #include "fairy/VideoFairy.h"
+#include "fairy/GamepadFairy.h"
 
 class VirtualMachine;
 
@@ -65,6 +66,58 @@ class Cartridge { //カートリッジデータ＋マッパー
 		uint8_t* vramMirroring[4];
 		uint8_t* internalVram;
 		uint8_t fourScreenVram[4096];
+};
+
+class IOPort
+{
+public:
+	explicit IOPort(VirtualMachine& vm, GamepadFairy* pad1, GamepadFairy* pad2) :
+			VM(vm),
+			pad1Fairy(pad1 == 0 ? dummyPad : *pad1),
+			pad2Fairy(pad2 == 0 ? dummyPad : *pad2),
+			pad1Idx(GamepadFairy::A),
+			pad2Idx(GamepadFairy::A)
+	{
+
+	}
+	~IOPort()
+	{
+
+	}
+	inline  void onVBlank(){
+		pad1Fairy.onVBlank();
+		pad2Fairy.onVBlank();
+	}
+
+	inline void writeOutReg(uint8_t value)
+	{
+		if((value & 1) == 1){
+			pad1Fairy.onUpdate();
+			pad1Idx = 0;
+			pad2Fairy.onUpdate();
+			pad2Idx = 0;
+		}
+	}
+	inline uint8_t readInputReg1()
+	{
+		uint8_t result = pad1Fairy.isPressed((pad1Idx++) & 7) ? 1 : 0;
+		return result;
+	}
+	inline uint8_t readInputReg2()
+	{
+		uint8_t result = pad2Fairy.isPressed((pad2Idx++) & 7) ? 1 : 0;
+		return result;
+	}
+
+
+protected:
+private:
+	DummyGamepadFairy dummyPad;
+	VirtualMachine& VM;
+	GamepadFairy& pad1Fairy;
+	GamepadFairy& pad2Fairy;
+	uint8_t pad1Idx;
+	uint8_t pad2Idx;
 };
 
 class Audio {
@@ -351,7 +404,7 @@ class Processor
 class VirtualMachine
 {
 	public:
-		explicit VirtualMachine(VideoFairy& videoFairy);
+		explicit VirtualMachine(VideoFairy& videoFairy, GamepadFairy* player1, GamepadFairy* player2);
 		~VirtualMachine();
 		void run();
 		void sendNMI(); //from video to processor
@@ -373,12 +426,12 @@ class VirtualMachine
 		static const int VIDEO_CLOCK_FACTOR = 4;
 		static const int CARTRIDGE_CLOCK_FACTOR = 12;
 		void consumeClock(uint32_t clock);
-		VideoFairy& videoFairy;
 		Ram ram;
 		Processor processor;
 		Audio audio;
 		Video video;
 		Cartridge* cartridge;
+		IOPort ioPort;
 
 		uint32_t cpuClockDelta;
 		uint32_t audioClockDelta;

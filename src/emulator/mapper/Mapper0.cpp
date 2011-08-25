@@ -1,5 +1,4 @@
 #include "Mapper0.h"
-#include <stdio.h>
 #include <string.h>
 
 Mapper0::Mapper0(VirtualMachine& vm, const NesFile* nesFile) :
@@ -46,9 +45,6 @@ void Mapper0::writePatternTableLow(uint16_t addr, uint8_t val)
 	if(this->hasChrRam){
 		this->chrRam[addr & 0x1fff] = val;
 	}
-	FILE* file = fopen("test.chr", "wb");
-	fwrite(chrRam, 8192, 1, file);
-	fclose(file);
 }
 
 /* for CPU */

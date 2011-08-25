@@ -18,6 +18,8 @@ public:
 	enum ColorFormat {
 		RGB_888
 	};
+	static const uint16_t screenWidth = 256;
+	static const uint16_t screenHeight = 240;
 	explicit VideoFairy(uint8_t* const data,ColorFormat colorFormat, uint16_t width, uint16_t height, uint16_t pitch, uint16_t bytesPerPixel)
 	:data(data), width(width), height(height), bytesPerPixel(bytesPerPixel), pitch(pitch)
 	{
@@ -103,6 +105,15 @@ private:
     uint16_t height;
     uint16_t bytesPerPixel;
     uint16_t pitch;
+};
+
+class DummyVideoFairy : public VideoFairy
+{
+private:
+	uint8_t dummySurface[VideoFairy::screenHeight][VideoFairy::screenWidth][3];
+public:
+	explicit DummyVideoFairy() :
+	VideoFairy(reinterpret_cast<uint8_t*>(dummySurface), RGB_888, VideoFairy::screenWidth, VideoFairy::screenHeight, 256*3 ,3){}
 };
 
 #endif /* VIDEOFAIRY_H_ */

@@ -52,7 +52,7 @@ void Video::run(uint16_t clockDelta)
 			}
 			memset(lineBuff, 0xff, screenWidth); //oxffをBGカラーに後で置き換える
 			spriteEval();
-			if(this->backgroundVisibility | this->spriteVisibility){
+			if(this->backgroundVisibility || this->spriteVisibility){
 				// from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
 				vramAddrRegister = (vramAddrRegister & 0x7BE0) | (vramAddrReloadRegister & 0x041F);
 				buildBgLine();
@@ -89,7 +89,7 @@ void Video::run(uint16_t clockDelta)
 			this->isEven = !this->isEven;
 			// the reload value is automatically loaded into the Pointer at the end of the vblank period (vertical reload bits)
 			// from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
-			if(this->backgroundVisibility | this->spriteVisibility){
+			if(this->backgroundVisibility || this->spriteVisibility){
 				this->vramAddrRegister = (vramAddrRegister & 0x041F) | (vramAddrReloadRegister & 0x7BE0);
 			}
 		}else{
@@ -156,7 +156,7 @@ inline void Video::buildSpriteLine()
 	bool searchSprite0Hit = !this->sprite0Hit;
 	const uint16_t _spriteHitCnt = this->spriteHitCnt;
 	for(uint8_t i=0;i<_spriteHitCnt;i++){
-		const struct SpriteSlot slot = this->spriteTable[i];
+		const struct SpriteSlot& slot = this->spriteTable[i];
 		searchSprite0Hit &= (slot.idx == 0);
 		uint16_t offY = 0;
 
@@ -275,6 +275,7 @@ void Video::onHardReset()
 	vramIncrementSize = 1;
 	//0x2005 & 0x2000
 	vramAddrReloadRegister = 0x0000;
+	horizontalScrollBits = 0;
     //0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;
@@ -301,6 +302,7 @@ void Video::onReset()
 	vramIncrementSize = 1;
 	//0x2005 & 0x2000
 	vramAddrReloadRegister = 0x0000;
+	horizontalScrollBits = 0;
     //0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;

@@ -3,13 +3,13 @@
 #include "exception/EmulatorException.h"
 #include "VirtualMachine.h"
 
-VirtualMachine::VirtualMachine(VideoFairy& videoFairy) :
-videoFairy(videoFairy),
+VirtualMachine::VirtualMachine(VideoFairy& videoFairy, GamepadFairy* player1, GamepadFairy* player2) :
 ram(*this),
 processor(*this),
 audio(*this),
 video(*this, videoFairy),
 cartridge(NULL),
+ioPort(*this, player1, player2),
 resetFlag(false),
 hardResetFlag(false)
 {
@@ -90,9 +90,9 @@ uint8_t VirtualMachine::read(uint16_t addr)
 			if(addr == 0x4015){
                 return audio.readReg(addr);
 			}else if(addr == 0x4016){
-				return 0;
+				return ioPort.readInputReg1();
 			}else if(addr == 0x4017){
-				return 0;
+				return ioPort.readInputReg2();
             }else if(addr < 0x4018){
             	throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
             }else{
@@ -123,7 +123,7 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
 			if(addr == 0x4014){
 				video.executeDMA(value);
 			}else if(addr == 0x4016){
-            	//joystick
+				ioPort.writeOutReg(value);
             }else if(addr < 0x4018){
                 audio.writeReg(addr, value);
             }else{
@@ -170,6 +170,7 @@ void VirtualMachine::sendHBlank(uint16_t scanline)
 void VirtualMachine::sendVBlank()
 {
 	this->cartridge->onVBlank();
+	this->ioPort.onVBlank();
 }
 
 void VirtualMachine::sendNMI()

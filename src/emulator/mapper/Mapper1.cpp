@@ -1,6 +1,4 @@
 #include "Mapper1.h"
-#include <stdio.h>
-#include <string.h>
 
 Mapper1::Mapper1(VirtualMachine& vm, const NesFile* nesFile) :
 Cartridge(vm, nesFile),
