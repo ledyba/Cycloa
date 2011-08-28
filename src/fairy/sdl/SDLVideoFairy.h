@@ -24,6 +24,9 @@ class SDLVideoFairy : public VideoFairy
 		SDL_Renderer* renderer;
 		SDL_Texture* tex;
 		uint32_t nextTime;
+
+		uint32_t fpsTime;
+		uint32_t fpsCnt;
 };
 
 

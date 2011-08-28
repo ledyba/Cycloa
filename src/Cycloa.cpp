@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include "fairy/sdl/SDLVideoFairy.h"
+#include "fairy/sdl/SDLAudioFairy.h"
 #include "fairy/sdl/SDLGamepadFairy.h"
 #include "emulator/VirtualMachine.h"
 
@@ -19,9 +20,10 @@ int main(int argc, char** argv) {
 	try{
 		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO);
 		SDLVideoFairy videoFairy("Cycloa");
+		SDLAudioFairy audioFairy;
 		SDLGamepadInfo info;
 		SDLGamepadFairy player1(info);
-		VirtualMachine vm(videoFairy, &player1, 0);
+		VirtualMachine vm(videoFairy, audioFairy, &player1, 0);
 		vm.loadCartridge(argv[1]);
 		vm.sendHardReset();
 		while(true){
@@ -30,6 +32,7 @@ int main(int argc, char** argv) {
 		SDL_Quit();
 	}catch(EmulatorException& e){
 		std::cerr << "Error: " << e.getMessage() << std::endl;
+		std::cerr.flush();
 	}
 	return 0;
 }

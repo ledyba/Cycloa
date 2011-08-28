@@ -6,7 +6,9 @@
 #include <stdint.h>
 #include <string.h>
 #include "file/NesFile.h"
+#include "AudioChannel.h"
 #include "fairy/VideoFairy.h"
+#include "fairy/AudioFairy.h"
 #include "fairy/GamepadFairy.h"
 
 class VirtualMachine;
@@ -122,16 +124,38 @@ private:
 
 class Audio {
 	public:
-		explicit Audio(VirtualMachine& vm);
+		explicit Audio(VirtualMachine& vm, AudioFairy& audioFairy);
 		~Audio();
 		void run(uint16_t clockDelta);
 		void onHardReset();
 		void onReset();
 		uint8_t readReg(uint16_t addr);
 		void writeReg(uint16_t addr, uint8_t value);
+		void onVSync();
+		static const unsigned int AUDIO_CLOCK = 21477272/12;//21.28MHz(NTSC)
+		static const unsigned int SAMPLE_RATE = 44100;
+
 	protected:
 	private:
 		VirtualMachine& VM;
+		AudioFairy& audioFairy;
+		//
+		unsigned int clockCnt;
+		unsigned int leftClock;
+		unsigned int frameCnt;
+		//--
+		bool frameIRQenabled;
+		uint8_t frameIRQCnt;
+		uint8_t frameIRQRate;
+		uint8_t frameIRQInterval;
+		bool sweepProcessed;
+		//---
+		Rectangle rectangle1;
+		Rectangle rectangle2;
+		//---
+		inline void analyzeStatusRegister(uint8_t value);
+		inline void analyzeLowFrequentryRegister(uint8_t value);
+
 };
 
 class Video
@@ -404,7 +428,7 @@ class Processor
 class VirtualMachine
 {
 	public:
-		explicit VirtualMachine(VideoFairy& videoFairy, GamepadFairy* player1, GamepadFairy* player2);
+		explicit VirtualMachine(VideoFairy& videoFairy, AudioFairy& audioFairy, GamepadFairy* player1, GamepadFairy* player2);
 		~VirtualMachine();
 		void run();
 		void sendNMI(); //from video to processor
@@ -416,15 +440,15 @@ class VirtualMachine
 		void loadCartridge(const char* filename); //from user
 		uint8_t read(uint16_t addr); //from processor to ram
 		void write(uint16_t addr, uint8_t value); // from processor to ram.
-		void consumeCpuClock(uint32_t clock);
-		void consumeAudioClock(uint32_t clock);
+		inline void consumeCpuClock(uint32_t clock)
+		{
+			consumeClock(clock * CPU_CLOCK_FACTOR);
+		}
 	protected:
 	private:
-		static const int MAIN_CLOCK = 21477272;//21.28MHz(NTSC)
-		static const int CPU_CLOCK_FACTOR = 12;
-		static const int AUDIO_CLOCK_FACTOR = 12;
-		static const int VIDEO_CLOCK_FACTOR = 4;
-		static const int CARTRIDGE_CLOCK_FACTOR = 12;
+		static const unsigned int MAIN_CLOCK = 21477272;//21.28MHz(NTSC)
+		static const unsigned int CPU_CLOCK_FACTOR = 12;
+		static const unsigned int VIDEO_CLOCK_FACTOR = 4;
 		void consumeClock(uint32_t clock);
 		Ram ram;
 		Processor processor;
@@ -433,10 +457,7 @@ class VirtualMachine
 		Cartridge* cartridge;
 		IOPort ioPort;
 
-		uint32_t cpuClockDelta;
-		uint32_t audioClockDelta;
-		uint32_t videoClockDelta;
-		uint32_t cartridgeClockDelta;
+		uint32_t clockDelta;
 
 		bool resetFlag;
 		bool hardResetFlag;

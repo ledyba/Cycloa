@@ -63,10 +63,8 @@ void Processor::run(uint16_t clockDelta)
 
     if(this->NMI){
         this->onNMI();
-        return;
     }else if(this->IRQ){
         this->onIRQ();
-        return;
     }
 
     uint8_t opcode = this->read(this->PC);

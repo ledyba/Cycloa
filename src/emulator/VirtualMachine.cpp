@@ -3,10 +3,10 @@
 #include "exception/EmulatorException.h"
 #include "VirtualMachine.h"
 
-VirtualMachine::VirtualMachine(VideoFairy& videoFairy, GamepadFairy* player1, GamepadFairy* player2) :
+VirtualMachine::VirtualMachine(VideoFairy& videoFairy, AudioFairy& audioFairy, GamepadFairy* player1, GamepadFairy* player2) :
 ram(*this),
 processor(*this),
-audio(*this),
+audio(*this, audioFairy),
 video(*this, videoFairy),
 cartridge(NULL),
 ioPort(*this, player1, player2),
@@ -25,57 +25,44 @@ VirtualMachine::~VirtualMachine()
 void VirtualMachine::run()
 {
     if(this->hardResetFlag){
-        this->cpuClockDelta = 0;
-        this->cartridgeClockDelta = 0;
-        this->videoClockDelta = 0;
-        this->audioClockDelta = 0;
+        this->clockDelta = 0;
         this->hardResetFlag = false;
 
         this->processor.onHardReset();
-        this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
         this->cartridge->onHardReset();
-        this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
 
         this->video.onHardReset();
-        this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
 
         this->audio.onHardReset();
-        this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
 
         return;
     }else if(this->resetFlag){
-        this->cpuClockDelta = 0;
-        this->cartridgeClockDelta = 0;
-        this->videoClockDelta = 0;
-        this->audioClockDelta = 0;
+        this->clockDelta = 0;
         this->resetFlag = false;
 
         this->processor.onReset();
-        this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
         this->cartridge->onReset();
-        this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
 
         this->video.onReset();
-        this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
 
         this->audio.onReset();
-        this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
 
         return;
     }
-    this->processor.run(this->cpuClockDelta / CPU_CLOCK_FACTOR);
-    this->cpuClockDelta %= CPU_CLOCK_FACTOR;
 
-    this->cartridge->run(this->cartridgeClockDelta / CARTRIDGE_CLOCK_FACTOR);
-    this->cartridgeClockDelta %= CARTRIDGE_CLOCK_FACTOR;
+    int32_t cpuClockDelta = this->clockDelta / CPU_CLOCK_FACTOR;
+    int32_t videoClockDelta = this->clockDelta / VIDEO_CLOCK_FACTOR;
+    this->clockDelta  = 0;
 
-    this->video.run(this->videoClockDelta / VIDEO_CLOCK_FACTOR);
-    this->videoClockDelta %= VIDEO_CLOCK_FACTOR;
+    this->processor.run(cpuClockDelta);
 
-    this->audio.run(this->audioClockDelta / AUDIO_CLOCK_FACTOR);
-    this->audioClockDelta %= AUDIO_CLOCK_FACTOR;
+    this->cartridge->run(cpuClockDelta);
+
+    this->video.run(videoClockDelta);
+
+    this->audio.run(cpuClockDelta);
 
 }
 uint8_t VirtualMachine::read(uint16_t addr)
@@ -146,21 +133,9 @@ void VirtualMachine::write(uint16_t addr, uint8_t value)
     }
 }
 
-void VirtualMachine::consumeCpuClock(uint32_t clock)
-{
-    consumeClock(clock * CPU_CLOCK_FACTOR);
-}
-void VirtualMachine::consumeAudioClock(uint32_t clock)
-{
-    consumeClock(clock * AUDIO_CLOCK_FACTOR);
-}
-
 void VirtualMachine::consumeClock(uint32_t clock)
 {
-    this->cpuClockDelta += clock;
-    this->audioClockDelta += clock;
-    this->videoClockDelta += clock;
-    this->cartridgeClockDelta += clock;
+    this->clockDelta += clock;
 }
 
 void VirtualMachine::sendHBlank(uint16_t scanline)
