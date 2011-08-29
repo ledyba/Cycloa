@@ -3,11 +3,20 @@
 Audio::Audio(VirtualMachine& vm, AudioFairy& audioFairy):
     VM(vm),
     audioFairy(audioFairy),
-    rectangle1(true),
-	rectangle2(false),
+    //---
+	clockCnt(0),
+	leftClock(0),
 	frameCnt(0),
+	//---
+	frameIRQenabled(false),
 	frameIRQCnt(0),
-	clockCnt(0)
+	frameIRQRate(0),
+	frameIRQInterval(0),
+	sweepProcessed(0),
+	//---
+	rectangle1(true),
+	rectangle2(false),
+	triangle()
 {
     //ctor
 }
@@ -23,22 +32,20 @@ void Audio::run(uint16_t clockDelta)
 	while(frameCnt >= Audio::AUDIO_CLOCK){
 		frameCnt -=Audio::AUDIO_CLOCK;
 		// envelope
-		this->rectangle1.onDecay();
-		this->rectangle2.onDecay();
+		this->rectangle1.onQuaterFrame();
+		this->rectangle2.onQuaterFrame();
 		//sweep
-		if(!sweepProcessed){
-			this->rectangle1.onSweep();
-			this->rectangle2.onSweep();
-		}
 		sweepProcessed = !sweepProcessed;
+		if(!sweepProcessed){
+			this->rectangle1.onHalfFrame();
+			this->rectangle2.onHalfFrame();
+		}
 		if(frameIRQCnt == 0){
 			frameIRQCnt = frameIRQInterval;
 			// IRQ & length counters
 			if(frameIRQenabled){
 				this->VM.sendIRQ();
 			}
-			this->rectangle1.onFrame();
-			this->rectangle2.onFrame();
 		}
 		frameIRQCnt--;
 	}
@@ -58,11 +65,15 @@ void Audio::run(uint16_t clockDelta)
 
 void Audio::onHardReset()
 {
-
+	frameIRQenabled = true;
+	frameIRQRate = 240;
+	frameIRQCnt = frameIRQInterval = 4;
 }
 void Audio::onReset()
 {
-
+	frameIRQenabled = true;
+	frameIRQRate = 240;
+	frameIRQCnt = frameIRQInterval = 4;
 }
 
 void Audio::onVSync()
@@ -78,7 +89,8 @@ uint8_t Audio::readReg(uint16_t addr)
 	}
 	return
 			(this->rectangle1.isEnabled() ? 0b00000001 : 0)
-		|	(this->rectangle2.isEnabled() ? 0b00000010 : 0);
+		|	(this->rectangle2.isEnabled() ? 0b00000010 : 0)
+		|	((this->frameIRQenabled) ? 	0b01000000 : 0);
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
 {
@@ -109,13 +121,16 @@ void Audio::writeReg(uint16_t addr, uint8_t value)
 		rectangle2.analyzeLengthRegister(value);
 		break;
 	case 0x4008: //4008h - APU Linear Counter Channel 3 (Triangle)
+		triangle.analyzeLinearCounterRegister(value);
 		break;
 	case 0x4009: //4009h - APU N/A Channel 3 (Triangle)
 		//unused
 		break;
 	case 0x400A: //400Ah - APU Frequency Channel 3 (Triangle)
+		triangle.analyzeFrequencyRegister(value);
 		break;
 	case 0x400B: //400Bh - APU Length Channel 3 (Triangle)
+		triangle.analyzeLengthCounter(value);
 		break;
 	case 0x400C: //400Ch - APU Volume/Decay Channel 4 (Noise)
 		break;
@@ -152,21 +167,23 @@ void Audio::analyzeStatusRegister(uint8_t value)
 	rectangle1.setEnabled((value & 1)==1);
 	rectangle2.setEnabled((value & 2)==2);
 	/*
-	rectangle2Enabled = (value & 2)==2;
 	triangleEnabled = (value & 4)==4;
 	noiseEnabled = (value & 8)==8;
 	dmcEnabled = (value & 16)==16;
 	*/
+	frameIRQenabled = false;
 }
 void Audio::analyzeLowFrequentryRegister(uint8_t value)
 {
 	//Any write to $4017 resets both the frame counter, and the clock divider.
-	frameIRQenabled = (value & 0x40) == 0x00;
+	frameIRQenabled = ((value & 0x40) == 0x00);
 	if((value & 0x80) == 0x80){
 		frameIRQRate = 192;
-		frameIRQInterval = 5;
+		frameIRQCnt = frameIRQInterval = 5;
 	}else{
 		frameIRQRate = 240;
-		frameIRQInterval = 4;
+		frameIRQCnt = frameIRQInterval = 4;
 	}
+	//frameIRQCnt = 0;
+	frameCnt = Audio::AUDIO_CLOCK;
 }

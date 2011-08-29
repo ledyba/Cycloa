@@ -134,7 +134,6 @@ class Audio {
 		void onVSync();
 		static const unsigned int AUDIO_CLOCK = 21477272/12;//21.28MHz(NTSC)
 		static const unsigned int SAMPLE_RATE = 44100;
-
 	protected:
 	private:
 		VirtualMachine& VM;
@@ -152,6 +151,7 @@ class Audio {
 		//---
 		Rectangle rectangle1;
 		Rectangle rectangle2;
+		Triangle triangle;
 		//---
 		inline void analyzeStatusRegister(uint8_t value);
 		inline void analyzeLowFrequentryRegister(uint8_t value);

@@ -25,7 +25,7 @@ void Processor::onHardReset()
     this->SP = 0xfd;
     this->write(0x4017, 0x00);
     this->write(0x4015, 0x00);
-    for(uint16_t i=0x4000;i<=0x400f;i++){
+    for(uint16_t i=0x4000;i<=0x4000;i++){
         this->write(i, 0x00);
     }
     this->PC = (read(0xFFFC) | (read(0xFFFD) << 8));
