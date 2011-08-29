@@ -2,3 +2,4 @@ Debug
 Release
 SDL.dll
 /_roms
+/gmon.out
