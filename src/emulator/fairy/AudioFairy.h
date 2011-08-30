@@ -47,13 +47,13 @@ protected:
 		int copiedLength = std::min(BUFFER_SIZE-available, maxLength);
 		available+=copiedLength;
 		if(firstIndex + copiedLength < BUFFER_SIZE){
-			memcpy(buff, &soundBuffer[firstIndex], sizeof(uint16_t) * copiedLength);
+			memcpy(buff, &soundBuffer[firstIndex], sizeof(int16_t) * copiedLength);
 			firstIndex += copiedLength;
 		}else{
 			int first = BUFFER_SIZE-firstIndex;
 			int last = copiedLength-first;
-			memcpy(buff, &soundBuffer[firstIndex], sizeof(uint16_t) * first);
-			memcpy(&buff[first], &soundBuffer[0], sizeof(uint16_t) * last);
+			memcpy(buff, &soundBuffer[firstIndex], sizeof(int16_t) * first);
+			memcpy(&buff[first], &soundBuffer[0], sizeof(int16_t) * last);
 			firstIndex = last;
 		}
 

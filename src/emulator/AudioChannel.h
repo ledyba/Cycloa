@@ -10,6 +10,7 @@
 
 #include <cstddef>
 #include <stdint.h>
+#include <stdio.h>
 
 class AudioChannel
 {
@@ -24,6 +25,7 @@ private:
 
 	//decay or volume
 	uint8_t volumeOrDecayRate;
+	bool decayReloaded;
 	bool decayEnabled;
 	uint8_t dutyRatio;
 
@@ -53,6 +55,7 @@ public:
 	isFirstChannel(isFirstChannel),
 	//decay
 	volumeOrDecayRate(0),
+	decayReloaded(false),
 	decayEnabled(false),
 	dutyRatio(0),
 	decayCounter(0),
@@ -114,10 +117,9 @@ public:
 		lengthCounter = AudioChannel::LengthCounterConst[reg >> 3];
 		//Writing to the length registers restarts the length (obviously),
 		//and also restarts the duty cycle (channel 1,2 only),
+		//dutyReloaded = true; //クリアすると音が変！nesdevには記述なし。三角波のDutyが変わらないのも、ちょっと変かも。
 		//and restarts the decay volume (channel 1,2,4 only).
-		dutyCounter = 0;
-		decayCounter = volumeOrDecayRate;
-		decayVolume = 0xf;
+		decayReloaded = true;
 	}
 	inline void onQuaterFrame()
 	{
@@ -132,6 +134,10 @@ public:
 			}
 		}else{
 			this->decayCounter--;
+		}
+		if(decayReloaded){
+			decayReloaded = false;
+			decayVolume = 0xf;
 		}
 	}
 	inline void onHalfFrame()
@@ -172,9 +178,6 @@ public:
 		this->freqCounter = nowCounter % (this->frequency + 1);
 		this->dutyCounter = (this->dutyCounter + (nowCounter  / (this->frequency + 1))) & 15;
 		if(dutyCounter < dutyRatio){
-			if(decayEnabled ? decayVolume : volumeOrDecayRate != 0){
-				this->dutyCounter = this->dutyCounter+1-1;
-			}
 			return decayEnabled ? decayVolume : volumeOrDecayRate;
 		}else{
 			return 0;
