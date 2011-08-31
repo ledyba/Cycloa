@@ -4,16 +4,6 @@ Audio::Audio(VirtualMachine& vm, AudioFairy& audioFairy):
     VM(vm),
     audioFairy(audioFairy),
     //---
-	clockCnt(0),
-	leftClock(0),
-	frameCnt(0),
-	//---
-	frameIRQenabled(false),
-	frameIRQCnt(0),
-	frameIRQRate(0),
-	frameIRQInterval(0),
-	sweepProcessed(0),
-	//---
 	rectangle1(true),
 	rectangle2(false),
 	triangle()
@@ -34,11 +24,13 @@ void Audio::run(uint16_t clockDelta)
 		// envelope
 		this->rectangle1.onQuaterFrame();
 		this->rectangle2.onQuaterFrame();
+		this->triangle.onQuaterFrame();
 		//sweep
 		sweepProcessed = !sweepProcessed;
 		if(!sweepProcessed){
 			this->rectangle1.onHalfFrame();
 			this->rectangle2.onHalfFrame();
+			this->triangle.onHalfFrame();
 		}
 		if(frameIRQCnt == 0){
 			frameIRQCnt = frameIRQInterval;
@@ -56,8 +48,9 @@ void Audio::run(uint16_t clockDelta)
 		leftClock = processClock % SAMPLE_RATE;
 		clockCnt-=Audio::AUDIO_CLOCK;
 		int16_t sound = 0;
-		sound += rectangle1.createSound(delta);
-		sound += rectangle2.createSound(delta);
+		//sound += rectangle1.createSound(delta);
+		//sound += rectangle2.createSound(delta);
+		sound += triangle.createSound(delta);
 
 		audioFairy.pushAudio(sound * 1000);
 	}
@@ -65,15 +58,26 @@ void Audio::run(uint16_t clockDelta)
 
 void Audio::onHardReset()
 {
+	clockCnt = 0;
+	leftClock = 0;
+	frameCnt = 0;
+	sweepProcessed = false;
+
 	frameIRQenabled = true;
 	frameIRQRate = 240;
 	frameIRQCnt = frameIRQInterval = 4;
+	rectangle1.onHardReset();
+	rectangle2.onHardReset();
+	triangle.onHardReset();
 }
 void Audio::onReset()
 {
 	frameIRQenabled = true;
 	frameIRQRate = 240;
 	frameIRQCnt = frameIRQInterval = 4;
+	rectangle1.onReset();
+	rectangle2.onReset();
+	triangle.onReset();
 }
 
 void Audio::onVSync()
@@ -89,7 +93,8 @@ uint8_t Audio::readReg(uint16_t addr)
 	}
 	return
 			(this->rectangle1.isEnabled() ? 0b00000001 : 0)
-		|	(this->rectangle2.isEnabled() ? 0b00000010 : 0)
+			|	(this->rectangle2.isEnabled() ? 0b00000010 : 0)
+			|	(this->triangle.isEnabled() ? 0b00000100 : 0)
 		|	((this->frameIRQenabled) ? 	0b01000000 : 0);
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
@@ -166,8 +171,8 @@ void Audio::analyzeStatusRegister(uint8_t value)
 {
 	rectangle1.setEnabled((value & 1)==1);
 	rectangle2.setEnabled((value & 2)==2);
+	triangle.setEnabled((value & 4)==4);
 	/*
-	triangleEnabled = (value & 4)==4;
 	noiseEnabled = (value & 8)==8;
 	dmcEnabled = (value & 16)==16;
 	*/

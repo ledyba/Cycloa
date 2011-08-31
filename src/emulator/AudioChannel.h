@@ -52,29 +52,7 @@ private:
 
 public:
 	explicit Rectangle(bool isFirstChannel):
-	isFirstChannel(isFirstChannel),
-	//decay
-	volumeOrDecayRate(0),
-	decayReloaded(false),
-	decayEnabled(false),
-	dutyRatio(0),
-	decayCounter(0),
-	sweepEnabled(0),
-	sweepShiftAmount(0),
-	sweepIncreased(false),
-	sweepUpdateRatio(0),
-
-	sweepCounter(0),
-
-	//
-	frequency(0),
-	loopEnabled(false),
-	lengthCounter(0),
-
-	//
-	freqCounter(0),
-	dutyCounter(0)
-
+	isFirstChannel(isFirstChannel)
 	{
 
 	}
@@ -193,6 +171,24 @@ public:
 	{
 		return lengthCounter != 0;
 	}
+	inline void onHardReset(){
+		volumeOrDecayRate = 0;
+		decayReloaded = false;
+		decayEnabled = false;
+		dutyRatio = 0;
+		decayCounter = 0;
+		sweepEnabled = 0;
+		sweepShiftAmount = 0;
+		sweepIncreased = false;
+		sweepUpdateRatio = 0;
+		sweepCounter = 0;
+		frequency = 0;
+		loopEnabled = false;
+		lengthCounter = 0;
+	}
+	inline void onReset(){
+		onHardReset();
+	}
 };
 
 class Triangle
@@ -200,19 +196,83 @@ class Triangle
 private:
 	const static uint8_t waveForm[32];
 
+	bool haltFlag;
+
 	bool enableLinearCounter;
+	uint16_t frequency;
+	uint16_t linearCounterBuffer;
+	//
+	uint16_t linearCounter;
+	uint16_t lengthCounter;
+	//
+	uint16_t freqCounter;
+	uint16_t streamCounter;
 public:
 	inline void analyzeLinearCounterRegister(uint8_t value)
 	{
-
+		enableLinearCounter = ((value & 128) == 128);
+		linearCounterBuffer = value & 127;
 	}
 	inline void analyzeFrequencyRegister(uint8_t value)
 	{
-
+		frequency = (frequency & 0x0700) | value;
 	}
 	inline void analyzeLengthCounter(uint8_t value)
 	{
-
+		frequency = (frequency & 0x00ff) | ((value & 7) << 8);
+		lengthCounter = AudioChannel::LengthCounterConst[value >> 3];
+		//Side effects 	Sets the halt flag
+		haltFlag = true;
+	}
+	inline int16_t createSound(unsigned int deltaClock){
+		if(lengthCounter == 0 || linearCounter == 0){
+			return 0;
+		}
+		unsigned int nowCounter = this->freqCounter + deltaClock;
+		this->freqCounter = nowCounter % (this->frequency + 1);
+		this->streamCounter = (this->streamCounter + (nowCounter  / (this->frequency + 1))) & 31;
+		return Triangle::waveForm[this->streamCounter];
+	}
+	inline void onHardReset(){
+		haltFlag = false;
+		enableLinearCounter = false;
+		frequency = 0;
+		linearCounterBuffer = 0;
+		linearCounter = 0;
+		lengthCounter = 0;
+		freqCounter = 0;
+		streamCounter = 0;
+	}
+	inline void onReset(){
+		onHardReset();
+	}
+	inline void onQuaterFrame(){
+		if(haltFlag){
+			linearCounter = linearCounterBuffer;
+		}else{
+			if(linearCounter != 0){
+				linearCounter--;
+			}
+		}
+		if(!enableLinearCounter){
+			haltFlag = false;
+		}
+	}
+	inline void onHalfFrame(){
+		if(lengthCounter != 0 && !enableLinearCounter){
+			lengthCounter--;
+		}
+	}
+	inline void setEnabled(bool enabled)
+	{
+		if(!enabled){
+			lengthCounter = 0;
+			linearCounter = linearCounterBuffer = 0;
+		}
+	}
+	inline bool isEnabled()
+	{
+		return lengthCounter != 0 && linearCounter != 0;
 	}
 };
 
