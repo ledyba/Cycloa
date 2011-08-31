@@ -117,7 +117,7 @@ public:
 		lengthCounter = AudioChannel::LengthCounterConst[reg >> 3];
 		//Writing to the length registers restarts the length (obviously),
 		//and also restarts the duty cycle (channel 1,2 only),
-		//dutyReloaded = true; //クリアすると音が変！nesdevには記述なし。三角波のDutyが変わらないのも、ちょっと変かも。
+		dutyCounter = 0;
 		//and restarts the decay volume (channel 1,2,4 only).
 		decayReloaded = true;
 	}
