@@ -152,6 +152,7 @@ class Audio {
 		Rectangle rectangle1;
 		Rectangle rectangle2;
 		Triangle triangle;
+		Noize noize;
 		//---
 		inline void analyzeStatusRegister(uint8_t value);
 		inline void analyzeLowFrequentryRegister(uint8_t value);

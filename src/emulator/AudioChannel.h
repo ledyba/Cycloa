@@ -158,7 +158,7 @@ public:
 		if(dutyCounter < dutyRatio){
 			return decayEnabled ? decayVolume : volumeOrDecayRate;
 		}else{
-			return 0;
+			return decayEnabled ? -decayVolume : -volumeOrDecayRate;
 		}
 	}
 	inline void setEnabled(bool enabled)
@@ -278,9 +278,128 @@ public:
 
 class Noize
 {
-public:
+private:
+	static const uint16_t FrequencyTable[16];
 
+	//rand
+	uint16_t shiftRegister;
+	bool modeFlag;
+
+	//decay
+	uint8_t volumeOrDecayRate;
+	bool decayReloaded;
+	bool decayEnabled;
+
+	uint8_t decayCounter;
+	uint8_t decayVolume;
+	//
+	bool loopEnabled;
+	uint16_t frequency;
+	//
+	uint16_t lengthCounter;
+	//
+	uint16_t freqCounter;
+public:
+	inline void analyzeVolumeRegister(uint8_t reg){
+		decayCounter = volumeOrDecayRate = reg & 15;
+		decayEnabled = (reg & 16) == 0;
+		loopEnabled = (reg & 32) == 32;
+	}
+	inline void analyzeFrequencyRegister(uint8_t reg)
+	{
+		modeFlag = (reg & 128) == 128;
+		frequency = Noize::FrequencyTable[reg & 15];
+	}
+	inline void analyzeLengthRegister(uint8_t reg)
+	{
+		//Writing to the length registers restarts the length (obviously),
+		lengthCounter = AudioChannel::LengthCounterConst[reg >> 3];
+		//and restarts the decay volume (channel 1,2,4 only).
+		decayReloaded = true;
+	}
+	inline void onQuaterFrame()
+	{
+		if(decayCounter == 0){
+			decayCounter = this->volumeOrDecayRate;
+			if(decayVolume == 0){
+				if(loopEnabled){
+					decayVolume = 0xf;
+				}
+			}else{
+				decayVolume--;
+			}
+		}else{
+			this->decayCounter--;
+		}
+		if(decayReloaded){
+			decayReloaded = false;
+			decayVolume = 0xf;
+		}
+	}
+	inline void onHalfFrame()
+	{
+		if(lengthCounter != 0 && !loopEnabled){
+			lengthCounter--;
+		}
+	}
+	inline int16_t createSound(unsigned int deltaClock)
+	{
+		if(lengthCounter == 0){
+			return 0;
+		}
+		unsigned int nowCounter = this->freqCounter + deltaClock;
+		const uint16_t divFreq = this->frequency + 1;
+		const uint8_t shiftAmount = modeFlag ? 6 : 1;
+		//FIXME: frequencyが小さい時に此のモデルが破綻する
+		while(nowCounter >= divFreq){
+			nowCounter -= divFreq;
+			shiftRegister =(shiftRegister >> 1) | (((shiftRegister ^ (shiftRegister >> shiftAmount))  & 1) << 14);
+		}
+		this->freqCounter = nowCounter;
+		if(((shiftRegister & 1) == 1)){
+			return decayEnabled ? -decayVolume : -volumeOrDecayRate;
+		}else{
+			return decayEnabled ? decayVolume : volumeOrDecayRate;
+		}
+	}
+	inline void setEnabled(bool enabled)
+	{
+		if(!enabled){
+			lengthCounter = 0;
+		}
+	}
+	inline bool isEnabled()
+	{
+		return lengthCounter != 0;
+	}
+	inline void onHardReset(){
+		//rand
+		shiftRegister = 1<<14;
+		modeFlag = false;
+
+		//decay
+		volumeOrDecayRate = false;
+		decayReloaded = false;
+		decayEnabled = false;
+
+		decayCounter = 0;
+		decayVolume = 0;
+		//
+		loopEnabled = false;
+		frequency = 0;
+		//
+		lengthCounter = 0;
+		//
+		freqCounter = 0;
+	}
+	inline void onReset(){
+		onHardReset();
+	}
 };
 
+class Digital
+{
+
+};
 
 #endif /* AUDIOCHANNEL_H_ */

@@ -6,7 +6,8 @@ Audio::Audio(VirtualMachine& vm, AudioFairy& audioFairy):
     //---
 	rectangle1(true),
 	rectangle2(false),
-	triangle()
+	triangle(),
+	noize()
 {
     //ctor
 }
@@ -25,12 +26,14 @@ void Audio::run(uint16_t clockDelta)
 		this->rectangle1.onQuaterFrame();
 		this->rectangle2.onQuaterFrame();
 		this->triangle.onQuaterFrame();
+		this->noize.onQuaterFrame();
 		//sweep
 		sweepProcessed = !sweepProcessed;
 		if(!sweepProcessed){
 			this->rectangle1.onHalfFrame();
 			this->rectangle2.onHalfFrame();
 			this->triangle.onHalfFrame();
+			this->noize.onHalfFrame();
 		}
 		if(frameIRQCnt == 0){
 			frameIRQCnt = frameIRQInterval;
@@ -48,11 +51,12 @@ void Audio::run(uint16_t clockDelta)
 		leftClock = processClock % SAMPLE_RATE;
 		clockCnt-=Audio::AUDIO_CLOCK;
 		int16_t sound = 0;
-		//sound += rectangle1.createSound(delta);
-		//sound += rectangle2.createSound(delta);
+		sound += rectangle1.createSound(delta);
+		sound += rectangle2.createSound(delta);
 		sound += triangle.createSound(delta);
+		sound += noize.createSound(delta);
 
-		audioFairy.pushAudio(sound * 1000);
+		audioFairy.pushAudio(sound * 500);
 	}
 }
 
@@ -69,6 +73,7 @@ void Audio::onHardReset()
 	rectangle1.onHardReset();
 	rectangle2.onHardReset();
 	triangle.onHardReset();
+	noize.onHardReset();
 }
 void Audio::onReset()
 {
@@ -78,6 +83,7 @@ void Audio::onReset()
 	rectangle1.onReset();
 	rectangle2.onReset();
 	triangle.onReset();
+	noize.onReset();
 }
 
 void Audio::onVSync()
@@ -92,10 +98,11 @@ uint8_t Audio::readReg(uint16_t addr)
 		throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr << "for APU.";
 	}
 	return
-			(this->rectangle1.isEnabled() ? 0b00000001 : 0)
-			|	(this->rectangle2.isEnabled() ? 0b00000010 : 0)
-			|	(this->triangle.isEnabled() ? 0b00000100 : 0)
-		|	((this->frameIRQenabled) ? 	0b01000000 : 0);
+			(this->rectangle1.isEnabled()		? 0b00000001 : 0)
+			|	(this->rectangle2.isEnabled()	? 0b00000010 : 0)
+			|	(this->triangle.isEnabled()		? 0b00000100 : 0)
+			|	(this->noize.isEnabled()			? 0b00001000 : 0)
+			|	(this->frameIRQenabled			? 0b01000000 : 0);
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
 {
@@ -138,13 +145,16 @@ void Audio::writeReg(uint16_t addr, uint8_t value)
 		triangle.analyzeLengthCounter(value);
 		break;
 	case 0x400C: //400Ch - APU Volume/Decay Channel 4 (Noise)
+		noize.analyzeVolumeRegister(value);
 		break;
 	case 0x400d: //400Dh - APU N/A Channel 4 (Noise)
 		//unused
 		break;
 	case 0x400e: //400Eh - APU Frequency Channel 4 (Noise)
+		noize.analyzeFrequencyRegister(value);
 		break;
 	case 0x400F: //400Fh - APU Length Channel 4 (Noise)
+		noize.analyzeLengthRegister(value);
 		break;
 	// ------------------------------------ DMC -----------------------------------------------------
 	case 0x4010: //4010h - DMC Play mode and DMA frequency
