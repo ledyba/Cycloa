@@ -6,7 +6,6 @@
 #include <stdint.h>
 #include <string.h>
 #include "file/NesFile.h"
-#include "AudioChannel.h"
 #include "fairy/VideoFairy.h"
 #include "fairy/AudioFairy.h"
 #include "fairy/GamepadFairy.h"
@@ -122,6 +121,8 @@ private:
 	uint8_t pad2Idx;
 };
 
+#include "AudioChannel.h"
+
 class Audio {
 	public:
 		explicit Audio(VirtualMachine& vm, AudioFairy& audioFairy);
@@ -144,6 +145,7 @@ class Audio {
 		unsigned int frameCnt;
 		//--
 		bool frameIRQenabled;
+		bool frameIRQactive;
 		uint8_t frameIRQCnt;
 		uint8_t frameIRQRate;
 		uint8_t frameIRQInterval;
@@ -153,6 +155,7 @@ class Audio {
 		Rectangle rectangle2;
 		Triangle triangle;
 		Noize noize;
+		Digital digital;
 		//---
 		inline void analyzeStatusRegister(uint8_t value);
 		inline void analyzeLowFrequentryRegister(uint8_t value);
