@@ -26,7 +26,8 @@ public:
 	virtual void onVBlank();
 	virtual void onHardReset();
 	virtual void onReset();
-		/* from PPU */
+
+	/* from PPU */
 	virtual uint8_t readPatternTableHigh(uint16_t addr) const;
 	virtual void writePatternTableHigh(uint16_t addr, uint8_t val);
 	virtual uint8_t readPatternTableLow(uint16_t addr) const;

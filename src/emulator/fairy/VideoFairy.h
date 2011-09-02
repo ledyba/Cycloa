@@ -15,8 +15,10 @@
 class VideoFairy
 {
 public:
-	static const uint16_t screenWidth = 256;
-	static const uint16_t screenHeight = 240;
+	enum{
+		screenWidth = 256,
+		screenHeight = 240
+	};
 	static const uint32_t nesPalette[64];
 	explicit VideoFairy(){}
 	virtual ~VideoFairy(){}

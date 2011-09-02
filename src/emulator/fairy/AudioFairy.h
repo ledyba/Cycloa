@@ -14,7 +14,9 @@
 class AudioFairy
 {
 private:
-	static const int BUFFER_SIZE = 0x40000;
+	enum{
+		BUFFER_SIZE = 0x40000,
+	};
 	int16_t soundBuffer[BUFFER_SIZE];
 	int available;
 	int lastIndex;
