@@ -65,5 +65,10 @@ protected:
 	}
 };
 
+class DummyAudioFairy : public AudioFairy
+{
+
+};
+
 
 #endif /* AUDIOFAIRY_H_ */

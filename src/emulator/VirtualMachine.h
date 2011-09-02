@@ -13,60 +13,57 @@
 class VirtualMachine;
 
 class Cartridge { //カートリッジデータ＋マッパー
-	public:
-		static const uint16_t SRAM_SIZE = 8192;
-		static Cartridge* loadCartridge(VirtualMachine& vm, const char* filename);
-	public:
-		explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile = 0);
-		virtual ~Cartridge();
-		virtual void run(uint16_t clockDelta);
-		virtual void onHBlank(uint16_t scanline);
-		virtual void onVBlank();
-		virtual void onHardReset();
-		virtual void onReset();
-
+public:
+	enum{
+		SRAM_SIZE = 8192
+	};
+	static Cartridge* loadCartridge(VirtualMachine& vm, const char* filename);
+public:
+	explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile = 0);
+	virtual ~Cartridge();
+	virtual void run(uint16_t clockDelta);
+	virtual void onHBlank(uint16_t scanline);
+	virtual void onVBlank();
+	virtual void onHardReset();
+	virtual void onReset();
 		/* from PPU */
-		virtual uint8_t readPatternTableHigh(uint16_t addr) const;
-		virtual void writePatternTableHigh(uint16_t addr, uint8_t val);
+	virtual uint8_t readPatternTableHigh(uint16_t addr) const;
+	virtual void writePatternTableHigh(uint16_t addr, uint8_t val);
+	virtual uint8_t readPatternTableLow(uint16_t addr) const;
+	virtual void writePatternTableLow(uint16_t addr, uint8_t val);
+	virtual uint8_t readNameTable(uint16_t addr) const;
+	virtual void writeNameTable(uint16_t addr, uint8_t val);
 
-		virtual uint8_t readPatternTableLow(uint16_t addr) const;
-		virtual void writePatternTableLow(uint16_t addr, uint8_t val);
+	/* from CPU */
+	virtual uint8_t readRegisterArea(uint16_t addr);
+	virtual void writeRegisterArea(uint16_t addr, uint8_t val);
 
-		virtual uint8_t readNameTable(uint16_t addr) const;
-		virtual void writeNameTable(uint16_t addr, uint8_t val);
+	virtual uint8_t readSaveArea(uint16_t addr);
+	virtual void writeSaveArea(uint16_t addr, uint8_t val);
+	virtual uint8_t readBankHigh(uint16_t addr);
+	virtual void writeBankHigh(uint16_t addr, uint8_t val);
 
-		/* from CPU */
-		virtual uint8_t readRegisterArea(uint16_t addr);
-		virtual void writeRegisterArea(uint16_t addr, uint8_t val);
-
-		virtual uint8_t readSaveArea(uint16_t addr);
-		virtual void writeSaveArea(uint16_t addr, uint8_t val);
-
-		virtual uint8_t readBankHigh(uint16_t addr);
-		virtual void writeBankHigh(uint16_t addr, uint8_t val);
-
-		virtual uint8_t readBankLow(uint16_t addr);
-		virtual void writeBankLow(uint16_t addr, uint8_t val);
-
-		void connectInternalVram(uint8_t* internalVram);
-		void changeMirrorType(NesFile::MirrorType mirrorType);
-	protected:
-		inline uint8_t readSram(uint16_t addr) const
-		{
-			return this->sram[addr & 0x1fff];
-		}
-		inline void writeSram(uint16_t addr, uint8_t value)
-		{
-			this->sram[addr & 0x1fff] = value;
-		}
-		const NesFile* const nesFile;
-	private:
-		VirtualMachine& VM;
-		uint8_t sram[SRAM_SIZE];
-		NesFile::MirrorType mirrorType;
-		uint8_t* vramMirroring[4];
-		uint8_t* internalVram;
-		uint8_t fourScreenVram[4096];
+	virtual uint8_t readBankLow(uint16_t addr);
+	virtual void writeBankLow(uint16_t addr, uint8_t val);
+	void connectInternalVram(uint8_t* internalVram);
+	void changeMirrorType(NesFile::MirrorType mirrorType);
+protected:
+	inline uint8_t readSram(uint16_t addr) const
+	{
+		return this->sram[addr & 0x1fff];
+	}
+	inline void writeSram(uint16_t addr, uint8_t value)
+	{
+		this->sram[addr & 0x1fff] = value;
+	}
+	const NesFile* const nesFile;
+private:
+	VirtualMachine& VM;
+	uint8_t sram[SRAM_SIZE];
+	NesFile::MirrorType mirrorType;
+	uint8_t* vramMirroring[4];
+	uint8_t* internalVram;
+	uint8_t fourScreenVram[4096];
 };
 
 class IOPort
@@ -133,8 +130,10 @@ class Audio {
 		uint8_t readReg(uint16_t addr);
 		void writeReg(uint16_t addr, uint8_t value);
 		void onVSync();
-		static const unsigned int AUDIO_CLOCK = 21477272/12;//21.28MHz(NTSC)
-		static const unsigned int SAMPLE_RATE = 44100;
+		enum{
+			AUDIO_CLOCK = 21477272/12,//21.28MHz(NTSC)
+			SAMPLE_RATE = 44100
+		};
 	protected:
 	private:
 		VirtualMachine& VM;
@@ -174,9 +173,9 @@ class Video
 		void writeReg(uint16_t addr, uint8_t value);
 		void executeDMA(uint8_t value);
 		void connectCartridge(Cartridge* cartridge);
-		static const int screenWidth = 256;
-		static const int screenHeight = 240;
 		enum{
+			screenWidth = 256,
+			screenHeight = 240,
 			EmptyBit = 0x00,
 			BackSpriteBit = 0x40,
 			BackgroundBit = 0x80,
@@ -185,9 +184,11 @@ class Video
 		};
 	protected:
 	private:
-		static const int clockPerScanline = 341;
-		static const int scanlinePerScreen = 262;
-		static const int defaultSpriteCnt = 8;
+		enum{
+			clockPerScanline = 341,
+			scanlinePerScreen = 262,
+			defaultSpriteCnt = 8
+		};
 		VirtualMachine& VM;
 		Cartridge* cartridge;
 	   VideoFairy& videoFairy;
@@ -270,37 +271,38 @@ class Video
 
 class Ram
 {
-	public:
-		static const uint16_t WRAM_LENGTH = 2048;
-	public:
-		explicit Ram(VirtualMachine& vm) : VM(vm)
-		{}
-		~Ram(){}
-		inline void onHardReset()
-		{
-			//from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
-			memset(wram, 0xff, WRAM_LENGTH);
-			wram[0x8] = 0xf7;
-			wram[0x9] = 0xef;
-			wram[0xa] = 0xdf;
-			wram[0xf] = 0xbf;
+public:
+	enum{
+		WRAM_LENGTH = 2048
+	};
+public:
+	explicit Ram(VirtualMachine& vm) : VM(vm)
+	{}
+	~Ram(){}
+	inline void onHardReset()
+	{
+		//from http://wiki.nesdev.com/w/index.php/CPU_power_up_state
+		memset(wram, 0xff, WRAM_LENGTH);
+		wram[0x8] = 0xf7;
+		wram[0x9] = 0xef;
+		wram[0xa] = 0xdf;
+		wram[0xf] = 0xbf;
+	}
+	inline void onReset()
+	{
 		}
-		inline void onReset()
-		{
-
-		}
-		inline uint8_t read(uint16_t addr)
-		{
-			return wram[addr & 0x7ff];
-		}
-		inline void write(uint16_t addr, uint8_t value)
-		{
-			wram[addr & 0x7ff] = value;
-		}
-	protected:
-	private:
-		VirtualMachine& VM;
-		uint8_t wram[WRAM_LENGTH]; //2KB WRAM
+	inline uint8_t read(uint16_t addr)
+	{
+		return wram[addr & 0x7ff];
+	}
+	inline void write(uint16_t addr, uint8_t value)
+	{
+		wram[addr & 0x7ff] = value;
+	}
+protected:
+private:
+	VirtualMachine& VM;
+	uint8_t wram[WRAM_LENGTH]; //2KB WRAM
 };
 
 class Processor
@@ -318,16 +320,18 @@ class Processor
 		inline uint8_t read(uint16_t addr);
 		inline void write(uint16_t addr, uint8_t value);
 		//定数
+		enum{
+			FLAG_C = 0b00000001,
+			FLAG_Z = 0b00000010,
+			FLAG_I = 0b00000100,
+			FLAG_D = 0b00001000,
+			FLAG_B = 0b00010000, //not used in NES
+			FLAG_ALWAYS_SET = 0b00100000,
+			FLAG_V = 0b01000000,
+			FLAG_N = 0b10000000,
+		};
 		static const uint8_t ZNFlagCache[0x100];
 		static const uint8_t CycleTable[0x100];
-		static const uint8_t FLAG_C = 0b00000001;
-		static const uint8_t FLAG_Z = 0b00000010;
-		static const uint8_t FLAG_I = 0b00000100;
-		static const uint8_t FLAG_D = 0b00001000;
-		static const uint8_t FLAG_B = 0b00010000; //not used in NES
-		static const uint8_t FLAG_ALWAYS_SET = 0b00100000;
-		static const uint8_t FLAG_V = 0b01000000;
-		static const uint8_t FLAG_N = 0b10000000;
 		//
 		VirtualMachine& VM;
 		uint8_t A;
@@ -455,9 +459,11 @@ class VirtualMachine
 		}
 	protected:
 	private:
-		static const unsigned int MAIN_CLOCK = 21477272;//21.28MHz(NTSC)
-		static const unsigned int CPU_CLOCK_FACTOR = 12;
-		static const unsigned int VIDEO_CLOCK_FACTOR = 4;
+		enum{
+			MAIN_CLOCK = 21477272, //21.28MHz(NTSC)
+			CPU_CLOCK_FACTOR = 12,
+			VIDEO_CLOCK_FACTOR = 4,
+		};
 		void consumeClock(uint32_t clock);
 		Ram ram;
 		Processor processor;

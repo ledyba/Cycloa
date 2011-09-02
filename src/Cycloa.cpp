@@ -14,7 +14,7 @@
 
 int main(int argc, char** argv) {
 	if(argc <= 1){
-		std::cout << "Please input filename";
+		std::cout << "Please input filename" << std::endl;
 		return -1;
 	}
 	try{
@@ -31,8 +31,10 @@ int main(int argc, char** argv) {
 		}
 		SDL_Quit();
 	}catch(EmulatorException& e){
-		std::cerr << "Error: " << e.getMessage() << std::endl;
+		std::cerr << "Error: " << e.getMessage();
+		std::cerr << std::endl;
 		std::cerr.flush();
+		return -1;
 	}
 	return 0;
 }

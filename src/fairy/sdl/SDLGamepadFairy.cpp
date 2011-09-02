@@ -6,7 +6,7 @@
  */
 
 #include <SDL/SDL.h>
-#include "SDLGamePadFairy.h"
+#include "SDLGamepadFairy.h"
 
 SDLGamepadFairy::SDLGamepadFairy(SDLGamepadInfo& info):
 joystick(*SDL_JoystickOpen(0)),

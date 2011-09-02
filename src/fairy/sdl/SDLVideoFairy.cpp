@@ -9,6 +9,8 @@
 #include "SDLVideoFairy.h"
 #include <stdint.h>
 #include <cstddef>
+#include <stdio.h>
+#include <cstdlib>
 
 SDLVideoFairy::SDLVideoFairy(std::string windowTitle):
 nextTime(0),

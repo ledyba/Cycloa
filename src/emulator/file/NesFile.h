@@ -8,6 +8,7 @@
 #ifndef NESFILE_H_
 #define NESFILE_H_
 #include <cstddef>
+#include <stdint.h>
 
 class NesFile
 {

@@ -6,6 +6,7 @@
  */
 
 #include "SDLAudioFairy.h"
+#include <string.h>
 
 SDLAudioFairy::SDLAudioFairy()
 {
@@ -14,7 +15,7 @@ SDLAudioFairy::SDLAudioFairy()
 	desired.channels = 1;
 	desired.format = AUDIO_S16SYS;
 	desired.freq=44100;
-	desired.samples=1024;
+	desired.samples=8192;
 	desired.userdata = this;
 	if ( SDL_OpenAudio(&desired, &obtained) < 0 ){
 		throw new EmulatorException("Cannot open audio device");
