@@ -176,9 +176,15 @@ class Video
 		void connectCartridge(Cartridge* cartridge);
 		static const int screenWidth = 256;
 		static const int screenHeight = 240;
+		enum{
+			EmptyBit = 0x00,
+			BackSpriteBit = 0x40,
+			BackgroundBit = 0x80,
+			FrontSpriteBit = 0xc0,
+			LayerBitMask = 0xc0
+		};
 	protected:
 	private:
-		static const uint8_t nesPalette[64][3];
 		static const int clockPerScanline = 341;
 		static const int scanlinePerScreen = 262;
 		static const int defaultSpriteCnt = 8;
@@ -191,6 +197,7 @@ class Video
 		uint8_t spRam[256];
 		uint8_t internalVram[2048];
 		uint8_t palette[9][4];
+		uint8_t screenBuffer[screenHeight][screenWidth];
 
 		/* Rendering */
 		struct SpriteSlot {
@@ -204,11 +211,9 @@ class Video
 			bool flipVertical;
 		} spriteTable[defaultSpriteCnt];
 		uint16_t spriteHitCnt;
-		uint8_t lineBuff[screenWidth];
 		inline void spriteEval();
 		inline void buildSpriteLine();
 		inline void buildBgLine();
-		inline void fillImage();
 
 		/* IO */
 		inline uint8_t readVram(uint16_t addr) const;

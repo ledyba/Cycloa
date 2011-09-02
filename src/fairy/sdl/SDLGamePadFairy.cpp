@@ -24,23 +24,23 @@ void SDLGamepadFairy::onVBlank()
 	SDL_JoystickUpdate();
 	state = 0;
 	int16_t x = SDL_JoystickGetAxis(&joystick, 0);
-	if(x > 0x7fff/2){
+	if(x > 100){
 		state |= GamepadFairy::MASK_RIGHT;
-	}else if(x < (-0x7fff)/2){
+	}else if(x < -100){
 		state |= GamepadFairy::MASK_LEFT;
 	}
 
 	int16_t y = SDL_JoystickGetAxis(&joystick, 1);
-	if(y > 0x7fff/2){
+	if(y > 100){
 		state |= GamepadFairy::MASK_DOWN;
-	}else if(y < (-0x7fff)/2){
+	}else if(y < -100){
 		state |= GamepadFairy::MASK_UP;
 	}
 
-	state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::A;
+	state |= (SDL_JoystickGetButton(&joystick, 2)) << GamepadFairy::A;
 	state |= (SDL_JoystickGetButton(&joystick, 1)) << GamepadFairy::B;
-	state |= (SDL_JoystickGetButton(&joystick, 2)) << GamepadFairy::START;
-	state |= (SDL_JoystickGetButton(&joystick, 3)) << GamepadFairy::SELECT;
+	state |= (SDL_JoystickGetButton(&joystick, 8)) << GamepadFairy::START;
+	state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::SELECT;
 }
 
 bool SDLGamepadFairy::isPressed(uint8_t keyIdx)

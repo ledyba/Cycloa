@@ -16,9 +16,7 @@ class SDLVideoFairy : public VideoFairy
 	public:
 		explicit SDLVideoFairy(std::string windowTitle);
 		virtual ~SDLVideoFairy();
-		void enter(int32_t waitLimit = -1);
-		void leave();
-		void dispatchRendering();
+		void dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask);
 	private:
 		SDL_Window* window;
 		SDL_Renderer* renderer;

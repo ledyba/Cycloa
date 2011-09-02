@@ -11,7 +11,6 @@
 #include <cstddef>
 
 SDLVideoFairy::SDLVideoFairy(std::string windowTitle):
-VideoFairy(NULL, RGB_888, Video::screenWidth, Video::screenHeight, Video::screenWidth, 4),
 nextTime(0),
 fpsTime(0),
 fpsCnt(0)
@@ -20,14 +19,7 @@ fpsCnt(0)
 	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(this->renderer, &info);
-#ifdef SDL_BIG_ENDIAN
 	this->tex = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, Video::screenWidth, Video::screenHeight);
-	setBytesPerPixel(static_cast<uint16_t>(SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_RGB888)));
-#endif
-#ifdef SDL_LIL_ENDIAN
-	this->tex = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_BGR888, SDL_TEXTUREACCESS_STREAMING, Video::screenWidth, Video::screenHeight);
-	setBytesPerPixel(static_cast<uint16_t>(SDL_BYTESPERPIXEL(SDL_PIXELFORMAT_RGB888)));
-#endif
 }
 
 SDLVideoFairy::~SDLVideoFairy()
@@ -37,22 +29,8 @@ SDLVideoFairy::~SDLVideoFairy()
 	SDL_DestroyWindow(this->window);
 }
 
-void SDLVideoFairy::enter(int32_t waitLimit)
-{
-	uint8_t* data;
-	int pitch;
-	SDL_LockTexture(this->tex, NULL, reinterpret_cast<void**>(&data), &pitch);
-	setData(data);
-	setPitch(pitch);
-}
 
-void SDLVideoFairy::leave()
-{
-	SDL_UnlockTexture(this->tex);
-	setData(NULL);
-}
-
-void SDLVideoFairy::dispatchRendering()
+void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
 {
     SDL_Event e;
     if (SDL_PollEvent(&e)) {
@@ -60,7 +38,20 @@ void SDLVideoFairy::dispatchRendering()
             	exit(0);
             }
     }
-    SDL_RenderClear(renderer);
+    uint32_t* line;
+    uint8_t* line8;
+	int pitch;
+	SDL_LockTexture(this->tex, NULL, reinterpret_cast<void**>(&line8), &pitch);
+	for(int y=0;y<screenHeight;y++){
+		line = reinterpret_cast<uint32_t*>(line8);
+		for(int x=0;x<screenWidth; x++){
+			line[x] = nesPalette[nesBuffer[y][x] & paletteMask];
+		}
+		line8+=pitch;
+	}
+	SDL_UnlockTexture(this->tex);
+
+	SDL_RenderClear(renderer);
 	SDL_RenderCopy(this->renderer, this->tex, NULL, NULL);
     SDL_RenderPresent(renderer);
 

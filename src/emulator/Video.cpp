@@ -47,10 +47,8 @@ void Video::run(uint16_t clockDelta)
 		this->nowY++;
 		this->nowX -= 341;
 		if(this->nowY <= 240){
-			if(this->nowY == 1){
-				this->videoFairy.enter();
-			}
-			memset(lineBuff, 0xff, screenWidth); //oxffをBGカラーに後で置き換える
+			uint8_t* const lineBuff = screenBuffer[nowY-1];
+			memset(lineBuff, EmptyBit | this->palette[8][0], screenWidth); //0x00: 空
 			spriteEval();
 			if(this->backgroundVisibility || this->spriteVisibility){
 				// from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
@@ -65,7 +63,6 @@ void Video::run(uint16_t clockDelta)
 					vramAddrRegister ^= 0x800;
 				}
 			}
-			fillImage();
 		}else if(this->nowY == 241){
 			//241: The PPU just idles during this scanline. Despite this, this scanline still occurs before the VBlank flag is set.
 			//BLANK
@@ -76,8 +73,7 @@ void Video::run(uint16_t clockDelta)
 				this->VM.sendNMI();
 			}
 			this->VM.sendVBlank();
-			this->videoFairy.leave();
-			this->videoFairy.dispatchRendering();
+			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
 		}else if(this->nowY <= 261){
 			//nowVBlank.
 		}else if(this->nowY == 262){
@@ -155,6 +151,7 @@ inline void Video::buildSpriteLine()
 	const uint16_t _spriteHeight = this->spriteHeight;
 	bool searchSprite0Hit = !this->sprite0Hit;
 	const uint16_t _spriteHitCnt = this->spriteHitCnt;
+	uint8_t* const lineBuff = screenBuffer[nowY-1];
 	for(uint8_t i=0;i<_spriteHitCnt;i++){
 		const struct SpriteSlot& slot = this->spriteTable[i];
 		searchSprite0Hit &= (slot.idx == 0);
@@ -169,28 +166,31 @@ inline void Video::buildSpriteLine()
 		const uint8_t firstPlane = readVram(off);
 		const uint8_t secondPlane = readVram(off+8);
 		const uint16_t endX = std::min(screenWidth-slot.x, 8);
+		const uint8_t layerMask = slot.isForeground ? Video::FrontSpriteBit : Video::BackSpriteBit;
 		if(slot.flipHorizontal){
 			for(size_t x=0;x<endX;x++){
 				const uint8_t color = ((firstPlane >> x) & 1) | (((secondPlane >> x) & 1)<<1);
-				uint8_t& target = this->lineBuff[slot.x + x];
-				if(searchSprite0Hit && (color != 0 && target != 0xff)){
+				uint8_t& target = lineBuff[slot.x + x];
+				const bool isBackgroundDrawn = (target & LayerBitMask) != EmptyBit;
+				if(searchSprite0Hit && (color != 0 && isBackgroundDrawn)){
 					this->sprite0Hit = true;
 					searchSprite0Hit = false;
 				}
-				if(color != 0 && (target == 0xff || slot.isForeground)){
-					target = this->palette[slot.paletteNo][color];
+				if(color != 0 && (!isBackgroundDrawn || slot.isForeground)){
+					target = this->palette[slot.paletteNo][color] | layerMask;
 				}
 			}
 		}else{
 			for(size_t x=0;x<endX;x++){
 				const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
-				uint8_t& target = this->lineBuff[slot.x + x];
-				if(searchSprite0Hit && (color != 0 && target != 0xff)){
+				uint8_t& target = lineBuff[slot.x + x];
+				const bool isBackgroundDrawn = (target & LayerBitMask) != EmptyBit;
+				if(searchSprite0Hit && (color != 0 && isBackgroundDrawn)){
 					this->sprite0Hit = true;
 					searchSprite0Hit = false;
 				}
-				if(color != 0 && (target == 0xff || slot.isForeground)){
-					target = this->palette[slot.paletteNo][color];
+				if(color != 0 && (!isBackgroundDrawn || slot.isForeground)){
+					target = this->palette[slot.paletteNo][color] | layerMask;
 				}
 			}
 		}
@@ -202,6 +202,7 @@ inline void Video::buildBgLine()
 	if(!this->backgroundVisibility){
 		return;
 	}
+	uint8_t* const lineBuff = screenBuffer[nowY-1];
 	uint16_t nameTableAddr = 0x2000 | (vramAddrRegister & 0xfff);
 	const uint8_t offY = (vramAddrRegister >> 12);
 	uint8_t offX = this->horizontalScrollBits;
@@ -225,7 +226,7 @@ inline void Video::buildBgLine()
 		for(int8_t x=offX;x<8;x++){
 			const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
 			if(color != 0){
-				this->lineBuff[renderX] = thisPalette[color];
+				lineBuff[renderX] = thisPalette[color] | BackgroundBit;
 			}
 			renderX++;
 			if(renderX >= screenWidth){
@@ -239,25 +240,6 @@ inline void Video::buildBgLine()
 			nameTableAddr++;
 		}
 		offX = 0;//次からは最初のピクセルから書ける。
-	}
-}
-
-inline void Video::fillImage()
-{
-	uint8_t* const imageBuf = this->videoFairy.getPtr(0, this->nowY-1);
-	uint16_t bytesPerPixel = this->videoFairy.getBytesPerPixel();
-	uint8_t* const lineBuf = this->lineBuff;
-	const uint8_t mask = paletteMask;
-	const uint8_t bgColor = palette[8][0] & mask;
-	uint16_t imageIdx = 0;
-	for(uint16_t x = 0;x<screenWidth;x++){
-		const uint8_t buf = lineBuf[x];
-		const uint8_t palNo = (buf == 0xff) ? bgColor : (buf & mask);
-		const uint8_t* color = Video::nesPalette[palNo];
-		imageBuf[imageIdx+0] = color[0];
-		imageBuf[imageIdx+1] = color[1];
-		imageBuf[imageIdx+2] = color[2];
-		imageIdx+=bytesPerPixel;
 	}
 }
 
@@ -551,22 +533,3 @@ inline void Video::writeSprite(uint16_t addr, uint8_t value)
     this->spRam[addr] = value;
 }
 
-const uint8_t Video::nesPalette[64][3] =
-{
-	{0x78,0x78,0x78},{0x20,0x00,0xB0},{0x28,0x00,0xB8},{0x60,0x10,0xA0},
-	{0x98,0x20,0x78},{0xB0,0x10,0x30},{0xA0,0x30,0x00},{0x78,0x40,0x00},
-	{0x48,0x58,0x00},{0x38,0x68,0x00},{0x38,0x6C,0x00},{0x30,0x60,0x40},
-	{0x30,0x50,0x80},{0x00,0x00,0x00},{0x00,0x00,0x00},{0x00,0x00,0x00},
-	{0xB0,0xB0,0xB0},{0x40,0x60,0xF8},{0x40,0x40,0xFF},{0x90,0x40,0xF0},
-	{0xD8,0x40,0xC0},{0xD8,0x40,0x60},{0xE0,0x50,0x00},{0xC0,0x70,0x00},
-	{0x88,0x88,0x00},{0x50,0xA0,0x00},{0x48,0xA8,0x10},{0x48,0xA0,0x68},
-	{0x40,0x90,0xC0},{0x00,0x00,0x00},{0x00,0x00,0x00},{0x00,0x00,0x00},
-	{0xFF,0xFF,0xFF},{0x60,0xA0,0xFF},{0x50,0x80,0xFF},{0xA0,0x70,0xFF},
-	{0xF0,0x60,0xFF},{0xFF,0x60,0xB0},{0xFF,0x78,0x30},{0xFF,0xA0,0x00},
-	{0xE8,0xD0,0x20},{0x98,0xE8,0x00},{0x70,0xF0,0x40},{0x70,0xE0,0x90},
-	{0x60,0xD0,0xE0},{0x78,0x78,0x78},{0x00,0x00,0x00},{0x00,0x00,0x00},
-	{0xFF,0xFF,0xFF},{0x90,0xD0,0xFF},{0xA0,0xB8,0xFF},{0xC0,0xB0,0xFF},
-	{0xE0,0xB0,0xFF},{0xFF,0xB8,0xE8},{0xFF,0xC8,0xB8},{0xFF,0xD8,0xA0},
-	{0xFF,0xF0,0x90},{0xC8,0xF0,0x80},{0xA0,0xF0,0xA0},{0xA0,0xFF,0xC8},
-	{0xA0,0xFF,0xF0},{0xA0,0xA0,0xA0},{0x00,0x00,0x00},{0x00,0x00,0x00}
-};
