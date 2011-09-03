@@ -108,13 +108,13 @@ uint8_t Audio::readReg(uint16_t addr)
 	// If an interrupt flag was set at the same moment of the read, it will read back as 1 but it will not be cleared.
 	frameIRQactive = false;
 	return
-			(this->rectangle1.isEnabled()		? 0b00000001 : 0)
-			|	(this->rectangle2.isEnabled()	? 0b00000010 : 0)
-			|	(this->triangle.isEnabled()		? 0b00000100 : 0)
-			|	(this->noize.isEnabled()			? 0b00001000 : 0)
-			|	(this->digital.isEnabled()		? 0b00010000 : 0)
-			|	(this->frameIRQactive				? 0b01000000 : 0)
-			|	(this->digital.isIRQEnabled()	? 0b10000000 : 0);
+			(this->rectangle1.isEnabled()		? 1 : 0)
+			|	(this->rectangle2.isEnabled()	? 2 : 0)
+			|	(this->triangle.isEnabled()		? 4 : 0)
+			|	(this->noize.isEnabled()			? 8 : 0)
+			|	(this->digital.isEnabled()		? 16 : 0)
+			|	(this->frameIRQactive				? 64 : 0)
+			|	(this->digital.isIRQEnabled()	? 128 : 0);
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
 {

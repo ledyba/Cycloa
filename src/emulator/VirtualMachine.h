@@ -322,14 +322,14 @@ class Processor
 		inline void write(uint16_t addr, uint8_t value);
 		//定数
 		enum{
-			FLAG_C = 0b00000001,
-			FLAG_Z = 0b00000010,
-			FLAG_I = 0b00000100,
-			FLAG_D = 0b00001000,
-			FLAG_B = 0b00010000, //not used in NES
-			FLAG_ALWAYS_SET = 0b00100000,
-			FLAG_V = 0b01000000,
-			FLAG_N = 0b10000000,
+			FLAG_C = 1,
+			FLAG_Z = 2,
+			FLAG_I = 4,
+			FLAG_D = 8,
+			FLAG_B = 16, //not used in NES
+			FLAG_ALWAYS_SET = 32,
+			FLAG_V = 64,
+			FLAG_N = 128,
 		};
 		static const uint8_t ZNFlagCache[0x100];
 		static const uint8_t CycleTable[0x100];
@@ -452,11 +452,76 @@ class VirtualMachine
 		void sendHardReset(); //from user to all subsystems.
 		void sendReset(); //from user to all subsystems.
 		void loadCartridge(const char* filename); //from user
-		uint8_t read(uint16_t addr); //from processor to ram
-		void write(uint16_t addr, uint8_t value); // from processor to ram.
 		inline void consumeCpuClock(uint32_t clock)
 		{
 			consumeClock(clock * CPU_CLOCK_FACTOR);
+		}
+		inline uint8_t read(uint16_t addr) //from processor to ram
+		{
+		    switch(addr & 0xE000){
+		        case 0x0000:
+		            return ram.read(addr);
+		        case 0x2000:
+		            return video.readReg(addr);
+		        case 0x4000:
+					//このへんは込み入ってるので、仕方ないからここで振り分け。
+					if(addr == 0x4015){
+		                return audio.readReg(addr);
+					}else if(addr == 0x4016){
+						return ioPort.readInputReg1();
+					}else if(addr == 0x4017){
+						return ioPort.readInputReg2();
+		            }else if(addr < 0x4018){
+		            	throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+		            }else{
+						return cartridge->readRegisterArea(addr);
+		            }
+		        case 0x6000:
+		            return cartridge->readSaveArea(addr);
+		        case 0x8000:
+		        case 0xA000:
+		            return cartridge->readBankLow(addr);
+		        case 0xC000:
+		        case 0xE000:
+		            return cartridge->readBankHigh(addr);
+		        default:
+		            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+		    }
+		}
+		inline void write(uint16_t addr, uint8_t value) // from processor to ram.
+		{
+		    switch(addr & 0xE000){
+		        case 0x0000:
+		            ram.write(addr, value);
+		            break;
+		        case 0x2000:
+		            video.writeReg(addr, value);
+		            break;
+		        case 0x4000:
+					if(addr == 0x4014){
+						video.executeDMA(value);
+					}else if(addr == 0x4016){
+						ioPort.writeOutReg(value);
+		            }else if(addr < 0x4018){
+		                audio.writeReg(addr, value);
+		            }else{
+						cartridge->writeRegisterArea(addr, value);
+		            }
+					break;
+		        case 0x6000:
+		            cartridge->writeSaveArea(addr, value);
+		            break;
+		        case 0x8000:
+		        case 0xA000:
+		            cartridge->writeBankLow(addr, value);
+		            break;
+		        case 0xC000:
+		        case 0xE000:
+		            cartridge->writeBankHigh(addr, value);
+		            break;
+		        default:
+		            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+		    }
 		}
 	protected:
 	private:
@@ -477,6 +542,7 @@ class VirtualMachine
 
 		bool resetFlag;
 		bool hardResetFlag;
+
 };
 
 #endif // VIRTUALMACHINE_H

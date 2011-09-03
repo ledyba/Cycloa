@@ -3,3 +3,5 @@ Release
 SDL.dll
 /_roms
 /gmon.out
+/LinuxRelease
+/LinuxDebug

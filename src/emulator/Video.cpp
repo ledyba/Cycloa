@@ -214,7 +214,7 @@ inline void Video::buildBgLine()
 		const uint16_t tileYofScreen = (nameTableAddr & 0x03e0) >> 5;
 		const uint8_t palNo =
 				(
-					readVram((nameTableAddr & 0x2f00) | 0x3c0 | ((tileYofScreen & 0b11100) << 1) | ((nameTableAddr >> 2) & 7))
+					readVram((nameTableAddr & 0x2f00) | 0x3c0 | ((tileYofScreen & 0x1C) << 1) | ((nameTableAddr >> 2) & 7))
 								>> (((tileYofScreen & 2) << 1) | (nameTableAddr & 2))
 				) & 0x3;
 		//タイルのサーフェイスデータを取得
@@ -361,30 +361,30 @@ inline uint8_t Video::buildPPUStatusRegister()
 	scrollRegisterWritten = false;
     //Reading resets the 1st/2nd-write flipflop (used by Port 2005h and 2006h).
     uint8_t result =
-            ((this->nowOnVBnank) ? 0b10000000 : 0)
-        |   ((this->sprite0Hit) ? 0b01000000 : 0)
-        |   ((this->lostSprites) ? 0b00100000 : 0);
+            ((this->nowOnVBnank) ? 128 : 0)
+        |   ((this->sprite0Hit) ? 64 : 0)
+        |   ((this->lostSprites) ? 32 : 0);
 	this->nowOnVBnank = false;
 	return result;
 }
 
 inline void Video::analyzePPUControlRegister1(uint8_t value)
 {
-	executeNMIonVBlank = ((value & 0b10000000) != 0) ? true : false;
-	spriteHeight = ((value & 0b100000) != 0) ? 16 : 8;
-	patternTableAddressBackground = (value & 0b10000) << 8;
-	patternTableAddress8x8Sprites = (value & 0b1000) << 9;
-	vramIncrementSize = ((value & 0b100) != 0) ? 32 : 1;
-	vramAddrReloadRegister = (vramAddrReloadRegister & 0x73ff) | ((value & 0b11) << 10);
+	executeNMIonVBlank = ((value & 0x80) != 0) ? true : false;
+	spriteHeight = ((value & 0x20) != 0) ? 16 : 8;
+	patternTableAddressBackground = (value & 0x10) << 8;
+	patternTableAddress8x8Sprites = (value & 0x8) << 9;
+	vramIncrementSize = ((value & 0x4) != 0) ? 32 : 1;
+	vramAddrReloadRegister = (vramAddrReloadRegister & 0x73ff) | ((value & 0x3) << 10);
 }
 inline void Video::analyzePPUControlRegister2(uint8_t value)
 {
 	colorEmphasis = value >> 5; //FIXME: この扱い、どーする？
-	spriteVisibility = ((value & 0b10000) != 0) ? true : false;
-	backgroundVisibility = ((value & 0b1000) != 0) ? true : false;
-	spriteClipping = ((value & 0b100) != 0) ? false : true;
-	backgroundClipping = ((value & 0b10) != 0) ? false : true;
-	paletteMask = ((value & 0b1) != 0) ? 0x30 : 0x3f;
+	spriteVisibility = ((value & 0x10) != 0) ? true : false;
+	backgroundVisibility = ((value & 0x8) != 0) ? true : false;
+	spriteClipping = ((value & 0x4) != 0) ? false : true;
+	backgroundClipping = ((value & 0x2) != 0) ? false : true;
+	paletteMask = ((value & 0x1) != 0) ? 0x30 : 0x3f;
 }
 inline void Video::analyzePPUBackgroundScrollingOffset(uint8_t value)
 {

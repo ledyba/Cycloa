@@ -28,13 +28,14 @@ chrRom(NULL)
     }
     //left
     const int32_t contentSize = size-NES_FORMAT_SIZE;
-    uint8_t data[contentSize];
+    uint8_t* data = new uint8_t[contentSize]; //VisualC++�͉ϒ��̃X�^�b�N�ϐ����m�ۂł��Ȃ��B
     in.read(reinterpret_cast<char*>(data), contentSize);
     if(in.gcount() != contentSize){
         throw EmulatorException("[FIXME] Invalid file: ") << filename;
     }
 
     this->analyzeFile(header, contentSize, data);
+	delete [] data;
 }
 NesFile::NesFile(const uint32_t filesize, const uint8_t* data) :
 filename("\\ON_MEMORY"),
@@ -65,13 +66,13 @@ void NesFile::analyzeFile(const uint8_t* const header, const uint32_t filesize, 
     this->chrSize = CHR_ROM_PAGE_SIZE * header[5];
     this->prgPageCnt = header[4];
     this->chrPageCnt = header[5];
-    this->mapperNo = (header[6] & 0xf) | (header[7] & 0xf0);
-    this->trainerFlag = (header[6] & 0b100) == 0b100;
-    this->sramFlag = (header[6] & 0b10) == 0b10;
-    if((header[6] & 0b1000) == 0b1000){
+    this->mapperNo = ((header[6] & 0xf0)>>4) | (header[7] & 0xf0);
+    this->trainerFlag = (header[6] & 0x4) == 0x4;
+    this->sramFlag = (header[6] & 0x2) == 0x2;
+    if((header[6] & 0x8) == 0x8){
         this->mirrorType = FOUR_SCREEN;
     }else{
-        this->mirrorType = (header[6] & 0b1) == 0b1 ? VERTICAL : HORIZONTAL;
+        this->mirrorType = (header[6] & 0x1) == 0x1 ? VERTICAL : HORIZONTAL;
     }
 
     uint32_t fptr = 0;
