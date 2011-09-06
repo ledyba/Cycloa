@@ -225,7 +225,7 @@
 								<option id="gnu.cpp.compiler.option.include.paths.410600347" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.other.other.754836891" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 `sdl-config --cflags`" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.other.754836891" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 `sdl-config --cflags` -fopenmp" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.debugging.gprof.1902122120" name="Generate gprof information (-pg)" superClass="gnu.cpp.compiler.option.debugging.gprof" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1277731053" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
@@ -236,7 +236,7 @@
 								<option id="gnu.c.compiler.option.include.paths.309380026" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="/usr/include"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.1305563618" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 `sdl-config --cflags`" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.1305563618" name="Other flags" superClass="gnu.c.compiler.option.misc.other" value="-c -fmessage-length=0 `sdl-config --cflags` -fopenmp" valueType="string"/>
 								<option id="gnu.c.compiler.option.debugging.gprof.935409908" name="Generate gprof information (-pg)" superClass="gnu.c.compiler.option.debugging.gprof" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.50111299" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
@@ -249,7 +249,7 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.199516731" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths"/>
 								<option id="gnu.cpp.link.option.strip.1901333866" name="Omit all symbol information (-s)" superClass="gnu.cpp.link.option.strip" value="true" valueType="boolean"/>
-								<option id="gnu.cpp.link.option.flags.1748085985" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="`sdl-config --libs`" valueType="string"/>
+								<option id="gnu.cpp.link.option.flags.1748085985" name="Linker flags" superClass="gnu.cpp.link.option.flags" value="`sdl-config --libs` -fopenmp" valueType="string"/>
 								<option id="gnu.cpp.link.option.debugging.gprof.944782779" name="Generate gprof information (-pg)" superClass="gnu.cpp.link.option.debugging.gprof" value="false" valueType="boolean"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.941607528" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -272,6 +272,11 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="Cycloa.cdt.managedbuild.target.gnu.mingw.exe.901446698" name="Executable" projectType="cdt.managedbuild.target.gnu.mingw.exe"/>
 	</storageModule>
+	<storageModule moduleId="refreshScope" versionNumber="1">
+		<resource resourceType="PROJECT" workspacePath="/Cycloa"/>
+	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343;cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343.;cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.debug.1987422323;cdt.managedbuild.tool.gnu.cpp.compiler.input.1743640578">
@@ -280,6 +285,12 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343;cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.2095141365;cdt.managedbuild.tool.gnu.c.compiler.input.230420074">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.614861447;cdt.managedbuild.config.gnu.exe.release.614861447.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1292889404;cdt.managedbuild.tool.gnu.c.compiler.input.50111299">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.614861447;cdt.managedbuild.config.gnu.exe.release.614861447.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.148249709;cdt.managedbuild.tool.gnu.cpp.compiler.input.1277731053">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.832248843;cdt.managedbuild.config.gnu.mingw.exe.release.832248843.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.2054623902;cdt.managedbuild.tool.gnu.c.compiler.input.2131934572">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
@@ -287,9 +298,4 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/Cycloa"/>
-	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>
