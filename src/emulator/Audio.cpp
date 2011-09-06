@@ -332,7 +332,7 @@ inline void Rectangle::onHalfFrame()
 }
 inline int16_t Rectangle::createSound(unsigned int deltaClock)
 {
-	if(lengthCounter == 0){
+	if(lengthCounter == 0 || this->frequency < 0x8 || this->frequency  > 0x7ff){
 		return 0;
 	}
 	unsigned int nowCounter = this->freqCounter + deltaClock;
