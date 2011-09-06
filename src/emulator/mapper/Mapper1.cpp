@@ -10,8 +10,8 @@ highChrBank(1),
 lowChrBank(0),
 prgBank(lastPrgBank),
 
-highPrgBank(lastPrgBank),
-lowPrgBank(0),
+highPrgAddrBase(lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE),
+lowPrgAddrBase(0),
 highChrAddrBase(0x1000),
 lowChrAddrBase(0x0000),
 reg(0),
@@ -36,7 +36,7 @@ uint8_t Mapper1::readPatternTableLow(uint16_t addr) const
 /* for CPU */
 uint8_t Mapper1::readBankHigh(uint16_t addr)
 {
-	return this->nesFile->readPrg(highPrgBank, addr & 0x3fff);
+	return this->nesFile->readPrg(highPrgAddrBase | (addr & 0x3fff));
 }
 void Mapper1::writeBankHigh(uint16_t addr, uint8_t val)
 {
@@ -63,7 +63,7 @@ void Mapper1::writeBankHigh(uint16_t addr, uint8_t val)
 }
 uint8_t Mapper1::readBankLow(uint16_t addr)
 {
-	return this->nesFile->readPrg(lowPrgBank, addr & 0x3fff);
+	return this->nesFile->readPrg(lowPrgAddrBase | (addr & 0x3fff));
 }
 void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 {
@@ -110,14 +110,14 @@ inline void Mapper1::updateBank()
 		highChrAddrBase += 0x1000;
 	}
 	if(prgMode < 2){
-		lowPrgBank = this->prgBank;
-		highPrgBank = lowPrgBank+1;
+		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		highPrgAddrBase = lowPrgAddrBase + NesFile::PRG_ROM_PAGE_SIZE;
 	}else if(prgMode == 2){
-		lowPrgBank = this->prgBank;
-		highPrgBank = lastPrgBank;
+		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		highPrgAddrBase = lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE;
 	}else if(prgMode == 3){
-		lowPrgBank = 0;
-		highPrgBank = this->prgBank;
+		lowPrgAddrBase = 0;
+		highPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
 	}
 
 }

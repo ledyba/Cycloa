@@ -28,10 +28,10 @@ class Mapper1 : public Cartridge
 		uint8_t lowChrBank;
 		uint8_t prgBank;
 
-		uint16_t highPrgBank;
-		uint16_t lowPrgBank;
-		uint16_t highChrAddrBase;
-		uint16_t lowChrAddrBase;
+		uint32_t highPrgAddrBase;
+		uint32_t lowPrgAddrBase;
+		uint32_t highChrAddrBase;
+		uint32_t lowChrAddrBase;
 
 		uint8_t reg;
 		uint8_t regCnt;
