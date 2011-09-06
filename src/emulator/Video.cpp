@@ -65,15 +65,21 @@ void Video::run(uint16_t clockDelta)
 			}
 		}else if(this->nowY == 241){
 			//241: The PPU just idles during this scanline. Despite this, this scanline still occurs before the VBlank flag is set.
-			//BLANK
+		}else if(this->nowY == 242){
+			// NESDEV: These occur during VBlank. The VBlank flag of the PPU is pulled low during scanline 241, so the VBlank NMI occurs here.
+			// EVERYNES: http://nocash.emubase.de/everynes.htm#ppudimensionstimings
+			// とあるものの…BeNesの実装だともっと後に発生すると記述されてる。詳しくは以下。
+			// なお、$2002のレジスタがHIGHになった後にVBLANKを起こさないと「ソロモンの鍵」にてゲームが始まらない。
+			// (NMI割り込みがレジスタを読み込みフラグをリセットしてしまう上、NMI割り込みが非常に長く、クリアしなくてもすでにVBLANKが終わった後に返ってくる)
+			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
 			this->nowOnVBnank = true;
 			this->sprite0Hit = false;
 			spriteAddr = 0;//and typically contains 00h at the begin of the VBlank periods
+		}else if(this->nowY==244){
 			if(executeNMIonVBlank){
 				this->VM.sendNMI();
 			}
 			this->VM.sendVBlank();
-			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
 		}else if(this->nowY <= 261){
 			//nowVBlank.
 		}else if(this->nowY == 262){
@@ -374,21 +380,21 @@ inline uint8_t Video::buildPPUStatusRegister()
 
 inline void Video::analyzePPUControlRegister1(uint8_t value)
 {
-	executeNMIonVBlank = ((value & 0x80) != 0) ? true : false;
-	spriteHeight = ((value & 0x20) != 0) ? 16 : 8;
+	executeNMIonVBlank = ((value & 0x80) == 0x80) ? true : false;
+	spriteHeight = ((value & 0x20) == 0x20) ? 16 : 8;
 	patternTableAddressBackground = (value & 0x10) << 8;
 	patternTableAddress8x8Sprites = (value & 0x8) << 9;
-	vramIncrementSize = ((value & 0x4) != 0) ? 32 : 1;
+	vramIncrementSize = ((value & 0x4) == 0x4) ? 32 : 1;
 	vramAddrReloadRegister = (vramAddrReloadRegister & 0x73ff) | ((value & 0x3) << 10);
 }
 inline void Video::analyzePPUControlRegister2(uint8_t value)
 {
 	colorEmphasis = value >> 5; //FIXME: この扱い、どーする？
-	spriteVisibility = ((value & 0x10) != 0) ? true : false;
-	backgroundVisibility = ((value & 0x8) != 0) ? true : false;
-	spriteClipping = ((value & 0x4) != 0) ? false : true;
-	backgroundClipping = ((value & 0x2) != 0) ? false : true;
-	paletteMask = ((value & 0x1) != 0) ? 0x30 : 0x3f;
+	spriteVisibility = ((value & 0x10) == 0x10) ? true : false;
+	backgroundVisibility = ((value & 0x08) == 0x08) ? true : false;
+	spriteClipping = ((value & 0x04) == 0x04) ? false : true;
+	backgroundClipping = ((value & 0x2) == 0x02) ? false : true;
+	paletteMask = ((value & 0x1) == 0x01) ? 0x30 : 0x3f;
 }
 inline void Video::analyzePPUBackgroundScrollingOffset(uint8_t value)
 {
