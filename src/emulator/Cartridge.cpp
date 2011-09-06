@@ -179,4 +179,5 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 		}
 		throw;
 	}
+	return NULL;
 }
