@@ -171,12 +171,14 @@ inline void Video::buildSpriteLine()
 			for(size_t x=0;x<endX;x++){
 				const uint8_t color = ((firstPlane >> x) & 1) | (((secondPlane >> x) & 1)<<1);
 				uint8_t& target = lineBuff[slot.x + x];
-				const bool isBackgroundDrawn = (target & LayerBitMask) != EmptyBit;
+				const bool isEmpty = (target & LayerBitMask) == EmptyBit;
+				const bool isBackgroundDrawn = (target & LayerBitMask) == BackgroundBit;
+				const bool isSpriteNotDrawn = (target & SpriteLayerBit) == 0;
 				if(searchSprite0Hit && (color != 0 && isBackgroundDrawn)){
 					this->sprite0Hit = true;
 					searchSprite0Hit = false;
 				}
-				if(color != 0 && (!isBackgroundDrawn || slot.isForeground)){
+				if(color != 0 && ((!slot.isForeground && isEmpty) || (slot.isForeground &&  isSpriteNotDrawn))){
 					target = this->palette[slot.paletteNo][color] | layerMask;
 				}
 			}
@@ -184,12 +186,14 @@ inline void Video::buildSpriteLine()
 			for(size_t x=0;x<endX;x++){
 				const uint8_t color = ((firstPlane >> (7-x)) & 1) | (((secondPlane >> (7-x)) & 1)<<1);
 				uint8_t& target = lineBuff[slot.x + x];
-				const bool isBackgroundDrawn = (target & LayerBitMask) != EmptyBit;
+				const bool isEmpty = (target & LayerBitMask) == EmptyBit;
+				const bool isBackgroundDrawn = (target & LayerBitMask) == BackgroundBit;
+				const bool isSpriteNotDrawn = (target & SpriteLayerBit) == 0;
 				if(searchSprite0Hit && (color != 0 && isBackgroundDrawn)){
 					this->sprite0Hit = true;
 					searchSprite0Hit = false;
 				}
-				if(color != 0 && (!isBackgroundDrawn || slot.isForeground)){
+				if(color != 0 && ((!slot.isForeground && isEmpty) || (slot.isForeground && isSpriteNotDrawn))){
 					target = this->palette[slot.paletteNo][color] | layerMask;
 				}
 			}
