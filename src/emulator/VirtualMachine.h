@@ -181,6 +181,7 @@ class Video
 			BackSpriteBit = 0x40,
 			BackgroundBit = 0x80,
 			FrontSpriteBit = 0xc0,
+			SpriteLayerBit = 0x40,
 			LayerBitMask = 0xc0
 		};
 	protected:
