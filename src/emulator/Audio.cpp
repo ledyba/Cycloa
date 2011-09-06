@@ -106,8 +106,7 @@ uint8_t Audio::readReg(uint16_t addr)
 	}
  	// Clears the frame interrupt flag after being read (but not the DMC interrupt flag).
 	// If an interrupt flag was set at the same moment of the read, it will read back as 1 but it will not be cleared.
-	frameIRQactive = false;
-	return
+	uint8_t ret =
 			(this->rectangle1.isEnabled()		? 1 : 0)
 			|	(this->rectangle2.isEnabled()	? 2 : 0)
 			|	(this->triangle.isEnabled()		? 4 : 0)
@@ -115,6 +114,8 @@ uint8_t Audio::readReg(uint16_t addr)
 			|	(this->digital.isEnabled()		? 16 : 0)
 			|	(this->frameIRQactive				? 64 : 0)
 			|	(this->digital.isIRQEnabled()	? 128 : 0);
+	frameIRQactive = false;
+	return ret;
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
 {
