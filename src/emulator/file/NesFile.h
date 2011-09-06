@@ -60,17 +60,9 @@ public:
 	{
 	    return this->trainer[addr];
 	}
-	inline uint8_t readPrg(uint16_t page, uint16_t addr) const
-	{
-	    return this->readPrg(page * PRG_ROM_PAGE_SIZE + addr);
-	}
 	inline uint8_t readPrg(uint32_t addr) const
 	{
 	    return this->prgRom[addr];
-	}
-	inline uint8_t readChr(uint16_t page, uint16_t addr) const
-	{
-	    return this->readChr(page * PRG_ROM_PAGE_SIZE + addr);
 	}
 	inline uint8_t readChr(uint32_t addr) const
 	{
