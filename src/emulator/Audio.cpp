@@ -306,7 +306,6 @@ inline void Rectangle::onHalfFrame()
 	if(lengthCounter != 0 && !loopEnabled){
 		lengthCounter--;
 	}
-	const uint16_t nowFreq = this->frequency;
 	if(sweepEnabled){
 		if(sweepCounter == 0){
 			this->sweepCounter = sweepUpdateRatio;
@@ -325,14 +324,10 @@ inline void Rectangle::onHalfFrame()
 			this->sweepCounter--;
 		}
 	}
-	if(nowFreq < 0x8 || this->frequency  > 0x7ff){
-		sweepEnabled = false;
-		lengthCounter = 0;
-	}
 }
 inline int16_t Rectangle::createSound(unsigned int deltaClock)
 {
-	if(lengthCounter == 0 || this->frequency < 0x8 || this->frequency  > 0x7ff){
+	if(lengthCounter == 0 || frequency < 0x8 || frequency  > 0x7ff){
 		return 0;
 	}
 	unsigned int nowCounter = this->freqCounter + deltaClock;
@@ -352,7 +347,7 @@ inline void Rectangle::setEnabled(bool enabled)
 }
 inline bool Rectangle::isEnabled()
 {
-	return lengthCounter != 0;
+	return lengthCounter != 0 && this->frequency >= 0x8 && this->frequency  < 0x800;
 }
 inline void Rectangle::onHardReset()
 {
