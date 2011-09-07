@@ -10,6 +10,7 @@
 Cartridge::Cartridge(VirtualMachine& vm, const NesFile* nesFile) :
 	nesFile(nesFile),
 	VM(vm),
+	hasSram(nesFile->hasSram()),
 	mirrorType(nesFile->getMirrorType()),
     internalVram(NULL)
 {
@@ -56,8 +57,8 @@ void Cartridge::writeRegisterArea(uint16_t addr, uint8_t val)
 
 uint8_t Cartridge::readSaveArea(uint16_t addr)
 {
-	if(this->nesFile->hasSram()){
-		return this->sram[addr & 0x3ff];
+	if(hasSram){
+		return readSram(addr);
 	}else{
 		//http://nocash.emubase.de/everynes.htm#unpredictablethings
 		return addr >> 8;
@@ -65,8 +66,8 @@ uint8_t Cartridge::readSaveArea(uint16_t addr)
 }
 void Cartridge::writeSaveArea(uint16_t addr, uint8_t val)
 {
-	if(this->nesFile->hasSram()){
-		this->sram[addr & 0x3ff] = val;
+	if(hasSram){
+		writeSram(addr, val);
 	}
 }
 

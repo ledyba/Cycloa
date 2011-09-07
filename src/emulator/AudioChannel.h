@@ -167,6 +167,7 @@ public:
 	inline void setEnabled(bool enabled);
 	inline bool isEnabled();
 	inline bool isIRQEnabled();
+	inline bool isIRQActive();
 	inline void onHardReset();
 	inline void onReset();
 };

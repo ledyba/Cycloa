@@ -45,16 +45,18 @@ void Mapper1::writeBankHigh(uint16_t addr, uint8_t val)
 		reg = 0;
 		return;
 	}
-	reg = (val & 1) << (regCnt);
+	reg |= (val & 1) << (regCnt);
 	regCnt++;
 	if(regCnt >= 5){
 		switch(addr & 0xe000){
 			case 0xc000:
-				lowChrBank = reg & 31;
-				break;
-			case 0xe000:
 				highChrBank = reg & 31;
 				break;
+			case 0xe000:
+				prgBank = reg & 15;
+				break;
+			default:
+				throw EmulatorException("[Mapper1] FIXME BUG!!");
 		}
 		updateBank();
 		regCnt = 0;
@@ -72,7 +74,7 @@ void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 		reg = 0;
 		return;
 	}
-	reg = (val & 1) << (regCnt);
+	reg |= (val & 1) << (regCnt);
 	regCnt++;
 	if(regCnt >= 5){
 		switch(addr & 0xe000){
@@ -91,8 +93,10 @@ void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 				break;
 			}
 			case 0xa000:
-				this->prgBank = reg & 31;
+				this->lowChrBank = reg & 31;
 				break;
+			default:
+				throw EmulatorException("[Mapper1] FIXME BUG!!");
 		}
 		updateBank();
 		regCnt = 0;
@@ -106,18 +110,17 @@ inline void Mapper1::updateBank()
 		highChrAddrBase = 0x1000 * highChrBank;
 		lowChrAddrBase = 0x1000 * lowChrBank;
 	}else{
-		lowChrAddrBase = 0x1000 * lowChrBank;
-		highChrAddrBase += 0x1000;
+		lowChrAddrBase = 0x1000 * (lowChrBank & 30);
+		highChrAddrBase = lowChrAddrBase+0x1000;
 	}
 	if(prgMode < 2){
-		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		lowPrgAddrBase = (this->prgBank & 14) * NesFile::PRG_ROM_PAGE_SIZE;
 		highPrgAddrBase = lowPrgAddrBase + NesFile::PRG_ROM_PAGE_SIZE;
 	}else if(prgMode == 2){
-		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
-		highPrgAddrBase = lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE;
-	}else if(prgMode == 3){
 		lowPrgAddrBase = 0;
 		highPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+	}else if(prgMode == 3){
+		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		highPrgAddrBase = this->lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE;
 	}
-
 }

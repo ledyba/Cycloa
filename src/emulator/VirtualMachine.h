@@ -60,6 +60,7 @@ protected:
 	const NesFile* const nesFile;
 private:
 	VirtualMachine& VM;
+	bool hasSram;
 	uint8_t sram[SRAM_SIZE];
 	NesFile::MirrorType mirrorType;
 	uint8_t* vramMirroring[4];

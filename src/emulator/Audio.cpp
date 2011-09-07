@@ -59,7 +59,7 @@ void Audio::run(uint16_t clockDelta)
 		sound += noize.createSound(delta);
 		sound += digital.createSound(delta);
 
-		audioFairy.pushAudio(sound * 250);
+		audioFairy.pushAudio(sound * 100);
 	}
 }
 
@@ -113,7 +113,7 @@ uint8_t Audio::readReg(uint16_t addr)
 			|	(this->noize.isEnabled()			? 8 : 0)
 			|	(this->digital.isEnabled()		? 16 : 0)
 			|	(this->frameIRQactive				? 64 : 0)
-			|	(this->digital.isIRQEnabled()	? 128 : 0);
+			|	(this->digital.isIRQActive()		? 128 : 0);
 	frameIRQactive = false;
 	return ret;
 }
@@ -642,7 +642,8 @@ inline int16_t Digital::createSound(unsigned int deltaClock)
 	}
 	unsigned int nowCounter = this->freqCounter + deltaClock;
 	const uint16_t divFreq = this->frequency + 1;
-	while(nowCounter -= divFreq){
+	while(nowCounter >= divFreq){
+		nowCounter -= divFreq;
 		next();
 	}
 	this->freqCounter = nowCounter;
@@ -665,6 +666,10 @@ inline bool Digital::isEnabled()
 inline bool Digital::isIRQEnabled()
 {
 	return irqEnabled;
+}
+inline bool Digital::isIRQActive()
+{
+	return irqActive;
 }
 inline void Digital::onHardReset()
 {
