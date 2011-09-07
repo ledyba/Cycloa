@@ -2,6 +2,7 @@
 
 Mapper1::Mapper1(VirtualMachine& vm, const NesFile* nesFile) :
 Cartridge(vm, nesFile),
+hasChrRam(nesFile->getChrPageCnt() == 0),
 lastPrgBank(nesFile->getPrgPageCnt()-1),
 chrMode(0),
 prgMode(3),
@@ -17,6 +18,7 @@ lowChrAddrBase(0x0000),
 reg(0),
 regCnt(0)
 {
+	memset(chrRam, 0, 8192);
 }
 Mapper1::~Mapper1()
 {
@@ -25,12 +27,34 @@ Mapper1::~Mapper1()
 /* for PPU */
 uint8_t Mapper1::readPatternTableHigh(uint16_t addr) const
 {
-	return this->nesFile->readChr((addr & 0x0fff) | highChrAddrBase);
+	if(hasChrRam){
+		return chrRam[(addr & 0x0fff) | 0x1000];
+	}else{
+		return this->nesFile->readChr((addr & 0x0fff) | highChrAddrBase);
+	}
+}
+
+void Mapper1::writePatternTableHigh(uint16_t addr, uint8_t val)
+{
+	if(hasChrRam){
+		chrRam[(addr & 0x0fff) | 0x1000] = val;
+	}
 }
 
 uint8_t Mapper1::readPatternTableLow(uint16_t addr) const
 {
-	return this->nesFile->readChr((addr & 0x0fff) | lowChrAddrBase);
+	if(hasChrRam){
+		return chrRam[addr & 0x0fff];
+	}else{
+		return this->nesFile->readChr((addr & 0x0fff) | lowChrAddrBase);
+	}
+}
+
+void Mapper1::writePatternTableLow(uint16_t addr, uint8_t val)
+{
+	if(hasChrRam){
+		chrRam[addr & 0x0fff] = val;
+	}
 }
 
 /* for CPU */
