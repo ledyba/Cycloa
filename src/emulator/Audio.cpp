@@ -637,7 +637,7 @@ inline void Digital::next()
 }
 inline int16_t Digital::createSound(unsigned int deltaClock)
 {
-	if(sampleLength == 0 && !loopEnabled){
+	if(sampleLength == 0){
 		return deltaCounter;
 	}
 	unsigned int nowCounter = this->freqCounter + deltaClock;
@@ -651,7 +651,7 @@ inline int16_t Digital::createSound(unsigned int deltaClock)
 }
 inline void Digital::setEnabled(bool enabled)
 {
-	if(enabled){
+	if(!enabled){
 		sampleLength = 0;
 	}else if(sampleLength == 0){
 		sampleLength = sampleLengthBuffer;
