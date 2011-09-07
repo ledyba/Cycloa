@@ -675,6 +675,7 @@ inline void Processor::onIRQ()
 {
     //from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
     //from http://nesdev.parodius.com/6502_cpu.txt
+    this->IRQ = false;
     if((this->P & FLAG_I) == FLAG_I){
         return;
     }
@@ -685,7 +686,6 @@ inline void Processor::onIRQ()
     push(this->P);
     this->P |= FLAG_I;
     this->PC = (read(0xFFFE) | (read(0xFFFF) << 8));
-    this->IRQ = false;
 }
 
 

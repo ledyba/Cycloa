@@ -20,31 +20,106 @@ Audio::~Audio()
 
 void Audio::run(uint16_t clockDelta)
 {
-	frameCnt += (clockDelta * frameIRQRate);
+	frameCnt += (clockDelta * FRAME_IRQ_RATE);
 	while(frameCnt >= Audio::AUDIO_CLOCK){
 		frameCnt -=Audio::AUDIO_CLOCK;
-		// envelope
-		this->rectangle1.onQuaterFrame();
-		this->rectangle2.onQuaterFrame();
-		this->triangle.onQuaterFrame();
-		this->noize.onQuaterFrame();
-		//sweep
-		sweepProcessed = !sweepProcessed;
-		if(!sweepProcessed){
-			this->rectangle1.onHalfFrame();
-			this->rectangle2.onHalfFrame();
-			this->triangle.onHalfFrame();
-			this->noize.onHalfFrame();
-		}
-		if(frameIRQCnt == 0){
-			frameIRQCnt = frameIRQInterval;
-			// IRQ & length counters
-			if(frameIRQenabled){
-				this->VM.sendIRQ();
-				this->frameIRQactive = true;
+		if(isNTSCmode){
+			frameIRQCnt ++;
+			switch(frameIRQCnt){
+			case 1:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				break;
+			case 2:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				//
+				this->rectangle1.onHalfFrame();
+				this->rectangle2.onHalfFrame();
+				this->triangle.onHalfFrame();
+				this->noize.onHalfFrame();
+				break;
+			case 3:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				break;
+			case 4:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				//
+				this->rectangle1.onHalfFrame();
+				this->rectangle2.onHalfFrame();
+				this->triangle.onHalfFrame();
+				this->noize.onHalfFrame();
+				if(frameIRQenabled){
+					this->VM.sendIRQ();
+					this->frameIRQactive = true;
+				}
+				frameIRQCnt = 0;
+				break;
+			default:
+				throw EmulatorException("FIXME Audio::run interrupt NTSC");
+			}
+		}else{
+			frameIRQCnt ++;
+			switch(frameIRQCnt){
+			case 1:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				break;
+			case 2:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				//
+				this->rectangle1.onHalfFrame();
+				this->rectangle2.onHalfFrame();
+				this->triangle.onHalfFrame();
+				this->noize.onHalfFrame();
+				break;
+			case 3:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				break;
+			case 4:
+				break;
+			case 5:
+				//
+				this->rectangle1.onQuaterFrame();
+				this->rectangle2.onQuaterFrame();
+				this->triangle.onQuaterFrame();
+				this->noize.onQuaterFrame();
+				//
+				this->rectangle1.onHalfFrame();
+				this->rectangle2.onHalfFrame();
+				this->triangle.onHalfFrame();
+				this->noize.onHalfFrame();
+				frameIRQCnt = 0;
+				break;
+			default:
+				throw EmulatorException("FIXME Audio::run interrupt PAL");
 			}
 		}
-		frameIRQCnt--;
 	}
 	clockCnt += (clockDelta * Audio::SAMPLE_RATE);
 	while(clockCnt >= Audio::AUDIO_CLOCK){
@@ -68,12 +143,11 @@ void Audio::onHardReset()
 	clockCnt = 0;
 	leftClock = 0;
 	frameCnt = 0;
-	sweepProcessed = false;
 
 	frameIRQenabled = true;
 	frameIRQactive = false;
-	frameIRQRate = 240;
-	frameIRQCnt = frameIRQInterval = 4;
+	isNTSCmode = true;
+	frameIRQCnt = 0;
 	rectangle1.onHardReset();
 	rectangle2.onHardReset();
 	triangle.onHardReset();
@@ -84,8 +158,8 @@ void Audio::onReset()
 {
 	frameIRQenabled = true;
 	frameIRQactive = false;
-	frameIRQRate = 240;
-	frameIRQCnt = frameIRQInterval = 4;
+	isNTSCmode = true;
+	frameIRQCnt = 0;
 	rectangle1.onReset();
 	rectangle2.onReset();
 	triangle.onReset();
@@ -207,15 +281,14 @@ void Audio::analyzeLowFrequentryRegister(uint8_t value)
 {
 	//Any write to $4017 resets both the frame counter, and the clock divider.
 	frameIRQenabled = ((value & 0x40) == 0x00);
+	frameIRQCnt = 0;
 	if((value & 0x80) == 0x80){
-		frameIRQRate = 192;
-		frameIRQCnt = frameIRQInterval = 5;
+		isNTSCmode = false;
+		frameCnt = Audio::AUDIO_CLOCK;
 	}else{
-		frameIRQRate = 240;
-		frameIRQCnt = frameIRQInterval = 4;
+		isNTSCmode = true;
+		frameCnt = 0;
 	}
-	//frameIRQCnt = 0;
-	frameCnt = Audio::AUDIO_CLOCK;
 }
 
 

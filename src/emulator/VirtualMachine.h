@@ -134,7 +134,8 @@ class Audio {
 		void onVSync();
 		enum{
 			AUDIO_CLOCK = 21477272/12,//21.28MHz(NTSC)
-			SAMPLE_RATE = 44100
+			SAMPLE_RATE = 44100,
+			FRAME_IRQ_RATE = 240
 		};
 	protected:
 	private:
@@ -145,12 +146,10 @@ class Audio {
 		unsigned int leftClock;
 		unsigned int frameCnt;
 		//--
+		bool isNTSCmode;
 		bool frameIRQenabled;
 		bool frameIRQactive;
 		uint8_t frameIRQCnt;
-		uint8_t frameIRQRate;
-		uint8_t frameIRQInterval;
-		bool sweepProcessed;
 		//---
 		Rectangle rectangle1;
 		Rectangle rectangle2;
