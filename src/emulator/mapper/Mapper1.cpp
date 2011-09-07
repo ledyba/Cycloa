@@ -28,7 +28,7 @@ Mapper1::~Mapper1()
 uint8_t Mapper1::readPatternTableHigh(uint16_t addr) const
 {
 	if(hasChrRam){
-		return chrRam[(addr & 0x0fff) | 0x1000];
+		return chrRam[(addr & 0x0fff) | highChrAddrBase];
 	}else{
 		return this->nesFile->readChr((addr & 0x0fff) | highChrAddrBase);
 	}
@@ -37,14 +37,14 @@ uint8_t Mapper1::readPatternTableHigh(uint16_t addr) const
 void Mapper1::writePatternTableHigh(uint16_t addr, uint8_t val)
 {
 	if(hasChrRam){
-		chrRam[(addr & 0x0fff) | 0x1000] = val;
+		chrRam[(addr & 0x0fff) | highChrAddrBase] = val;
 	}
 }
 
 uint8_t Mapper1::readPatternTableLow(uint16_t addr) const
 {
 	if(hasChrRam){
-		return chrRam[addr & 0x0fff];
+		return chrRam[(addr & 0x0fff) | lowChrAddrBase];
 	}else{
 		return this->nesFile->readChr((addr & 0x0fff) | lowChrAddrBase);
 	}
@@ -53,7 +53,7 @@ uint8_t Mapper1::readPatternTableLow(uint16_t addr) const
 void Mapper1::writePatternTableLow(uint16_t addr, uint8_t val)
 {
 	if(hasChrRam){
-		chrRam[addr & 0x0fff] = val;
+		chrRam[(addr & 0x0fff) | lowChrAddrBase] = val;
 	}
 }
 
@@ -105,8 +105,10 @@ void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 			case 0x8000:
 			{
 				const uint8_t mirroring = reg & 3;
-				if(mirroring < 2){
-					changeMirrorType(NesFile::SINGLE);
+				if(mirroring == 0){
+					changeMirrorType(NesFile::SINGLE0);
+				}else if(mirroring == 1){
+					changeMirrorType(NesFile::SINGLE1);
 				}else if(mirroring == 2){
 					changeMirrorType(NesFile::VERTICAL);
 				}else if(mirroring == 3){
@@ -130,12 +132,22 @@ void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 
 inline void Mapper1::updateBank()
 {
-	if(chrMode == 1){
-		highChrAddrBase = 0x1000 * highChrBank;
-		lowChrAddrBase = 0x1000 * lowChrBank;
-	}else{
-		lowChrAddrBase = 0x1000 * (lowChrBank & 30);
-		highChrAddrBase = lowChrAddrBase+0x1000;
+	if(chrMode == 1){ //4kb mode
+		if(hasChrRam){
+			highChrAddrBase = 0x1000 * (highChrBank & 1);
+			lowChrAddrBase = 0x1000 * (lowChrBank & 1);
+		}else{
+			highChrAddrBase = 0x1000 * highChrBank;
+			lowChrAddrBase = 0x1000 * lowChrBank;
+		}
+	}else{ // 8kb mode
+		if(hasChrRam){
+			highChrAddrBase = 0x1000;
+			lowChrAddrBase = 0x0000;
+		}else{
+			lowChrAddrBase = 0x1000 * (lowChrBank & 30);
+			highChrAddrBase = lowChrAddrBase+0x1000;
+		}
 	}
 	if(prgMode < 2){
 		lowPrgAddrBase = (this->prgBank & 14) * NesFile::PRG_ROM_PAGE_SIZE;

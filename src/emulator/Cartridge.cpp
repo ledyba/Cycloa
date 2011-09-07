@@ -68,6 +68,8 @@ void Cartridge::writeSaveArea(uint16_t addr, uint8_t val)
 {
 	if(hasSram){
 		writeSram(addr, val);
+	}else{
+		throw EmulatorException("Invalid sram write!!");
 	}
 }
 
@@ -125,32 +127,38 @@ void Cartridge::changeMirrorType(NesFile::MirrorType mirrorType)
 	this->mirrorType = mirrorType;
 	switch(mirrorType)
 	{
-		case NesFile::SINGLE:
-			this->vramMirroring[0] = &internalVram[0];
-			this->vramMirroring[1] = &internalVram[0];
-			this->vramMirroring[2] = &internalVram[0];
-			this->vramMirroring[3] = &internalVram[0];
-			break;
-		case NesFile::FOUR_SCREEN:
-			this->vramMirroring[0] = &this->fourScreenVram[0];
-			this->vramMirroring[1] = &this->fourScreenVram[0x400];
-			this->vramMirroring[2] = &this->fourScreenVram[0x800];
-			this->vramMirroring[3] = &this->fourScreenVram[0xC00];
-			break;
-		case NesFile::HORIZONTAL:
-			this->vramMirroring[0] = &internalVram[0];
-			this->vramMirroring[1] = &internalVram[0];
-			this->vramMirroring[2] = &internalVram[0x400];
-			this->vramMirroring[3] = &internalVram[0x400];
-			break;
-		case NesFile::VERTICAL:
-			this->vramMirroring[0] = &internalVram[0];
-			this->vramMirroring[1] = &internalVram[0x400];
-			this->vramMirroring[2] = &internalVram[0];
-			this->vramMirroring[3] = &internalVram[0x400];
-			break;
-		default:
-			throw EmulatorException("Invalid mirroring type!");
+	case NesFile::SINGLE0:
+		this->vramMirroring[0] = &internalVram[0];
+		this->vramMirroring[1] = &internalVram[0];
+		this->vramMirroring[2] = &internalVram[0];
+		this->vramMirroring[3] = &internalVram[0];
+		break;
+	case NesFile::SINGLE1:
+		this->vramMirroring[0] = &internalVram[1];
+		this->vramMirroring[1] = &internalVram[1];
+		this->vramMirroring[2] = &internalVram[1];
+		this->vramMirroring[3] = &internalVram[1];
+		break;
+	case NesFile::FOUR_SCREEN:
+		this->vramMirroring[0] = &this->fourScreenVram[0];
+		this->vramMirroring[1] = &this->fourScreenVram[0x400];
+		this->vramMirroring[2] = &this->fourScreenVram[0x800];
+		this->vramMirroring[3] = &this->fourScreenVram[0xC00];
+		break;
+	case NesFile::HORIZONTAL:
+		this->vramMirroring[0] = &internalVram[0];
+		this->vramMirroring[1] = &internalVram[0];
+		this->vramMirroring[2] = &internalVram[0x400];
+		this->vramMirroring[3] = &internalVram[0x400];
+		break;
+	case NesFile::VERTICAL:
+		this->vramMirroring[0] = &internalVram[0];
+		this->vramMirroring[1] = &internalVram[0x400];
+		this->vramMirroring[2] = &internalVram[0];
+		this->vramMirroring[3] = &internalVram[0x400];
+		break;
+	default:
+		throw EmulatorException("Invalid mirroring type!");
 	}
 }
 

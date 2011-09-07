@@ -1,7 +1,8 @@
-Debug
-Release
+/Debug
+/Release
 SDL.dll
 /_roms
+/_tmp
 /gmon.out
 /LinuxRelease
 /LinuxDebug

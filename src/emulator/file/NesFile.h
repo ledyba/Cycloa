@@ -14,7 +14,7 @@
 class NesFile
 {
 public:
-	enum MirrorType {SINGLE, HORIZONTAL, VERTICAL, FOUR_SCREEN};
+	enum MirrorType {SINGLE0, SINGLE1, HORIZONTAL, VERTICAL, FOUR_SCREEN};
 	enum{
 		NES_FORMAT_SIZE = 16,
 		TRAINER_SIZE = 512,

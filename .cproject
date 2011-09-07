@@ -128,6 +128,16 @@
 							</tool>
 						</toolChain>
 					</folderInfo>
+					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.release.832248843.370844187" name="/" resourcePath="src/emulator/mapper">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.release.381481845" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.release" unusedChildren="">
+							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release.486493934" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.release.1723705945"/>
+							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.956407953" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base.1305225724"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1969647185" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.mingw.exe.release.1995754031"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.1583940996" name="GCC C Compiler" superClass="cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.2054623902"/>
+							<tool id="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.1848277337" name="MinGW C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.mingw.exe.release.275999227"/>
+							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.release.1740678556" name="MinGW C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.mingw.exe.release.442755869"/>
+						</toolChain>
+					</folderInfo>
 					<sourceEntries>
 						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>

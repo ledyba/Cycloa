@@ -57,5 +57,8 @@
     <ClCompile Include="..\..\src\fairy\sdl\SDLGamepadFairy.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper3.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
