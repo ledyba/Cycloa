@@ -23,6 +23,8 @@ class Mapper1 : public Cartridge
 		void writeBankLow(uint16_t addr, uint8_t val);
 	protected:
 	private:
+		const bool is512krom;
+		bool useHighPrgBank;
 		const bool hasChrRam;
 		uint8_t chrRam[8192];
 

@@ -2,6 +2,7 @@
 
 Mapper1::Mapper1(VirtualMachine& vm, const NesFile* nesFile) :
 Cartridge(vm, nesFile),
+is512krom(nesFile->getPrgPageCnt()==32),
 hasChrRam(nesFile->getChrPageCnt() == 0),
 lastPrgBank(nesFile->getPrgPageCnt()-1),
 chrMode(0),
@@ -133,7 +134,12 @@ void Mapper1::writeBankLow(uint16_t addr, uint8_t val)
 inline void Mapper1::updateBank()
 {
 	if(chrMode == 1){ //4kb mode
-		if(hasChrRam){
+		if(is512krom){
+			//TODO: PRGRAM BANK切り替え
+			useHighPrgBank = ((highChrBank | lowChrBank) & 16) == 16;
+			highChrAddrBase = 0x1000 * (highChrBank & 1);
+			lowChrAddrBase = 0x1000 * (lowChrBank & 1);
+		} else if(hasChrRam){
 			highChrAddrBase = 0x1000 * (highChrBank & 1);
 			lowChrAddrBase = 0x1000 * (lowChrBank & 1);
 		}else{
@@ -141,7 +147,11 @@ inline void Mapper1::updateBank()
 			lowChrAddrBase = 0x1000 * lowChrBank;
 		}
 	}else{ // 8kb mode
-		if(hasChrRam){
+		if(is512krom){
+			useHighPrgBank = (lowChrBank & 16) == 16;
+			highChrAddrBase = 0x1000;
+			lowChrAddrBase = 0x0000;
+		} else if(hasChrRam){
 			highChrAddrBase = 0x1000;
 			lowChrAddrBase = 0x0000;
 		}else{
@@ -149,14 +159,28 @@ inline void Mapper1::updateBank()
 			highChrAddrBase = lowChrAddrBase+0x1000;
 		}
 	}
-	if(prgMode < 2){
-		lowPrgAddrBase = (this->prgBank & 14) * NesFile::PRG_ROM_PAGE_SIZE;
-		highPrgAddrBase = lowPrgAddrBase + NesFile::PRG_ROM_PAGE_SIZE;
-	}else if(prgMode == 2){
-		lowPrgAddrBase = 0;
-		highPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
-	}else if(prgMode == 3){
-		lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
-		highPrgAddrBase = this->lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE;
+	if(is512krom){
+		const uint8_t off = useHighPrgBank ? 16 : 0;
+		if(prgMode < 2){
+			lowPrgAddrBase = ((this->prgBank & 14)+off) * NesFile::PRG_ROM_PAGE_SIZE;
+			highPrgAddrBase = lowPrgAddrBase + NesFile::PRG_ROM_PAGE_SIZE;
+		}else if(prgMode == 2){
+			lowPrgAddrBase = off * NesFile::PRG_ROM_PAGE_SIZE;
+			highPrgAddrBase = (this->prgBank+off) * NesFile::PRG_ROM_PAGE_SIZE;
+		}else if(prgMode == 3){
+			lowPrgAddrBase = (this->prgBank+off) * NesFile::PRG_ROM_PAGE_SIZE;
+			highPrgAddrBase = (15+off) * NesFile::PRG_ROM_PAGE_SIZE;
+		}
+	}else{
+		if(prgMode < 2){
+			lowPrgAddrBase = (this->prgBank & 14) * NesFile::PRG_ROM_PAGE_SIZE;
+			highPrgAddrBase = lowPrgAddrBase + NesFile::PRG_ROM_PAGE_SIZE;
+		}else if(prgMode == 2){
+			lowPrgAddrBase = 0;
+			highPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		}else if(prgMode == 3){
+			lowPrgAddrBase = this->prgBank * NesFile::PRG_ROM_PAGE_SIZE;
+			highPrgAddrBase = this->lastPrgBank * NesFile::PRG_ROM_PAGE_SIZE;
+		}
 	}
 }
