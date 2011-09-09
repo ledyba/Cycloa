@@ -675,10 +675,10 @@ inline void Processor::onIRQ()
 {
     //from http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
     //from http://nesdev.parodius.com/6502_cpu.txt
-    this->IRQ = false;
     if((this->P & FLAG_I) == FLAG_I){
         return;
     }
+    this->IRQ = false;
     consumeClock(7);
     this->P &= ~FLAG_B;
     push(static_cast<uint8_t>((this->PC >> 8) & 0xFF));

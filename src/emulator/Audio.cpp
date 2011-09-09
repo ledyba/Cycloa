@@ -144,9 +144,9 @@ void Audio::onHardReset()
 	leftClock = 0;
 	frameCnt = 0;
 
-	frameIRQenabled = true;
+	frameIRQenabled = false;
 	frameIRQactive = false;
-	isNTSCmode = true;
+	isNTSCmode = false;
 	frameIRQCnt = 0;
 	rectangle1.onHardReset();
 	rectangle2.onHardReset();
@@ -156,10 +156,6 @@ void Audio::onHardReset()
 }
 void Audio::onReset()
 {
-	frameIRQenabled = true;
-	frameIRQactive = false;
-	isNTSCmode = true;
-	frameIRQCnt = 0;
 	rectangle1.onReset();
 	rectangle2.onReset();
 	triangle.onReset();
@@ -280,14 +276,18 @@ void Audio::analyzeStatusRegister(uint8_t value)
 void Audio::analyzeLowFrequentryRegister(uint8_t value)
 {
 	//Any write to $4017 resets both the frame counter, and the clock divider.
-	frameIRQenabled = ((value & 0x40) == 0x00);
-	frameIRQCnt = 0;
 	if((value & 0x80) == 0x80){
 		isNTSCmode = false;
-		frameCnt = Audio::AUDIO_CLOCK;
+		frameCnt = Audio::AUDIO_CLOCK-2*Audio::FRAME_IRQ_RATE;
+		frameIRQCnt = 4;
 	}else{
 		isNTSCmode = true;
-		frameCnt = 0;
+		frameIRQenabled = true;
+		frameCnt = Audio::AUDIO_CLOCK-2*Audio::FRAME_IRQ_RATE;
+		frameIRQCnt = 3;
+	}
+	if((value & 0x40) == 0x40){
+		frameIRQenabled = false;
 	}
 }
 
