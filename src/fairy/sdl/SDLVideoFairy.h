@@ -18,6 +18,7 @@ class SDLVideoFairy : public VideoFairy
 		virtual ~SDLVideoFairy();
 		void dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask);
 	private:
+		bool isFullscreen;
 		SDL_Window* window;
 		SDL_Renderer* renderer;
 		SDL_Texture* tex;
