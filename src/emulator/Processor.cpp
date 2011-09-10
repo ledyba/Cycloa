@@ -11,7 +11,9 @@ Processor::Processor(VirtualMachine& vm):
 	SP(0),
 	P(0),
 	NMI(false),
-	IRQ(false)
+	IRQ(false),
+	needStatusRewrite(false),
+	newStatus(0)
 {
 }
 
@@ -32,6 +34,8 @@ void Processor::onHardReset()
 
     this->NMI = false;
     this->IRQ = false;
+    this->needStatusRewrite = false;
+    this->newStatus = 0;
 }
 
 void Processor::onReset()
@@ -46,15 +50,17 @@ void Processor::onReset()
 
     this->NMI = false;
     this->IRQ = false;
+    this->needStatusRewrite = false;
+    this->newStatus = 0;
 }
 
 void Processor::sendNMI()
 {
-    this->NMI = true;
+	this->NMI = true;
 }
 void Processor::sendIRQ()
 {
-    this->IRQ = true;
+	this->IRQ = true;
 }
 
 void Processor::run(uint16_t clockDelta)
@@ -65,6 +71,11 @@ void Processor::run(uint16_t clockDelta)
         this->onNMI();
     }else if(this->IRQ){
         this->onIRQ();
+    }
+
+    if(needStatusRewrite){
+    	this->P = newStatus;
+    	needStatusRewrite = false;
     }
 
     uint8_t opcode = this->read(this->PC);
@@ -79,7 +90,7 @@ void Processor::run(uint16_t clockDelta)
     flag[6] = (this->P & FLAG_Z) ? 'Z' : 'z';
     flag[7] = (this->P & FLAG_C) ? 'C' : 'c';
     flag[8] = '\0';
-    printf("%04x op:%02x a:%02x x:%02x y:%02x sp:%02x p:%s\n", this->PC, opcode, this->A, this->X, this->Y, this->SP, flag);
+    printf("%04x op:%02x a:%02x x:%02x y:%02x sp:%02x p:%s IRQ?:%s NMI?:%s\n", this->PC, opcode, this->A, this->X, this->Y, this->SP, flag, IRQ ? "on" : "off", NMI ? "on" : "off");
     fflush(stdout);
     #endif
     this->PC++;
@@ -883,7 +894,13 @@ inline void Processor:: PHP()
 }
 inline void Processor:: PLP()
 {
-    this->P = pop();
+	const uint8_t newP = pop();
+	if((this->P & FLAG_I) == FLAG_I && (newP & FLAG_I) == 0){
+		this->needStatusRewrite = true;
+		this->newStatus =newP;
+	}else{
+		this->P = newP;
+	}
 }
 inline void Processor:: PHA()
 {
@@ -1066,7 +1083,11 @@ inline void Processor:: CLC()
 }
 inline void Processor:: CLI()
 {
-    this->P &= ~(FLAG_I);
+	// http://twitter.com/#!/KiC6280/status/112348378100281344
+	// http://twitter.com/#!/KiC6280/status/112351125084180480
+	this->needStatusRewrite = true;
+	this->newStatus = this->P & ~(FLAG_I);
+    //this->P &= ~(FLAG_I);
 }
 inline void Processor:: CLV()
 {
@@ -1095,6 +1116,18 @@ inline void Processor:: NOP()
 }
 inline void Processor:: BRK()
 {
+	//NES ON FPGAには、
+	//「割り込みが確認された時、Iフラグがセットされていれば割り込みは無視します。」
+	//…と合ったけど、他の資料だと違う。http://nesdev.parodius.com/6502.txt
+	//DQ4はこうしないと、動かない。
+	/*
+	if((this->P & FLAG_I) == FLAG_I){
+		return;
+	}*/
+    //http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
+    //ブレイク割り込み（BRK）中にさらに割り込みが発生した場合、ブレイク割り込みを無視します。
+	//これも違うっぽい。IRQ/NMIを無視するみたい。そうしないとDQ3は動かない。
+	this->IRQ = this->NMI = false;
     this->PC++;
     push(static_cast<uint8_t>((this->PC >> 8) & 0xFF));
     push(static_cast<uint8_t>(this->PC & 0xFF));

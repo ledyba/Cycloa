@@ -142,12 +142,13 @@ void Audio::onHardReset()
 {
 	clockCnt = 0;
 	leftClock = 0;
+
+	frameIRQenabled = true;
+	frameIRQactive = false;
+	isNTSCmode = true;
+	frameIRQCnt = 0;
 	frameCnt = 0;
 
-	frameIRQenabled = false;
-	frameIRQactive = false;
-	isNTSCmode = false;
-	frameIRQCnt = 0;
 	rectangle1.onHardReset();
 	rectangle2.onHardReset();
 	triangle.onHardReset();
@@ -478,6 +479,7 @@ inline int16_t Triangle::createSound(unsigned int deltaClock)
 	if(lengthCounter == 0 || linearCounter == 0){
 		return 0;
 	}
+	//freqが1や0だと、ここでもモデルが破綻する。FF1のOPで発生。
 	unsigned int nowCounter = this->freqCounter + deltaClock;
 	this->freqCounter = nowCounter % (this->frequency + 1);
 	this->streamCounter = (this->streamCounter + (nowCounter  / (this->frequency + 1))) & 31;

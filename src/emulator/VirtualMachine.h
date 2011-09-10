@@ -345,6 +345,8 @@ class Processor
 		//
 		bool NMI;
 		bool IRQ;
+		bool needStatusRewrite;
+		uint8_t newStatus;
 		//
 		inline void push(uint8_t val);
 		inline uint8_t pop();

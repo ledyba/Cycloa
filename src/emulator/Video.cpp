@@ -34,6 +34,7 @@ Video::Video(VirtualMachine& vm, VideoFairy& videoFairy):
 	vramAddrRegisterWritten(false)
 {
     //ctor
+	memset(this->screenBuffer, 0x0, screenWidth * screenHeight * sizeof(uint8_t));
 }
 
 Video::~Video()
@@ -259,6 +260,8 @@ void Video::onHardReset()
     memset(internalVram, 0, 2048);
     memset(spRam, 0 , 256);
     memset(palette, 0, 32);
+    nowY=0;
+    nowX=0;
     //0x2000
 	executeNMIonVBlank = false;
 	spriteHeight = 8;
