@@ -731,8 +731,6 @@ inline void Digital::setEnabled(bool enabled)
 	}else if(sampleLength == 0){
 		sampleLength = sampleLengthBuffer;
 	}
-	//Side effects 	After the write, the DMC's interrupt flag is cleared
-	VM.releaseIRQ(VirtualMachine::DEVICE_DMC);
 }
 inline bool Digital::isEnabled()
 {
@@ -744,7 +742,12 @@ inline bool Digital::isIRQEnabled()
 }
 inline bool Digital::isIRQActive()
 {
-	return VM.isIRQpending(VirtualMachine::DEVICE_DMC);
+	// 4015への書き込みでDMCもクリアする。。。
+	// http://twitter.com/#!/KiC6280/status/112744625491554304
+	// nesdevのフォーラムでもその書き込みばかり。
+	bool ret = VM.isIRQpending(VirtualMachine::DEVICE_DMC);
+	VM.releaseIRQ(VirtualMachine::DEVICE_DMC);
+	return ret;
 }
 inline void Digital::onHardReset()
 {
