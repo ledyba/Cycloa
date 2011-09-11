@@ -64,8 +64,7 @@ void Audio::run(uint16_t clockDelta)
 				this->triangle.onHalfFrame();
 				this->noize.onHalfFrame();
 				if(frameIRQenabled){
-					this->VM.sendIRQ();
-					this->frameIRQactive = true;
+					this->VM.reserveIRQ(VirtualMachine::DEVICE_FRAMECNT);
 				}
 				frameIRQCnt = 0;
 				break;
@@ -144,7 +143,8 @@ void Audio::onHardReset()
 	leftClock = 0;
 
 	frameIRQenabled = true;
-	frameIRQactive = false;
+	this->VM.releaseIRQ(VirtualMachine::DEVICE_FRAMECNT);
+
 	isNTSCmode = true;
 	frameIRQCnt = 0;
 	frameCnt = 0;
@@ -178,14 +178,15 @@ uint8_t Audio::readReg(uint16_t addr)
  	// Clears the frame interrupt flag after being read (but not the DMC interrupt flag).
 	// If an interrupt flag was set at the same moment of the read, it will read back as 1 but it will not be cleared.
 	uint8_t ret =
-			(this->rectangle1.isEnabled()		? 1 : 0)
-			|	(this->rectangle2.isEnabled()	? 2 : 0)
-			|	(this->triangle.isEnabled()		? 4 : 0)
-			|	(this->noize.isEnabled()			? 8 : 0)
-			|	(this->digital.isEnabled()		? 16 : 0)
-			|	(this->frameIRQactive				? 64 : 0)
-			|	(this->digital.isIRQActive()		? 128 : 0);
-	frameIRQactive = false;
+			(this->rectangle1.isEnabled()	? 1 : 0)
+			|	(this->rectangle2.isEnabled() ? 2 : 0)
+			|	(this->triangle.isEnabled() ? 4 : 0)
+			|	(this->noize.isEnabled()	? 8 : 0)
+			|	(this->digital.isEnabled() ? 16 : 0)
+			|	(this->VM.isIRQpending(VirtualMachine::DEVICE_FRAMECNT) ? 64 : 0)
+			|	(this->digital.isIRQActive() ? 128 : 0);
+	this->VM.releaseIRQ(VirtualMachine::DEVICE_FRAMECNT);
+
 	return ret;
 }
 void Audio::writeReg(uint16_t addr, uint8_t value)
@@ -658,7 +659,7 @@ inline void Digital::analyzeFrequencyRegister(uint8_t value)
 {
 	irqEnabled = (value & 128) == 128;
 	if(!irqEnabled){
-		irqActive = false;
+		VM.releaseIRQ(VirtualMachine::DEVICE_DMC);
 	}
 	loopEnabled = (value & 64) == 64;
 	frequency = Digital::FrequencyTable[value & 0xf];
@@ -692,8 +693,7 @@ inline void Digital::next()
 			if(loopEnabled){
 				sampleLength = sampleLengthBuffer;
 			}else if(irqEnabled){
-				VM.sendIRQ();
-				irqActive = true;
+				VM.reserveIRQ(VirtualMachine::DEVICE_DMC);
 			}else{
 				return;
 			}
@@ -732,7 +732,7 @@ inline void Digital::setEnabled(bool enabled)
 		sampleLength = sampleLengthBuffer;
 	}
 	//Side effects 	After the write, the DMC's interrupt flag is cleared
-	irqActive = false;
+	VM.releaseIRQ(VirtualMachine::DEVICE_DMC);
 }
 inline bool Digital::isEnabled()
 {
@@ -744,12 +744,12 @@ inline bool Digital::isIRQEnabled()
 }
 inline bool Digital::isIRQActive()
 {
-	return irqActive;
+	return VM.isIRQpending(VirtualMachine::DEVICE_DMC);
 }
 inline void Digital::onHardReset()
 {
 	irqEnabled = false;
-	irqActive = false;
+	VM.releaseIRQ(VirtualMachine::DEVICE_DMC);
 	loopEnabled = false;
 	frequency = 0;
 	deltaCounter = 0;

@@ -58,9 +58,14 @@ void Processor::sendNMI()
 {
 	this->NMI = true;
 }
-void Processor::sendIRQ()
+void Processor::reserveIRQ()
 {
 	this->IRQ = true;
+}
+
+void Processor::releaseIRQ()
+{
+	this->IRQ = false;
 }
 
 void Processor::run(uint16_t clockDelta)
@@ -689,7 +694,6 @@ inline void Processor::onIRQ()
     if((this->P & FLAG_I) == FLAG_I){
         return;
     }
-    this->IRQ = false;
     consumeClock(7);
     this->P &= ~FLAG_B;
     push(static_cast<uint8_t>((this->PC >> 8) & 0xFF));
@@ -1124,10 +1128,6 @@ inline void Processor:: BRK()
 	if((this->P & FLAG_I) == FLAG_I){
 		return;
 	}*/
-    //http://crystal.freespace.jp/pgate1/nes/nes_cpu.htm
-    //ブレイク割り込み（BRK）中にさらに割り込みが発生した場合、ブレイク割り込みを無視します。
-	//これも違うっぽい。IRQ/NMIを無視するみたい。そうしないとDQ3は動かない。
-	this->IRQ = this->NMI = false;
     this->PC++;
     push(static_cast<uint8_t>((this->PC >> 8) & 0xFF));
     push(static_cast<uint8_t>(this->PC & 0xFF));

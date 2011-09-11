@@ -148,7 +148,6 @@ class Audio {
 		//--
 		bool isNTSCmode;
 		bool frameIRQenabled;
-		bool frameIRQactive;
 		uint8_t frameIRQCnt;
 		//---
 		Rectangle rectangle1;
@@ -316,7 +315,8 @@ class Processor
 		void onHardReset();
 		void onReset();
 		void sendNMI();
-		void sendIRQ();
+		void reserveIRQ();
+		void releaseIRQ();
 	protected:
 	private:
 		inline uint8_t read(uint16_t addr);
@@ -449,7 +449,15 @@ class VirtualMachine
 		~VirtualMachine();
 		void run();
 		void sendNMI(); //from video to processor
-		void sendIRQ(); //from cartridge and audio to processor.
+		enum{
+			DEVICE_FRAMECNT = 1,
+			DEVICE_DMC = 2,
+			DEVICE_CARTRIDGE = 4
+		};
+		void reserveIRQ(uint8_t device); //from cartridge and audio to processor.
+		void releaseIRQ(uint8_t device); //from cartridge and audio to processor.
+		bool isIRQpending(uint8_t device);
+
 		void sendHBlank(uint16_t scanline); //from video to cartridge
 		void sendVBlank(); //from video
 		void sendHardReset(); //from user to all subsystems.
@@ -545,6 +553,8 @@ class VirtualMachine
 
 		bool resetFlag;
 		bool hardResetFlag;
+
+		uint8_t irqLine;
 
 };
 

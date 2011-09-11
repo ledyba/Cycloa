@@ -154,7 +154,6 @@ private:
 	uint8_t sampleBufferLeft;
 	//
 	uint16_t freqCounter;
-	bool irqActive;
 public:
 	Digital(VirtualMachine& vm);
 	~Digital();

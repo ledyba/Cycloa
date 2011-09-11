@@ -11,7 +11,8 @@ video(*this, videoFairy),
 cartridge(NULL),
 ioPort(*this, player1, player2),
 resetFlag(false),
-hardResetFlag(false)
+hardResetFlag(false),
+irqLine(0)
 {
     //ctor
 }
@@ -86,9 +87,23 @@ void VirtualMachine::sendNMI()
     this->processor.sendNMI();
 }
 
-void VirtualMachine::sendIRQ()
+void VirtualMachine::reserveIRQ(uint8_t device)
 {
-    this->processor.sendIRQ();
+	this->irqLine |= device;
+    this->processor.reserveIRQ();
+}
+
+void VirtualMachine::releaseIRQ(uint8_t device)
+{
+	this->irqLine &= ~(device);
+	if(irqLine == 0){
+	    this->processor.releaseIRQ();
+	}
+}
+
+bool VirtualMachine::isIRQpending(uint8_t device)
+{
+	return (irqLine & device) == device;
 }
 
 void VirtualMachine::sendHardReset()
