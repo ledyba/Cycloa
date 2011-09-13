@@ -2,6 +2,7 @@
 #include "VirtualMachine.h"
 #include "mapper/Mapper0.h"
 #include "mapper/Mapper1.h"
+#include "mapper/Mapper2.h"
 #include "mapper/Mapper3.h"
 #include <string>
 #include <sstream>
@@ -174,6 +175,8 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 				return new Mapper0(vm, nesFile);
 			case 0x01: //mapper 1 = MMC1
 				return new Mapper1(vm, nesFile);
+			case 0x02: //mapper 2 = UxROM
+				return new Mapper2(vm, nesFile);
 			case 0x03: //mapper 3 = CNROM
 				return new Mapper3(vm, nesFile);
 			default:
