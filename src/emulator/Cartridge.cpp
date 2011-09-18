@@ -32,14 +32,6 @@ void Cartridge::run(uint16_t clockDelta)
 {
 	//何もしない。
 }
-void Cartridge::onHBlank(uint16_t scanline)
-{
-	//何もしない
-}
-void Cartridge::onVBlank()
-{
-	//何もしない
-}
 void Cartridge::onHardReset()
 {
 	//何もしない
@@ -138,10 +130,10 @@ void Cartridge::changeMirrorType(NesFile::MirrorType mirrorType)
 		this->vramMirroring[3] = &internalVram[0];
 		break;
 	case NesFile::SINGLE1:
-		this->vramMirroring[0] = &internalVram[1];
-		this->vramMirroring[1] = &internalVram[1];
-		this->vramMirroring[2] = &internalVram[1];
-		this->vramMirroring[3] = &internalVram[1];
+		this->vramMirroring[0] = &internalVram[0x400];
+		this->vramMirroring[1] = &internalVram[0x400];
+		this->vramMirroring[2] = &internalVram[0x400];
+		this->vramMirroring[3] = &internalVram[0x400];
 		break;
 	case NesFile::FOUR_SCREEN:
 		this->vramMirroring[0] = &this->fourScreenVram[0];

@@ -9,7 +9,7 @@
 
 VRC4::VRC4(VirtualMachine& vm, const NesFile* nesFile):
 Cartridge(vm,nesFile),
-prgMask(nesFile->getPrgPageCnt() > 8 ? 0x1f : 0xf),
+prgMask(nesFile->getPrgPageCnt() > 8 ? 31 : 15),
 chrMask(nesFile->getChrPageCnt() > 16 ? 0xff : 0x7f),
 prgBank0(0),
 prgBank1(1),
@@ -20,7 +20,7 @@ irqLoop(false),
 irqReloadValue(0),
 irqCounter(0),
 clockDeltaLeft(0),
-irqNextClock(341)
+irqNextClock(0)
 {
 	for(int i=0;i<8;i++){
 		chrBank[i] = i;

@@ -22,8 +22,6 @@ public:
 	explicit Cartridge(VirtualMachine& vm, const NesFile* nesFile = 0);
 	virtual ~Cartridge();
 	virtual void run(uint16_t clockDelta);
-	virtual void onHBlank(uint16_t scanline);
-	virtual void onVBlank();
 	virtual void onHardReset();
 	virtual void onReset();
 
@@ -460,7 +458,6 @@ class VirtualMachine
 		void releaseIRQ(uint8_t device); //from cartridge and audio to processor.
 		bool isIRQpending(uint8_t device);
 
-		void sendHBlank(uint16_t scanline); //from video to cartridge
 		void sendVBlank(); //from video
 		void sendHardReset(); //from user to all subsystems.
 		void sendReset(); //from user to all subsystems.

@@ -98,7 +98,6 @@ void Video::run(uint16_t clockDelta)
 		}else{
 			throw EmulatorException("Invalid scanline") << this->nowY;
 		}
-		this->VM.sendHBlank(this->nowY);
 	}
 }
 
@@ -330,7 +329,8 @@ uint8_t Video::readReg(uint16_t addr)
     	case 0x07: //VRAM Read/Write Data Register (RW)
 			return readVramDataRegister();
     	default:
-			throw EmulatorException() << "Invalid addr: 0x" << std::hex << addr;
+    		return 0;
+//			throw EmulatorException() << "Invalid addr: 0x" << std::hex << addr;
     }
 }
 void Video::writeReg(uint16_t addr, uint8_t value)

@@ -72,14 +72,13 @@ protected:
 	}
 	inline void setIRQmode(uint8_t val)
 	{
-		irqEnabled = (val & 2) == 2;
 		irqLoop = (val & 1) == 1;
-		if((val & 4) == 4){
-			irqNextClock = 3;
-		}else{
-			irqNextClock = 341;
+		irqEnabled = (val & 2) == 2;
+		if(irqEnabled){
+			irqCounter = irqReloadValue;
+			clockDeltaLeft = 0;
 		}
-		clockDeltaLeft = 0;
+		irqNextClock = (val & 4) == 4 ? 3 : 341;
 		//
 		this->releaseIRQ();
 	}
@@ -122,11 +121,11 @@ private:
 	uint32_t chrAddrBase[8];
 	uint32_t prgAddrBase[4];
 	uint8_t chrBank[8];
-	uint8_t prgMask;
-	uint8_t chrMask;
+	const uint8_t prgMask;
+	const uint8_t chrMask;
 	uint8_t prgBank0;
 	uint8_t prgBank1;
-	uint8_t lastPage;
+	const uint8_t lastPage;
 	bool swapMode;
 
 	uint8_t prgram[8192];

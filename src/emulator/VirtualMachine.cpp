@@ -72,13 +72,8 @@ void VirtualMachine::consumeClock(uint32_t clock)
     this->clockDelta += clock;
 }
 
-void VirtualMachine::sendHBlank(uint16_t scanline)
-{
-    this->cartridge->onHBlank(scanline);
-}
 void VirtualMachine::sendVBlank()
 {
-	this->cartridge->onVBlank();
 	this->ioPort.onVBlank();
 }
 
