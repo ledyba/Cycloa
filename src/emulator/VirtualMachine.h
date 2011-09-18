@@ -57,6 +57,8 @@ protected:
 	{
 		this->sram[addr & 0x1fff] = value;
 	}
+	void reserveIRQ();
+	void releaseIRQ();
 	const NesFile* const nesFile;
 private:
 	VirtualMachine& VM;

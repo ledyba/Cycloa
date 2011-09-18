@@ -53,15 +53,15 @@ void VirtualMachine::run()
         return;
     }
 
-    int32_t cpuClockDelta = this->clockDelta / CPU_CLOCK_FACTOR;
-    int32_t videoClockDelta = this->clockDelta / VIDEO_CLOCK_FACTOR;
+    const int32_t cpuClockDelta = this->clockDelta / CPU_CLOCK_FACTOR;
+    const int32_t videoClockDelta = this->clockDelta / VIDEO_CLOCK_FACTOR;
     this->clockDelta  = 0;
 
     this->processor.run(cpuClockDelta);
 
-    this->cartridge->run(cpuClockDelta);
-
     this->video.run(videoClockDelta);
+
+    this->cartridge->run(cpuClockDelta);
 
     this->audio.run(cpuClockDelta);
 

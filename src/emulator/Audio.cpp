@@ -290,6 +290,7 @@ void Audio::analyzeLowFrequentryRegister(uint8_t value)
 	}
 	if((value & 0x40) == 0x40){
 		frameIRQenabled = false;
+		VM.releaseIRQ(VirtualMachine::DEVICE_FRAMECNT);
 	}
 }
 

@@ -18,8 +18,18 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.mingw.exe.debug.292273057" name="MinGW GCC" superClass="cdt.managedbuild.toolchain.gnu.mingw.exe.debug">
 							<targetPlatform id="cdt.managedbuild.target.gnu.platform.mingw.exe.debug.532695945" name="Debug Platform" superClass="cdt.managedbuild.target.gnu.platform.mingw.exe.debug"/>
-							<builder buildPath="${workspace_loc:/Cycloa/Debug}" id="cdt.managedbuild.tool.gnu.builder.mingw.base.133878590" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base"/>
+							<builder buildPath="${workspace_loc:/Cycloa/Debug}" id="cdt.managedbuild.tool.gnu.builder.mingw.base.133878590" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="cdt.managedbuild.tool.gnu.builder.mingw.base">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Debug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="Release"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="LinuxDebug"/>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="LinuxRelease"/>
+								</outputEntries>
+							</builder>
 							<tool id="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug.251349912" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.mingw.exe.debug">
+								<option id="gnu.both.asm.option.include.paths.1644384637" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;/home/psi/Dropbox/src/Cycloa/Debug/D:\software\utl\lib\core\sdl13\include&quot;"/>
+								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.1649178262" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.archiver.mingw.base.2137418450" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.mingw.base"/>
@@ -119,7 +129,6 @@
 								</option>
 								<option id="gnu.cpp.link.option.paths.1218948755" name="Library search path (-L)" superClass="gnu.cpp.link.option.paths" valueType="libPaths">
 									<listOptionValue builtIn="false" value="&quot;D:\software\utl\lib\core\sdl13\lib&quot;"/>
-									<listOptionValue builtIn="false" value="/home/psi/Develop/lib/sdl13/lib"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.349512403" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
@@ -129,7 +138,8 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/emulator/mapper/board"/>
+						<entry excluding="emulator/mapper/board" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -193,7 +203,8 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="LinuxDebug|Debug|LinuxRelease|Release|_roms|VisualC" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/emulator/mapper/board"/>
+						<entry excluding="src/emulator/mapper/board|board|LinuxDebug|Debug|LinuxRelease|Release|_roms|VisualC" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -262,7 +273,8 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="LinuxDebug|Debug|LinuxRelease|Release|_roms|VisualC" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="src/emulator/mapper/board|board|LinuxDebug|Debug|LinuxRelease|Release|_roms|VisualC" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src/emulator/mapper/board"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -285,11 +297,11 @@
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343;cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.debug.2095141365;cdt.managedbuild.tool.gnu.c.compiler.input.230420074">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.614861447;cdt.managedbuild.config.gnu.exe.release.614861447.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1292889404;cdt.managedbuild.tool.gnu.c.compiler.input.50111299">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
-		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.614861447;cdt.managedbuild.config.gnu.exe.release.614861447.;cdt.managedbuild.tool.gnu.cpp.compiler.exe.release.148249709;cdt.managedbuild.tool.gnu.cpp.compiler.input.1277731053">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileCPP"/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.exe.release.614861447;cdt.managedbuild.config.gnu.exe.release.614861447.;cdt.managedbuild.tool.gnu.c.compiler.exe.release.1292889404;cdt.managedbuild.tool.gnu.c.compiler.input.50111299">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.mingw.exe.release.832248843;cdt.managedbuild.config.gnu.mingw.exe.release.832248843.;cdt.managedbuild.tool.gnu.c.compiler.mingw.exe.release.2054623902;cdt.managedbuild.tool.gnu.c.compiler.input.2131934572">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="org.eclipse.cdt.managedbuilder.core.GCCManagedMakePerProjectProfileC"/>

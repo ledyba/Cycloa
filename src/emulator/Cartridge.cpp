@@ -4,6 +4,9 @@
 #include "mapper/Mapper1.h"
 #include "mapper/Mapper2.h"
 #include "mapper/Mapper3.h"
+#include "mapper/Mapper21.h"
+#include "mapper/Mapper23.h"
+#include "mapper/Mapper25.h"
 #include <string>
 #include <sstream>
 
@@ -163,6 +166,16 @@ void Cartridge::changeMirrorType(NesFile::MirrorType mirrorType)
 	}
 }
 
+void Cartridge::reserveIRQ()
+{
+	VM.reserveIRQ(VirtualMachine::DEVICE_CARTRIDGE);
+}
+void Cartridge::releaseIRQ()
+{
+	VM.releaseIRQ(VirtualMachine::DEVICE_CARTRIDGE);
+}
+
+
 Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 {
 	NesFile* nesFile = NULL;
@@ -171,14 +184,20 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 		const uint8_t mapperNo = nesFile->getMapperNo();
 		switch(mapperNo)
 		{
-			case 0x00: //mapper 0 = no mapper
+			case 0: //mapper 0 = no mapper
 				return new Mapper0(vm, nesFile);
-			case 0x01: //mapper 1 = MMC1
+			case 1: //mapper 1 = MMC1
 				return new Mapper1(vm, nesFile);
-			case 0x02: //mapper 2 = UxROM
+			case 2: //mapper 2 = UxROM
 				return new Mapper2(vm, nesFile);
-			case 0x03: //mapper 3 = CNROM
+			case 3: //mapper 3 = CNROM
 				return new Mapper3(vm, nesFile);
+			case 21: //mapper 21 = VRC4ac
+				return new Mapper21(vm, nesFile);
+			case 23: //mapper 23 = VRC4e
+				return new Mapper23(vm, nesFile);
+			case 25: //mapper 25 = VRC4bd
+				return new Mapper25(vm, nesFile);
 			default:
 			{
 				uint32_t mapperNo32 = static_cast<uint32_t>(mapperNo);
