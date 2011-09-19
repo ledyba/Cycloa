@@ -192,7 +192,7 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 				return new Mapper25(vm, nesFile);
 			default:
 			{
-				uint32_t mapperNo32 = static_cast<uint32_t>(mapperNo);
+				const uint32_t mapperNo32 = static_cast<uint32_t>(mapperNo);
 				throw EmulatorException("Not Supported Mapper: ") << mapperNo32 << "!";
 			}
 		}

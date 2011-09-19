@@ -66,17 +66,17 @@ void Video::run(uint16_t clockDelta)
 			}
 		}else if(this->nowY == 241){
 			//241: The PPU just idles during this scanline. Despite this, this scanline still occurs before the VBlank flag is set.
+			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
+			this->nowOnVBnank = true;
+			this->sprite0Hit = false;
+			spriteAddr = 0;//and typically contains 00h at the begin of the VBlank periods
 		}else if(this->nowY == 242){
 			// NESDEV: These occur during VBlank. The VBlank flag of the PPU is pulled low during scanline 241, so the VBlank NMI occurs here.
 			// EVERYNES: http://nocash.emubase.de/everynes.htm#ppudimensionstimings
 			// とあるものの…BeNesの実装だともっと後に発生すると記述されてる。詳しくは以下。
 			// なお、$2002のレジスタがHIGHになった後にVBLANKを起こさないと「ソロモンの鍵」にてゲームが始まらない。
 			// (NMI割り込みがレジスタを読み込みフラグをリセットしてしまう上、NMI割り込みが非常に長く、クリアしなくてもすでにVBLANKが終わった後に返ってくる)
-			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
-			this->nowOnVBnank = true;
-			this->sprite0Hit = false;
-			spriteAddr = 0;//and typically contains 00h at the begin of the VBlank periods
-		}else if(this->nowY==244){
+			//nowOnVBlankフラグの立ち上がり後、数クロックでNMIが発生。
 			if(executeNMIonVBlank){
 				this->VM.sendNMI();
 			}

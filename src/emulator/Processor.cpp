@@ -84,6 +84,7 @@ void Processor::run(uint16_t clockDelta)
     }
 
     uint8_t opcode = this->read(this->PC);
+//	#define CPUTRACE
     #ifdef CPUTRACE
     char flag[9];
     flag[0] = (this->P & FLAG_N) ? 'N' : 'n';
