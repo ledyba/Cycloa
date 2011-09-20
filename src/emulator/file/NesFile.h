@@ -70,7 +70,7 @@ public:
 	    return this->chrRom[addr];
 	}
 private:
-	const std::string& filename;
+	const std::string filename;
 	uint8_t mapperNo;
 	const uint8_t* prgRom;
 	const uint8_t* chrRom;

@@ -28,7 +28,7 @@ chrRom(NULL)
 	}
 	//left
 	const int32_t contentSize = size-NES_FORMAT_SIZE;
-	uint8_t* data = new uint8_t[contentSize]; //VisualC++�͉ϒ��̃X�^�b�N�ϐ����m�ۂł��Ȃ��B
+	uint8_t* data = new uint8_t[contentSize]; //VisualC++はこうしないと通らない
 	in.read(reinterpret_cast<char*>(data), contentSize);
 	if(in.gcount() != contentSize){
 		throw EmulatorException("[FIXME] Invalid file: ") << filename;
@@ -78,22 +78,24 @@ void NesFile::analyzeFile(const uint8_t* const header, const uint32_t filesize, 
 	uint32_t fptr = 0;
 	if(this->trainerFlag){
 		if(fptr + TRAINER_SIZE > filesize){
-			throw EmulatorException("[FIXME] Invalid file: ") << filename;
+			throw EmulatorException("[FIXME] Invalid file size; too short!: ") << filename;
 		}
 		memcpy(this->trainer, &data[fptr], TRAINER_SIZE);
 		fptr += TRAINER_SIZE;
 	}
 	uint8_t* prgRom = new uint8_t[this->prgSize];
 	if(fptr + this->prgSize > filesize){
-		throw EmulatorException("[FIXME] Invalid file: ") << filename;
+		throw EmulatorException("[FIXME] Invalid file size; too short!: ") << filename;
 	}
 	memcpy(prgRom, &data[fptr], this->prgSize);
 	fptr += this->prgSize;
 	this->prgRom = prgRom;
 
 	uint8_t* chrRom = new uint8_t[this->chrSize];
-	if(fptr + this->chrSize != filesize){
-		throw EmulatorException("[FIXME] Invalid file: ") << filename;
+	if(fptr + this->chrSize > filesize){
+		throw EmulatorException("[FIXME] Invalid file size; too short!: ") << filename;
+	}else if(fptr + this->chrSize < filesize){
+		throw EmulatorException("[FIXME] Invalid file size; too long!: ") << filename;
 	}
 	memcpy(chrRom, &data[fptr], this->chrSize);
 	fptr += this->chrSize;
