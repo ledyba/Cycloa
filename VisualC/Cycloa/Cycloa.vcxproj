@@ -93,9 +93,15 @@
     <ClCompile Include="..\..\src\emulator\exception\EmulatorException.cpp" />
     <ClCompile Include="..\..\src\emulator\fairy\FairyConstantValues.cpp" />
     <ClCompile Include="..\..\src\emulator\file\NesFile.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\board\VRC4.cpp" />
     <ClCompile Include="..\..\src\emulator\mapper\Mapper0.cpp" />
     <ClCompile Include="..\..\src\emulator\mapper\Mapper1.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper2.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper21.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper23.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper25.cpp" />
     <ClCompile Include="..\..\src\emulator\mapper\Mapper3.cpp" />
+    <ClCompile Include="..\..\src\emulator\mapper\Mapper4.cpp" />
     <ClCompile Include="..\..\src\emulator\Processor.cpp" />
     <ClCompile Include="..\..\src\emulator\Video.cpp" />
     <ClCompile Include="..\..\src\emulator\VirtualMachine.cpp" />

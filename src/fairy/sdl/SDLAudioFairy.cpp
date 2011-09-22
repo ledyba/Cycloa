@@ -37,11 +37,11 @@ void SDLAudioFairy::callback(void* data, Uint8* stream, int len)
 {
 	SDLAudioFairy* const me = reinterpret_cast<SDLAudioFairy*>(data);
 	int16_t* const buffer = reinterpret_cast<int16_t*>(stream);
-	const unsigned int maxLen = len/sizeof(int16_t);
+	const int maxLen = len/sizeof(int16_t);
 
-	const unsigned int copiedLength = me->popAudio(buffer, maxLen);
+	const int copiedLength = me->popAudio(buffer, maxLen);
 	const int16_t fill = copiedLength > 0 ? buffer[copiedLength-1] : 0;
-	for(unsigned int i=copiedLength;i<maxLen;i++){
+	for(int i=copiedLength;i<maxLen;i++){
 		buffer[i]=fill;
 	}
 }
