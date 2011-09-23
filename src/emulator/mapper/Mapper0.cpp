@@ -16,7 +16,7 @@ Mapper0::~Mapper0()
 }
 
 /* for PPU */
-uint8_t Mapper0::readPatternTableHigh(uint16_t addr) const
+uint8_t Mapper0::readPatternTableHigh(uint16_t addr)
 {
 	if(this->hasChrRam){
 		return this->chrRam[addr & 0x1fff];
@@ -32,7 +32,7 @@ void Mapper0::writePatternTableHigh(uint16_t addr, uint8_t val)
 	}
 }
 
-uint8_t Mapper0::readPatternTableLow(uint16_t addr) const
+uint8_t Mapper0::readPatternTableLow(uint16_t addr)
 {
 	if(this->hasChrRam){
 		return this->chrRam[addr & 0x1fff];

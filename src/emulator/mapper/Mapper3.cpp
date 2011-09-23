@@ -18,11 +18,11 @@ Mapper3::~Mapper3()
 {
 }
 
-uint8_t Mapper3::readPatternTableHigh(uint16_t addr) const
+uint8_t Mapper3::readPatternTableHigh(uint16_t addr)
 {
 	return this->nesFile->readChr(chrBankAddrBase | (addr & 0x1fff));
 }
-uint8_t Mapper3::readPatternTableLow(uint16_t addr) const
+uint8_t Mapper3::readPatternTableLow(uint16_t addr)
 {
 	return this->nesFile->readChr(chrBankAddrBase | (addr & 0x1fff));
 }

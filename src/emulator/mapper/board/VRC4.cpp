@@ -50,12 +50,12 @@ void VRC4::run(uint16_t clockDelta)
 	}
 }
 
-uint8_t VRC4::readPatternTableHigh(uint16_t addr) const
+uint8_t VRC4::readPatternTableHigh(uint16_t addr)
 {
 	return nesFile->readChr(chrAddrBase[(addr >> 10) & 7] | (addr & 0x3ff));
 }
 
-uint8_t VRC4::readPatternTableLow(uint16_t addr) const
+uint8_t VRC4::readPatternTableLow(uint16_t addr)
 {
 	return nesFile->readChr(chrAddrBase[(addr >> 10) & 7] | (addr & 0x3ff));
 }

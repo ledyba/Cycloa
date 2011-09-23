@@ -17,10 +17,10 @@ public:
 	Mapper2(VirtualMachine& vm, const NesFile* nesFile);
 	virtual ~Mapper2();
 	/* for PPU */
-    uint8_t readPatternTableHigh(uint16_t addr) const;
+    uint8_t readPatternTableHigh(uint16_t addr);
     void writePatternTableHigh(uint16_t addr, uint8_t val);
 
-    uint8_t readPatternTableLow(uint16_t addr) const;
+    uint8_t readPatternTableLow(uint16_t addr);
     void writePatternTableLow(uint16_t addr, uint8_t val);
 
 	/* for CPU */

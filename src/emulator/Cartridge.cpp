@@ -69,41 +69,15 @@ void Cartridge::writeSaveArea(uint16_t addr, uint8_t val)
 	}
 }
 
-uint8_t Cartridge::readBankHigh(uint16_t addr)
-{
-	throw EmulatorException("Unimplemented: Cartridge::readBankHigh");
-}
-void Cartridge::writeBankHigh(uint16_t addr, uint8_t val)
-{
-	throw EmulatorException("Unimplemented: Cartridge::writeBankHigh");
-}
-
-uint8_t Cartridge::readBankLow(uint16_t addr)
-{
-	throw EmulatorException("Unimplemented: Cartridge::readBankLow");
-}
-void Cartridge::writeBankLow(uint16_t addr, uint8_t val)
-{
-	throw EmulatorException("Unimplemented: Cartridge::writeBankLow");
-}
-
-uint8_t Cartridge::readPatternTableHigh(uint16_t addr) const
-{
-	throw EmulatorException("Unimplemented: Cartridge::readPatternTableHigh");
-}
 void Cartridge::writePatternTableHigh(uint16_t addr, uint8_t val)
 {
 }
 
-uint8_t Cartridge::readPatternTableLow(uint16_t addr) const
-{
-	throw EmulatorException("Unimplemented: Cartridge::readPatternTableHigh");
-}
 void Cartridge::writePatternTableLow(uint16_t addr, uint8_t val)
 {
 }
 
-uint8_t Cartridge::readNameTable(uint16_t addr) const
+uint8_t Cartridge::readNameTable(uint16_t addr)
 {
 	return vramMirroring[(addr >> 10) & 0x3][addr & 0x3ff];
 }

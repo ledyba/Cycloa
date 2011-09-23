@@ -26,11 +26,11 @@ public:
 	virtual void onReset();
 
 	/* from PPU */
-	virtual uint8_t readPatternTableHigh(uint16_t addr) const;
+	virtual uint8_t readPatternTableHigh(uint16_t addr) = 0;
 	virtual void writePatternTableHigh(uint16_t addr, uint8_t val);
-	virtual uint8_t readPatternTableLow(uint16_t addr) const;
+	virtual uint8_t readPatternTableLow(uint16_t addr) = 0;
 	virtual void writePatternTableLow(uint16_t addr, uint8_t val);
-	virtual uint8_t readNameTable(uint16_t addr) const;
+	virtual uint8_t readNameTable(uint16_t addr);
 	virtual void writeNameTable(uint16_t addr, uint8_t val);
 
 	/* from CPU */
@@ -39,11 +39,13 @@ public:
 
 	virtual uint8_t readSaveArea(uint16_t addr);
 	virtual void writeSaveArea(uint16_t addr, uint8_t val);
-	virtual uint8_t readBankHigh(uint16_t addr);
+
+	virtual uint8_t readBankHigh(uint16_t addr) = 0;
 	virtual void writeBankHigh(uint16_t addr, uint8_t val);
 
-	virtual uint8_t readBankLow(uint16_t addr);
+	virtual uint8_t readBankLow(uint16_t addr) = 0;
 	virtual void writeBankLow(uint16_t addr, uint8_t val);
+
 	void connectInternalVram(uint8_t* internalVram);
 	void changeMirrorType(NesFile::MirrorType mirrorType);
 protected:

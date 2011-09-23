@@ -17,8 +17,8 @@ public:
 	Mapper3(VirtualMachine& vm, const NesFile* nesFile);
 	virtual ~Mapper3();
 	/* for PPU */
-    uint8_t readPatternTableHigh(uint16_t addr) const;
-    uint8_t readPatternTableLow(uint16_t addr) const;
+    uint8_t readPatternTableHigh(uint16_t addr);
+    uint8_t readPatternTableLow(uint16_t addr);
 
 	/* for CPU */
 	uint8_t readBankHigh(uint16_t addr);

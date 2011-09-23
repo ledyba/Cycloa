@@ -20,7 +20,7 @@ Mapper2::~Mapper2()
 {
 }
 
-uint8_t Mapper2::readPatternTableHigh(uint16_t addr) const
+uint8_t Mapper2::readPatternTableHigh(uint16_t addr)
 {
 	return vram[(addr & 0xfff) | 0x1000];
 }
@@ -29,7 +29,7 @@ void Mapper2::writePatternTableHigh(uint16_t addr, uint8_t val)
 	vram[(addr & 0xfff) | 0x1000] = val;
 }
 
-uint8_t Mapper2::readPatternTableLow(uint16_t addr) const
+uint8_t Mapper2::readPatternTableLow(uint16_t addr)
 {
 	return vram[addr & 0xfff];
 }
