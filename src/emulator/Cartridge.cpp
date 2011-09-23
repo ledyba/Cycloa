@@ -76,6 +76,12 @@ void Cartridge::writePatternTableHigh(uint16_t addr, uint8_t val)
 void Cartridge::writePatternTableLow(uint16_t addr, uint8_t val)
 {
 }
+void Cartridge::writeBankLow(uint16_t addr, uint8_t val)
+{
+}
+void Cartridge::writeBankHigh(uint16_t addr, uint8_t val)
+{
+}
 
 uint8_t Cartridge::readNameTable(uint16_t addr)
 {
