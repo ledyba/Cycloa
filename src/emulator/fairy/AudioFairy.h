@@ -18,12 +18,10 @@ private:
 		BUFFER_SIZE = 0x40000,
 	};
 	int16_t soundBuffer[BUFFER_SIZE];
-	int available;
 	int lastIndex;
 	int firstIndex;
 public:
 	AudioFairy():
-		available(BUFFER_SIZE),
 		lastIndex(0),
 		firstIndex(0)
 	{
@@ -34,10 +32,11 @@ public:
 	}
 	inline bool pushAudio(int16_t sound)
 	{
+		const int nowFirstIndex = firstIndex;
+		const int available = nowFirstIndex > lastIndex ? nowFirstIndex - lastIndex - 1 : BUFFER_SIZE-(lastIndex-nowFirstIndex) - 1;
 		if(available > 0){
 			soundBuffer[lastIndex] = sound;
 			lastIndex = (lastIndex+1) & (BUFFER_SIZE-1);
-			available--;
 			return true;
 		}else{
 			return false;
@@ -46,24 +45,21 @@ public:
 protected:
 	inline int popAudio(int16_t* buff, int maxLength)
 	{
-		int copiedLength = std::min(BUFFER_SIZE-available, maxLength);
-		available+=copiedLength;
+		const int nowLastIndex = lastIndex;
+		const int available = firstIndex <= nowLastIndex ? nowLastIndex-firstIndex : BUFFER_SIZE-(firstIndex-nowLastIndex);
+		const int copiedLength = std::min(available, maxLength);
 		if(firstIndex + copiedLength < BUFFER_SIZE){
 			memcpy(buff, &soundBuffer[firstIndex], sizeof(int16_t) * copiedLength);
 			firstIndex += copiedLength;
 		}else{
-			int first = BUFFER_SIZE-firstIndex;
-			int last = copiedLength-first;
+			const int first = BUFFER_SIZE-firstIndex;
+			const int last = copiedLength-first;
 			memcpy(buff, &soundBuffer[firstIndex], sizeof(int16_t) * first);
 			memcpy(&buff[first], &soundBuffer[0], sizeof(int16_t) * last);
 			firstIndex = last;
 		}
 
 		return copiedLength;
-	}
-	inline int checkAvailableSize()
-	{
-		return available;
 	}
 };
 
