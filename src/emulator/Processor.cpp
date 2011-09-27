@@ -83,7 +83,7 @@ void Processor::run(uint16_t clockDelta)
     	needStatusRewrite = false;
     }
 
-    uint8_t opcode = this->read(this->PC);
+    const uint8_t opcode = this->read(this->PC);
 //	#define CPUTRACE
     #ifdef CPUTRACE
     char flag[9];
@@ -1141,48 +1141,88 @@ inline void Processor:: BRK()
 inline void Processor:: BCC(uint16_t addr)
 {
     if((this->P & FLAG_C) == 0){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BCS(uint16_t addr)
 {
     if((this->P & FLAG_C) == FLAG_C){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BEQ(uint16_t addr)
 {
     if((this->P & FLAG_Z) == FLAG_Z){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BNE(uint16_t addr)
 {
     if((this->P & FLAG_Z) == 0){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BVC(uint16_t addr)
 {
     if((this->P & FLAG_V) == 0){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BVS(uint16_t addr)
 {
     if((this->P & FLAG_V) == FLAG_V){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BPL(uint16_t addr)
 {
     if((this->P & FLAG_N) == 0){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
 inline void Processor:: BMI(uint16_t addr)
 {
     if((this->P & FLAG_N) == FLAG_N){
+        if(((this->PC ^ addr) & 0x0100) != 0){
+        	consumeClock(2);
+        }else{
+        	consumeClock(1);
+        }
         this->PC = addr;
     }
 }
@@ -1231,20 +1271,20 @@ const uint8_t Processor::ZNFlagCache[0x100] = {
 };
 
 const uint8_t Processor::CycleTable[0x100] ={
-	  7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
-	  6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
-	  6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
-	  6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
-	  2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
-	  2, 5, 2, 6, 4, 4, 4, 4, 2, 4, 2, 5, 5, 4, 5, 5,
-	  2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
-	  2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4,
-	  2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7,
-	  2, 6, 3, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
-	  2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 6, 7
+	7, 6, 2, 8, 3, 3, 5, 5,3, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7,
+	6, 6, 2, 8, 3, 3, 5, 5,4, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7,
+	6, 6, 2, 8, 3, 3, 5, 5,3, 2, 2, 2, 3, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7,
+	6, 6, 2, 8, 3, 3, 5, 5,4, 2, 2, 2, 5, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7,
+	2, 6, 2, 6, 3, 3, 3, 3,2, 2, 2, 2, 4, 4, 4, 4,
+	2, 5, 2, 6, 4, 4, 4, 4,2, 4, 2, 5, 5, 4, 5, 5,
+	2, 6, 2, 6, 3, 3, 3, 3,2, 2, 2, 2, 4, 4, 4, 4,
+	2, 5, 2, 5, 4, 4, 4, 4,2, 4, 2, 4, 4, 4, 4, 4,
+	2, 6, 2, 8, 3, 3, 5, 5,2, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7,
+	2, 6, 3, 8, 3, 3, 5, 5,2, 2, 2, 2, 4, 4, 6, 6,
+	2, 5, 2, 8, 4, 4, 6, 6,2, 4, 2, 7, 4, 4, 6, 7
 };

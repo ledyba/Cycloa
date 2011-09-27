@@ -68,7 +68,6 @@ void Video::run(uint16_t clockDelta)
 			//241: The PPU just idles during this scanline. Despite this, this scanline still occurs before the VBlank flag is set.
 			this->videoFairy.dispatchRendering(screenBuffer, this->paletteMask);
 			this->nowOnVBnank = true;
-			this->sprite0Hit = false;
 			spriteAddr = 0;//and typically contains 00h at the begin of the VBlank periods
 		}else if(this->nowY == 242){
 			// NESDEV: These occur during VBlank. The VBlank flag of the PPU is pulled low during scanline 241, so the VBlank NMI occurs here.
@@ -85,6 +84,7 @@ void Video::run(uint16_t clockDelta)
 			//nowVBlank.
 		}else if(this->nowY == 262){
 			this->nowOnVBnank = false;
+			this->sprite0Hit = false;
 			this->nowY = 0;
 			if(!this->isEven){
 				this->nowX++;
@@ -458,7 +458,7 @@ void Video::executeDMA(uint8_t value)
 	for(uint16_t i=0;i<256;i++){
 		writeSpriteDataRegister(VM.read(addrMask | i));
 	}
-	this->VM.consumeCpuClock(512);
+	this->VM.consumeCpuClock(514);
 }
 
 //-------------------- accessor ----------------------------
