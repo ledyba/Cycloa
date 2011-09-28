@@ -42,14 +42,33 @@ uint8_t Mapper4::readPatternTableHigh(uint16_t addr)
 		processIRQ();
 		beforeLow = false;
 	}
-	return nesFile->readChr(chrAddrMask[(addr >> 10) & 7] | (addr & 0x3ff));
+	if(haveChrRam){
+		return chrRam[addr & 0x1fff];
+	}else{
+		return nesFile->readChr(chrAddrMask[(addr >> 10) & 7] | (addr & 0x3ff));
+	}
+}
+
+void  Mapper4::writePatternTableHigh(uint16_t addr, uint8_t val)
+{
+	chrRam[addr & 0x1fff] = val;
 }
 
 uint8_t Mapper4::readPatternTableLow(uint16_t addr)
 {
 	beforeLow = true;
-	return nesFile->readChr(chrAddrMask[(addr >> 10) & 7] | (addr & 0x3ff));
+	if(haveChrRam){
+		return chrRam[addr & 0x1fff];
+	}else{
+		return nesFile->readChr(chrAddrMask[(addr >> 10) & 7] | (addr & 0x3ff));
+	}
 }
+
+void Mapper4::writePatternTableLow(uint16_t addr, uint8_t val)
+{
+	chrRam[addr & 0x1fff] = val;
+}
+
 
 uint8_t Mapper4::readBankHigh(uint16_t addr)
 {
