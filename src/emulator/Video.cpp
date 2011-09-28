@@ -158,6 +158,7 @@ inline void Video::buildSpriteLine()
 	bool searchSprite0Hit = !this->sprite0Hit;
 	const uint16_t _spriteHitCnt = this->spriteHitCnt;
 	uint8_t* const lineBuff = screenBuffer[nowY-1];
+	readVram(this->spriteTable[0].tileAddr); //FIXME: 読み込まないと、MMC4が動かない。
 	for(uint8_t i=0;i<_spriteHitCnt;i++){
 		const struct SpriteSlot& slot = this->spriteTable[i];
 		searchSprite0Hit &= (slot.idx == 0);

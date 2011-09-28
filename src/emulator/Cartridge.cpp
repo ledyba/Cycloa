@@ -4,6 +4,7 @@
 #include "mapper/Mapper1.h"
 #include "mapper/Mapper2.h"
 #include "mapper/Mapper3.h"
+#include "mapper/Mapper4.h"
 #include "mapper/Mapper21.h"
 #include "mapper/Mapper23.h"
 #include "mapper/Mapper25.h"
@@ -53,20 +54,11 @@ void Cartridge::writeRegisterArea(uint16_t addr, uint8_t val)
 
 uint8_t Cartridge::readSaveArea(uint16_t addr)
 {
-	if(hasSram){
-		return readSram(addr);
-	}else{
-		//http://nocash.emubase.de/everynes.htm#unpredictablethings
-		return addr >> 8;
-	}
+	return readSram(addr);
 }
 void Cartridge::writeSaveArea(uint16_t addr, uint8_t val)
 {
-	if(hasSram){
-		writeSram(addr, val);
-	}else{
-		throw EmulatorException("Invalid sram write!!");
-	}
+	writeSram(addr, val);
 }
 
 void Cartridge::writePatternTableHigh(uint16_t addr, uint8_t val)
@@ -164,6 +156,8 @@ Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
 				return new Mapper2(vm, nesFile);
 			case 3: //mapper 3 = CNROM
 				return new Mapper3(vm, nesFile);
+			case 4: //mapper 4 = MMC3
+				return new Mapper4(vm, nesFile);
 			case 21: //mapper 21 = VRC4ac
 				return new Mapper21(vm, nesFile);
 			case 23: //mapper 23 = VRC4e
