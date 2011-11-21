@@ -21,6 +21,7 @@ SDLGamepadFairy::~SDLGamepadFairy()
 
 void SDLGamepadFairy::onVBlank()
 {
+	/* Joystick */
 	SDL_JoystickUpdate();
 	state = 0;
 	int16_t x = SDL_JoystickGetAxis(&joystick, 0);
@@ -41,6 +42,33 @@ void SDLGamepadFairy::onVBlank()
 	state |= (SDL_JoystickGetButton(&joystick, 1)) << GamepadFairy::B;
 	state |= (SDL_JoystickGetButton(&joystick, 8)) << GamepadFairy::START;
 	state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::SELECT;
+
+	/* Key Board */
+	const uint8_t *keyboard = SDL_GetKeyboardState(NULL);
+	if(keyboard[SDL_SCANCODE_UP]){
+		state |= GamepadFairy::MASK_UP;
+	}
+	if(keyboard[SDL_SCANCODE_DOWN]){
+		state |= GamepadFairy::MASK_DOWN;
+	}
+	if(keyboard[SDL_SCANCODE_LEFT]){
+		state |= GamepadFairy::MASK_LEFT;
+	}
+	if(keyboard[SDL_SCANCODE_RIGHT]){
+		state |= GamepadFairy::MASK_RIGHT;
+	}
+	if(keyboard[SDL_SCANCODE_Z]){
+		state |= GamepadFairy::MASK_A;
+	}
+	if(keyboard[SDL_SCANCODE_X]){
+		state |= GamepadFairy::MASK_B;
+	}
+	if(keyboard[SDL_SCANCODE_A]){
+		state |= GamepadFairy::MASK_START;
+	}
+	if(keyboard[SDL_SCANCODE_S]){
+		state |= GamepadFairy::MASK_SELECT;
+	}
 }
 
 bool SDLGamepadFairy::isPressed(uint8_t keyIdx)
