@@ -293,7 +293,7 @@ public:
 	}
 	inline void onReset()
 	{
-		}
+	}
 	inline uint8_t read(uint16_t addr)
 	{
 		return wram[addr & 0x7ff];
@@ -468,72 +468,72 @@ class VirtualMachine
 		{
 			consumeClock(clock * CPU_CLOCK_FACTOR);
 		}
-		inline uint8_t read(uint16_t addr) //from processor to ram
+		inline uint8_t read(uint16_t addr) //from processor to subsystems.
 		{
-		    switch(addr & 0xE000){
-		        case 0x0000:
-		            return ram.read(addr);
-		        case 0x2000:
-		            return video.readReg(addr);
-		        case 0x4000:
+			switch(addr & 0xE000){
+				case 0x0000:
+					return ram.read(addr);
+				case 0x2000:
+					return video.readReg(addr);
+				case 0x4000:
 					//このへんは込み入ってるので、仕方ないからここで振り分け。
 					if(addr == 0x4015){
-		                return audio.readReg(addr);
+						return audio.readReg(addr);
 					}else if(addr == 0x4016){
 						return ioPort.readInputReg1();
 					}else if(addr == 0x4017){
 						return ioPort.readInputReg2();
-		            }else if(addr < 0x4018){
-		            	throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-		            }else{
+					}else if(addr < 0x4018){
+						throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+					}else{
 						return cartridge->readRegisterArea(addr);
-		            }
-		        case 0x6000:
-		            return cartridge->readSaveArea(addr);
-		        case 0x8000:
-		        case 0xA000:
-		            return cartridge->readBankLow(addr);
-		        case 0xC000:
-		        case 0xE000:
-		            return cartridge->readBankHigh(addr);
-		        default:
-		            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-		    }
+					}
+				case 0x6000:
+					return cartridge->readSaveArea(addr);
+				case 0x8000:
+				case 0xA000:
+					return cartridge->readBankLow(addr);
+				case 0xC000:
+				case 0xE000:
+					return cartridge->readBankHigh(addr);
+				default:
+					throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+			}
 		}
-		inline void write(uint16_t addr, uint8_t value) // from processor to ram.
+		inline void write(uint16_t addr, uint8_t value) // from processor to subsystems.
 		{
-		    switch(addr & 0xE000){
-		        case 0x0000:
-		            ram.write(addr, value);
-		            break;
-		        case 0x2000:
-		            video.writeReg(addr, value);
-		            break;
-		        case 0x4000:
+			switch(addr & 0xE000){
+				case 0x0000:
+					ram.write(addr, value);
+					break;
+				case 0x2000:
+					video.writeReg(addr, value);
+					break;
+				case 0x4000:
 					if(addr == 0x4014){
 						video.executeDMA(value);
 					}else if(addr == 0x4016){
 						ioPort.writeOutReg(value);
-		            }else if(addr < 0x4018){
-		                audio.writeReg(addr, value);
-		            }else{
+					}else if(addr < 0x4018){
+						audio.writeReg(addr, value);
+					}else{
 						cartridge->writeRegisterArea(addr, value);
-		            }
+					}
 					break;
-		        case 0x6000:
-		            cartridge->writeSaveArea(addr, value);
-		            break;
-		        case 0x8000:
-		        case 0xA000:
-		            cartridge->writeBankLow(addr, value);
-		            break;
-		        case 0xC000:
-		        case 0xE000:
-		            cartridge->writeBankHigh(addr, value);
-		            break;
-		        default:
-		            throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-		    }
+				case 0x6000:
+					cartridge->writeSaveArea(addr, value);
+					break;
+				case 0x8000:
+				case 0xA000:
+					cartridge->writeBankLow(addr, value);
+					break;
+				case 0xC000:
+				case 0xE000:
+					cartridge->writeBankHigh(addr, value);
+					break;
+				default:
+					throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
+			}
 		}
 	protected:
 	private:
