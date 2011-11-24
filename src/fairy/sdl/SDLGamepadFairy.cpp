@@ -24,14 +24,19 @@ void SDLGamepadFairy::onVBlank()
 	/* Joystick */
 	SDL_JoystickUpdate();
 	state = 0;
-	int16_t x = SDL_JoystickGetAxis(&joystick, 0);
+#ifdef _MSC_VER /* VC++とMingwで、なぜかジョイスティックの軸が違うみたい。 */
+	const int16_t x = SDL_JoystickGetAxis(&joystick, 1);
+	const int16_t y = SDL_JoystickGetAxis(&joystick, 0);
+#else
+	const int16_t x = SDL_JoystickGetAxis(&joystick, 0);
+	const int16_t y = SDL_JoystickGetAxis(&joystick, 1);
+#endif
 	if(x > 100){
 		state |= GamepadFairy::MASK_RIGHT;
 	}else if(x < -100){
 		state |= GamepadFairy::MASK_LEFT;
 	}
 
-	int16_t y = SDL_JoystickGetAxis(&joystick, 1);
 	if(y > 100){
 		state |= GamepadFairy::MASK_DOWN;
 	}else if(y < -100){
