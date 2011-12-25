@@ -7,7 +7,7 @@
 //============================================================================
 
 #include <iostream>
-#include "fairy/sdl/SDLVideoFairy.h"
+#include "fairy/sdl/SDL3DVideoFairy.h"
 #include "fairy/sdl/SDLAudioFairy.h"
 #include "fairy/sdl/SDLGamepadFairy.h"
 #include "emulator/VirtualMachine.h"
@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	}
 	try{
 		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO);
-		SDLVideoFairy videoFairy("Cycloa");
+		SDL3DVideoFairy videoFairy("Cycloa");
 		SDLAudioFairy audioFairy;
 		SDLGamepadInfo info;
 		SDLGamepadFairy player1(info);

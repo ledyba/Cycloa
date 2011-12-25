@@ -12,13 +12,15 @@
 #include <stdio.h>
 #include <cstdlib>
 
-SDLVideoFairy::SDLVideoFairy(std::string windowTitle):
+SDLVideoFairy::SDLVideoFairy(std::string windowTitle, int width, int height):
+width(width),
+height(height),
 isFullscreen(false),
 nextTime(0),
 fpsTime(0),
 fpsCnt(0)
 {
-	this->window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, Video::screenWidth*2, Video::screenHeight*2, 0);
+	this->window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
 	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(this->renderer, &info);
@@ -48,26 +50,8 @@ void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][scre
             	}
             }
     }
-    uint32_t* line;
-    uint8_t* line8;
-	int pitch;
-	SDL_LockTexture(this->tex, NULL, reinterpret_cast<void**>(&line8), &pitch);
-	for(int y=0;y<screenHeight;y++){
-		line = reinterpret_cast<uint32_t*>(line8);
-		for(int x=0;x<screenWidth; x++){
-			line[x] = nesPalette[nesBuffer[y][x] & paletteMask];
-		}
-		line8+=pitch;
-	}
-	SDL_UnlockTexture(this->tex);
 
-	SDL_RenderClear(renderer);
-	SDL_Rect rect;
-	rect.x = rect.y = 0;
-	rect.w = screenWidth * 2;
-	rect.h = screenHeight * 2;
-	SDL_RenderCopy(this->renderer, this->tex, &rect, NULL);
-    SDL_RenderPresent(renderer);
+    this->dispatchRenderingImpl(nesBuffer, paletteMask, this->renderer, this->tex);
 
     if(nextTime == 0){
     	uint32_t now = SDL_GetTicks();
@@ -88,3 +72,29 @@ void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][scre
     	nextTime+=100;
     }
 }
+
+void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer *renderer, SDL_Texture* tex)
+{
+    uint32_t* line;
+    uint8_t* line8;
+	int pitch;
+	SDL_LockTexture(tex, NULL, reinterpret_cast<void**>(&line8), &pitch);
+	for(int y=0;y<screenHeight;y++){
+		line = reinterpret_cast<uint32_t*>(line8);
+		for(int x=0;x<screenWidth; x++){
+			line[x] = nesPalette[nesBuffer[y][x] & paletteMask];
+		}
+		line8+=pitch;
+	}
+	SDL_UnlockTexture(this->tex);
+
+	SDL_RenderClear(renderer);
+	SDL_Rect rect;
+	rect.x = rect.y = 0;
+	rect.w = this->getWidth();
+	rect.h = this->getHeight();
+	SDL_RenderCopy(renderer, tex, &rect, NULL);
+    SDL_RenderPresent(renderer);
+}
+
+
