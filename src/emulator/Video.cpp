@@ -493,7 +493,7 @@ inline uint8_t Video::readVramExternal(uint16_t addr) const
 		case 0x3000:
 			return this->cartridge->readNameTable(addr);
 		default:
-			throw new EmulatorException("Invalid vram access");
+			throw EmulatorException("Invalid vram access");
 	}
 }
 inline void Video::writeVramExternal(uint16_t addr, uint8_t value)
@@ -513,7 +513,7 @@ inline void Video::writeVramExternal(uint16_t addr, uint8_t value)
 			this->cartridge->writeNameTable(addr, value);
 			break;
 		default:
-			throw new EmulatorException("Invalid vram access");
+			throw EmulatorException("Invalid vram access");
 	}
 }
 inline uint8_t Video::readPalette(uint16_t addr) const

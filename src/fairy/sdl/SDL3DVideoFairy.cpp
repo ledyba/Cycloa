@@ -42,31 +42,31 @@ void SDL3DVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight
 			switch(buffer & Video::LayerBitMask){
 			case Video::FrontSpriteBit:
 			{
-				if(0<= x-10){
-					line[x-10] |= color << 16;
+				if(0<= x-5){
+					line[x-5] |= color << 16;
 				}
-				if(x+10 < screenWidth){
-					line[x+10] |= color;
+				if(x+5 < screenWidth){
+					line[x+5] |= color;
 				}
 			}
 				break;
 			case Video::BackSpriteBit:
 			{
-				if(0<= x-10){
-					line[x-10] |= color;
+				if(0<= x-5){
+					line[x-5] |= color;
 				}
-				if(x+10 < screenWidth){
-					line[x+10] |= color << 16;
+				if(x+5 < screenWidth){
+					line[x+5] |= color << 16;
 				}
 			}
 				break;
 			case Video::BackgroundBit:
 			{
-				if(0<=x-5){
-					line[x-5] |= color;
+				if(0<=x-3){
+					line[x-3] |= color;
 				}
-				if(x+5 < screenWidth){
-					line[x+5] |= color << 16;
+				if(x+3 < screenWidth){
+					line[x+3] |= color << 16;
 				}
 			}
 				break;

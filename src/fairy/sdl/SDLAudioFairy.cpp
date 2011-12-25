@@ -18,12 +18,12 @@ SDLAudioFairy::SDLAudioFairy()
 	desired.samples=4096;
 	desired.userdata = this;
 	if ( SDL_OpenAudio(&desired, &obtained) < 0 ){
-		throw new EmulatorException("Cannot open audio device");
+		throw EmulatorException("Cannot open audio device");
 	}
 	if(	desired.format != obtained.format
 			|| desired.channels != obtained.channels
 			|| desired.freq != obtained.freq){
-		throw new EmulatorException("Cannot fill audio spec.");
+		throw EmulatorException("Cannot fill audio spec.");
 	}
 	SDL_PauseAudio(0);
 }

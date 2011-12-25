@@ -35,6 +35,11 @@ int main(int argc, char** argv) {
 		std::cerr << std::endl;
 		std::cerr.flush();
 		return -1;
+	} catch (...) {
+		std::cerr << "Unknown Error...";
+		std::cerr << std::endl;
+		std::cerr.flush();
+		return -2;
 	}
 	return 0;
 }
