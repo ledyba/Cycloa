@@ -8,7 +8,7 @@
 #ifndef SDLAUDIOFAIRY_H_
 #define SDLAUDIOFAIRY_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "../../emulator/fairy/AudioFairy.h"
 
 class SDLAudioFairy: public AudioFairy

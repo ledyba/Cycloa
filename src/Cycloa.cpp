@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 	}
 	try{
 		SDL_Init(SDL_INIT_JOYSTICK | SDL_INIT_VIDEO);
-		SDL3DVideoFairy videoFairy("Cycloa");
+		SDLVideoFairy videoFairy("Cycloa");
 		SDLAudioFairy audioFairy;
 		SDLGamepadInfo info;
 		SDLGamepadFairy player1(info);

@@ -5,7 +5,7 @@
  *      Author: psi
  */
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "SDLGamepadFairy.h"
 
 SDLGamepadFairy::SDLGamepadFairy(SDLGamepadInfo& info):
@@ -24,7 +24,7 @@ void SDLGamepadFairy::onVBlank()
 	/* Joystick */
 	SDL_JoystickUpdate();
 	state = 0;
-#ifdef _MSC_VER /* VC++とMingwで、なぜかジョイスティックの軸が違うみたい。 */
+#ifdef _MSC_VER /* for VC++ */
 	const int16_t x = SDL_JoystickGetAxis(&joystick, 1);
 	const int16_t y = SDL_JoystickGetAxis(&joystick, 0);
 #else

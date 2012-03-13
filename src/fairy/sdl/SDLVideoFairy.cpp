@@ -2,9 +2,9 @@
  * SDLVideoFairy.cpp
  *
  *  Created on: 2011/08/23
- *      Author: psi
+ *	  Author: psi
  */
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "../../emulator/VirtualMachine.h"
 #include "SDLVideoFairy.h"
 #include <stdint.h>
@@ -37,46 +37,48 @@ SDLVideoFairy::~SDLVideoFairy()
 
 void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
 {
-    SDL_Event e;
-    if (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) {
-            	exit(0);
-            }else if(e.type == SDL_KEYDOWN && e.key.repeat == 0){
-            	if(SDL_SCANCODE_F == e.key.keysym.scancode){
-            		isFullscreen = !isFullscreen;
-            		SDL_SetWindowFullscreen(this->window, isFullscreen ? SDL_TRUE : SDL_FALSE);
-            	}else if(SDL_SCANCODE_ESCAPE == e.key.keysym.scancode){
-            		exit(0);
-            	}
-            }
-    }
+	SDL_Event e;
+	if (SDL_PollEvent(&e)) {
+			if (e.type == SDL_QUIT) {
+				exit(0);
+			}else if(e.type == SDL_KEYDOWN && e.key.repeat == 0){
+				if(SDL_SCANCODE_F == e.key.keysym.scancode){
+					isFullscreen = !isFullscreen;
+					SDL_SetWindowFullscreen(this->window, isFullscreen ? SDL_TRUE : SDL_FALSE);
+				}else if(SDL_SCANCODE_ESCAPE == e.key.keysym.scancode){
+					exit(0);
+				}
+			}
+	}
 
-    this->dispatchRenderingImpl(nesBuffer, paletteMask, this->renderer, this->tex);
+	this->dispatchRenderingImpl(nesBuffer, paletteMask, this->renderer, this->tex);
 
-    if(nextTime == 0){
-    	uint32_t now = SDL_GetTicks();
-    	nextTime = now * 6 + 100;
-    	fpsTime = now;
-    }else{
-    	uint32_t now = SDL_GetTicks();
-    	if(now - fpsTime >= 1000){
-    		printf("FPS:%d\n",fpsCnt);
-    		fpsTime+=1000;
-    		fpsCnt = 0;
-    	}
-    	fpsCnt++;
-    	uint32_t nowFactored = now * 6;
-    	if(nowFactored < nextTime){
-        	SDL_Delay((nextTime-nowFactored)/6);
-    	}
-    	nextTime+=100;
-    }
+	if(nextTime == 0){
+		uint32_t now = SDL_GetTicks();
+		nextTime = now * 6 + 100;
+		fpsTime = now;
+	}else{
+		uint32_t now = SDL_GetTicks();
+		if(now - fpsTime >= 1000){
+			printf("FPS:%d\n",fpsCnt);
+			fpsTime+=1000;
+			fpsCnt = 0;
+		}
+		fpsCnt++;
+		uint32_t nowFactored = now * 6;
+		if(nowFactored < nextTime){
+			SDL_Delay((nextTime-nowFactored)/6);
+		}
+		nextTime+=100;
+	}
 }
+
+#include <iostream>
 
 void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer *renderer, SDL_Texture* tex)
 {
-    uint32_t* line;
-    uint8_t* line8;
+	uint32_t* line;
+	uint8_t* line8;
 	int pitch;
 	SDL_LockTexture(tex, NULL, reinterpret_cast<void**>(&line8), &pitch);
 	for(int y=0;y<screenHeight;y++){
@@ -94,7 +96,7 @@ void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][
 	rect.w = this->getWidth();
 	rect.h = this->getHeight();
 	SDL_RenderCopy(renderer, tex, &rect, NULL);
-    SDL_RenderPresent(renderer);
+	SDL_RenderPresent(renderer);
 }
 
 

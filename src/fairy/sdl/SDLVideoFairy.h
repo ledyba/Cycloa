@@ -8,7 +8,7 @@
 #ifndef SDLVIDEOFAIRY_H_
 #define SDLVIDEOFAIRY_H_
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include "../../emulator/VirtualMachine.h"
 #include "../../emulator/fairy/VideoFairy.h"
 
