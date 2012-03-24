@@ -1,11 +1,12 @@
-#Mon Oct 10 14:58:19 JST 2011
 eclipse.preferences.version=1
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPATH/delimiter=;
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPATH/operation=remove
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPLUS_INCLUDE_PATH/delimiter=;
-environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPLUS_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPLUS_INCLUDE_PATH/operation=replace
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/CPLUS_INCLUDE_PATH/value=.\:/D/software/dev/msys/mingw/include\:/D/software/dev/applib/ff/include\:/D/software/dev/applib/ffmpeg/include\:/D/software/dev/applib/opencv/include\:/D/software/dev/lib/antlr/include\:/D/software/dev/lib/cairo/include\:/D/software/dev/lib/glib/include\:/D/software/dev/lib/icu/include\:/D/software/dev/lib/intl/include\:/D/software/dev/lib/perftools/include\:/D/software/dev/lib/sdl/include\:/D/software/dev/lib/xml/include
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/C_INCLUDE_PATH/delimiter=;
-environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/C_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/C_INCLUDE_PATH/operation=replace
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/C_INCLUDE_PATH/value=.\:/D/software/dev/msys/mingw/include\:/D/software/dev/applib/ff/include\:/D/software/dev/applib/ffmpeg/include\:/D/software/dev/applib/opencv/include\:/D/software/dev/lib/antlr/include\:/D/software/dev/lib/cairo/include\:/D/software/dev/lib/glib/include\:/D/software/dev/lib/icu/include\:/D/software/dev/lib/intl/include\:/D/software/dev/lib/perftools/include\:/D/software/dev/lib/sdl/include\:/D/software/dev/lib/xml/include
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/append=true
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/appendContributed=true
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843.1363133534/CPATH/delimiter=;
@@ -19,13 +20,16 @@ environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.releas
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPATH/delimiter=;
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPATH/operation=remove
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPLUS_INCLUDE_PATH/delimiter=;
-environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPLUS_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPLUS_INCLUDE_PATH/operation=replace
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/CPLUS_INCLUDE_PATH/value=.\:/D/software/dev/msys/mingw/include\:/D/software/dev/applib/ff/include\:/D/software/dev/applib/ffmpeg/include\:/D/software/dev/applib/opencv/include\:/D/software/dev/lib/antlr/include\:/D/software/dev/lib/cairo/include\:/D/software/dev/lib/glib/include\:/D/software/dev/lib/icu/include\:/D/software/dev/lib/intl/include\:/D/software/dev/lib/perftools/include\:/D/software/dev/lib/sdl/include\:/D/software/dev/lib/xml/include
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/C_INCLUDE_PATH/delimiter=;
-environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/C_INCLUDE_PATH/operation=remove
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/C_INCLUDE_PATH/operation=replace
+environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/C_INCLUDE_PATH/value=.\:/D/software/dev/msys/mingw/include\:/D/software/dev/applib/ff/include\:/D/software/dev/applib/ffmpeg/include\:/D/software/dev/applib/opencv/include\:/D/software/dev/lib/antlr/include\:/D/software/dev/lib/cairo/include\:/D/software/dev/lib/glib/include\:/D/software/dev/lib/icu/include\:/D/software/dev/lib/intl/include\:/D/software/dev/lib/perftools/include\:/D/software/dev/lib/sdl/include\:/D/software/dev/lib/xml/include
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/append=true
 environment/buildEnvironmentInclude/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/appendContributed=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/LIBRARY_PATH/delimiter=;
-environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/LIBRARY_PATH/operation=remove
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/LIBRARY_PATH/operation=replace
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/LIBRARY_PATH/value=.\:/D/software/dev/msys/mingw/lib\:/D/software/dev/applib/ff/lib\:/D/software/dev/applib/ffmpeg/lib\:/D/software/dev/applib/opencv/lib\:/D/software/dev/lib/antlr/lib\:/D/software/dev/lib/cairo/lib\:/D/software/dev/lib/glib/lib\:/D/software/dev/lib/icu/lib\:/D/software/dev/lib/intl/lib\:/D/software/dev/lib/perftools/lib\:/D/software/dev/lib/sdl/lib\:/D/software/dev/lib/xml/lib
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/append=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.debug.1073976343/appendContributed=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843.1363133534/LIBRARY_PATH/delimiter=;
@@ -33,6 +37,7 @@ environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.releas
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843.1363133534/append=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843.1363133534/appendContributed=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/LIBRARY_PATH/delimiter=;
-environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/LIBRARY_PATH/operation=remove
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/LIBRARY_PATH/operation=replace
+environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/LIBRARY_PATH/value=.\:/D/software/dev/msys/mingw/lib\:/D/software/dev/applib/ff/lib\:/D/software/dev/applib/ffmpeg/lib\:/D/software/dev/applib/opencv/lib\:/D/software/dev/lib/antlr/lib\:/D/software/dev/lib/cairo/lib\:/D/software/dev/lib/glib/lib\:/D/software/dev/lib/icu/lib\:/D/software/dev/lib/intl/lib\:/D/software/dev/lib/perftools/lib\:/D/software/dev/lib/sdl/lib\:/D/software/dev/lib/xml/lib
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/append=true
 environment/buildEnvironmentLibrary/cdt.managedbuild.config.gnu.mingw.exe.release.832248843/appendContributed=true
