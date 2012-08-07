@@ -10,11 +10,11 @@ class Mapper1 : public Cartridge
 		Mapper1(VirtualMachine& vm, const NesFile* nesFile);
 		virtual ~Mapper1();
 		/* for PPU */
-        uint8_t readPatternTableHigh(uint16_t addr);
-        void writePatternTableHigh(uint16_t addr, uint8_t val);
+		uint8_t readPatternTableHigh(uint16_t addr);
+		void writePatternTableHigh(uint16_t addr, uint8_t val);
 
-        uint8_t readPatternTableLow(uint16_t addr);
-        void writePatternTableLow(uint16_t addr, uint8_t val);
+		uint8_t readPatternTableLow(uint16_t addr);
+		void writePatternTableLow(uint16_t addr, uint8_t val);
 
 		/* for CPU */
 		uint8_t readBankHigh(uint16_t addr);

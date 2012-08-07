@@ -17,7 +17,7 @@ Cartridge::Cartridge(VirtualMachine& vm, const NesFile* nesFile) :
 	VM(vm),
 	hasSram(nesFile->hasSram()),
 	mirrorType(nesFile->getMirrorType()),
-    internalVram(NULL)
+	internalVram(NULL)
 {
 	if(nesFile == NULL){
 		throw EmulatorException("NES FILE CAN'T BE NULL!");

@@ -2,7 +2,7 @@
  * NesFile.h
  *
  *  Created on: 2011/08/23
- *      Author: psi
+ *	  Author: psi
  */
 
 #ifndef NESFILE_H_
@@ -59,15 +59,15 @@ public:
 	}
 	inline uint8_t readTrainer(uint16_t addr) const
 	{
-	    return this->trainer[addr];
+		return this->trainer[addr];
 	}
 	inline uint8_t readPrg(uint32_t addr) const
 	{
-	    return this->prgRom[addr];
+		return this->prgRom[addr];
 	}
 	inline uint8_t readChr(uint32_t addr) const
 	{
-	    return this->chrRom[addr];
+		return this->chrRom[addr];
 	}
 private:
 	const std::string filename;

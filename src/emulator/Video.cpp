@@ -4,13 +4,13 @@
 #include <string.h>
 
 Video::Video(VirtualMachine& vm, VideoFairy& videoFairy):
-    VM(vm),
-    cartridge(NULL),
-    videoFairy(videoFairy),
-    isEven(false),
-    nowY(0),
-    nowX(0),
-    spriteHitCnt(0),
+	VM(vm),
+	cartridge(NULL),
+	videoFairy(videoFairy),
+	isEven(false),
+	nowY(0),
+	nowX(0),
+	spriteHitCnt(0),
 	executeNMIonVBlank(false),
 	spriteHeight(8),
 	patternTableAddressBackground(0),
@@ -33,13 +33,13 @@ Video::Video(VirtualMachine& vm, VideoFairy& videoFairy):
 	scrollRegisterWritten(false),
 	vramAddrRegisterWritten(false)
 {
-    //ctor
+	//ctor
 	memset(this->screenBuffer, 0x0, screenWidth * screenHeight * sizeof(uint8_t));
 }
 
 Video::~Video()
 {
-    //dtor
+	//dtor
 }
 void Video::run(uint16_t clockDelta)
 {
@@ -256,13 +256,13 @@ inline void Video::buildBgLine()
 
 void Video::onHardReset()
 {
-    //from http://wiki.nesdev.com/w/index.php/PPU_power_up_state
-    memset(internalVram, 0, 2048);
-    memset(spRam, 0 , 256);
-    memset(palette, 0, 32);
-    nowY=0;
-    nowX=0;
-    //0x2000
+	//from http://wiki.nesdev.com/w/index.php/PPU_power_up_state
+	memset(internalVram, 0, 2048);
+	memset(spRam, 0 , 256);
+	memset(palette, 0, 32);
+	nowY=0;
+	nowX=0;
+	//0x2000
 	executeNMIonVBlank = false;
 	spriteHeight = 8;
 	patternTableAddressBackground = 0x0000;
@@ -271,7 +271,7 @@ void Video::onHardReset()
 	//0x2005 & 0x2000
 	vramAddrReloadRegister = 0x0000;
 	horizontalScrollBits = 0;
-    //0x2001
+	//0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;
 	backgroundVisibility = false;
@@ -288,8 +288,8 @@ void Video::onHardReset()
 }
 void Video::onReset()
 {
-    //from http://wiki.nesdev.com/w/index.php/PPU_power_up_state
-    //0x2000
+	//from http://wiki.nesdev.com/w/index.php/PPU_power_up_state
+	//0x2000
 	executeNMIonVBlank = false;
 	spriteHeight = 8;
 	patternTableAddressBackground = 0x0000;
@@ -298,7 +298,7 @@ void Video::onReset()
 	//0x2005 & 0x2000
 	vramAddrReloadRegister = 0x0000;
 	horizontalScrollBits = 0;
-    //0x2001
+	//0x2001
 	colorEmphasis = 0;
 	spriteVisibility = false;
 	backgroundVisibility = false;
@@ -313,71 +313,71 @@ void Video::onReset()
 }
 uint8_t Video::readReg(uint16_t addr)
 {
-    switch(addr & 0x07)
-    {
-    	/* PPU Control and Status Registers */
-    	//case 0x00: //2000h - PPU Control Register 1 (W)
-    	//case 0x01: //2001h - PPU Control Register 2 (W)
-    	case 0x02: //2002h - PPU Status Register (R)
-            return buildPPUStatusRegister();
-    	/* PPU SPR-RAM Access Registers */
-    	//case 0x03: //2003h - SPR-RAM Address Register (W)
-    	case 0x04: //2004h - SPR-RAM Data Register (Read/Write)
+	switch(addr & 0x07)
+	{
+		/* PPU Control and Status Registers */
+		//case 0x00: //2000h - PPU Control Register 1 (W)
+		//case 0x01: //2001h - PPU Control Register 2 (W)
+		case 0x02: //2002h - PPU Status Register (R)
+			return buildPPUStatusRegister();
+		/* PPU SPR-RAM Access Registers */
+		//case 0x03: //2003h - SPR-RAM Address Register (W)
+		case 0x04: //2004h - SPR-RAM Data Register (Read/Write)
 			return readSpriteDataRegister();
-    	/* PPU VRAM Access Registers */
-    	//case 0x05: //PPU Background Scrolling Offset (W2)
-    	//case 0x06: //VRAM Address Register (W2)
-    	case 0x07: //VRAM Read/Write Data Register (RW)
+		/* PPU VRAM Access Registers */
+		//case 0x05: //PPU Background Scrolling Offset (W2)
+		//case 0x06: //VRAM Address Register (W2)
+		case 0x07: //VRAM Read/Write Data Register (RW)
 			return readVramDataRegister();
-    	default:
-    		return 0;
+		default:
+			return 0;
 //			throw EmulatorException() << "Invalid addr: 0x" << std::hex << addr;
-    }
+	}
 }
 void Video::writeReg(uint16_t addr, uint8_t value)
 {
-    switch(addr & 0x07)
-    {
-    	/* PPU Control and Status Registers */
-    	case 0x00: //2000h - PPU Control Register 1 (W)
-            analyzePPUControlRegister1(value);
-            break;
-    	case 0x01: //2001h - PPU Control Register 2 (W)
-            analyzePPUControlRegister2(value);
-            break;
-    	//case 0x02: //2002h - PPU Status Register (R)
-    	/* PPU SPR-RAM Access Registers */
-    	case 0x03: //2003h - SPR-RAM Address Register (W)
-            analyzeSpriteAddrRegister(value);
-            break;
-    	case 0x04: //2004h - SPR-RAM Data Register (Read/Write)
+	switch(addr & 0x07)
+	{
+		/* PPU Control and Status Registers */
+		case 0x00: //2000h - PPU Control Register 1 (W)
+			analyzePPUControlRegister1(value);
+			break;
+		case 0x01: //2001h - PPU Control Register 2 (W)
+			analyzePPUControlRegister2(value);
+			break;
+		//case 0x02: //2002h - PPU Status Register (R)
+		/* PPU SPR-RAM Access Registers */
+		case 0x03: //2003h - SPR-RAM Address Register (W)
+			analyzeSpriteAddrRegister(value);
+			break;
+		case 0x04: //2004h - SPR-RAM Data Register (Read/Write)
 			writeSpriteDataRegister(value);
 			break;
-    	/* PPU VRAM Access Registers */
-    	case 0x05: //PPU Background Scrolling Offset (W2)
-            analyzePPUBackgroundScrollingOffset(value);
-            break;
-    	case 0x06: //VRAM Address Register (W2)
+		/* PPU VRAM Access Registers */
+		case 0x05: //PPU Background Scrolling Offset (W2)
+			analyzePPUBackgroundScrollingOffset(value);
+			break;
+		case 0x06: //VRAM Address Register (W2)
 			analyzeVramAddrRegister(value);
 			break;
-    	case 0x07: //VRAM Read/Write Data Register (RW)
+		case 0x07: //VRAM Read/Write Data Register (RW)
 			writeVramDataRegister(value);
 			break;
-    	default:
+		default:
 			throw EmulatorException() << "Invalid addr: 0x" << std::hex << addr;
-    }
+	}
 }
 
 inline uint8_t Video::buildPPUStatusRegister()
 {
-    //from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
+	//from http://nocash.emubase.de/everynes.htm#pictureprocessingunitppu
 	vramAddrRegisterWritten = false;
 	scrollRegisterWritten = false;
-    //Reading resets the 1st/2nd-write flipflop (used by Port 2005h and 2006h).
-    uint8_t result =
-            ((this->nowOnVBnank) ? 128 : 0)
-        |   ((this->sprite0Hit) ? 64 : 0)
-        |   ((this->lostSprites) ? 32 : 0);
+	//Reading resets the 1st/2nd-write flipflop (used by Port 2005h and 2006h).
+	uint8_t result =
+			((this->nowOnVBnank) ? 128 : 0)
+		|   ((this->sprite0Hit) ? 64 : 0)
+		|   ((this->lostSprites) ? 32 : 0);
 	this->nowOnVBnank = false;
 	return result;
 }
@@ -540,10 +540,10 @@ void Video::connectCartridge(Cartridge* cartridge)
 }
 inline uint8_t Video::readSprite(uint16_t addr) const
 {
-    return this->spRam[addr];
+	return this->spRam[addr];
 }
 inline void Video::writeSprite(uint16_t addr, uint8_t value)
 {
-    this->spRam[addr] = value;
+	this->spRam[addr] = value;
 }
 

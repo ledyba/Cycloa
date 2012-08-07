@@ -2,7 +2,7 @@
  * Mapper2.h
  *
  *  Created on: 2011/09/13
- *      Author: psi
+ *	  Author: psi
  */
 
 #ifndef MAPPER2_H_
@@ -17,11 +17,11 @@ public:
 	Mapper2(VirtualMachine& vm, const NesFile* nesFile);
 	virtual ~Mapper2();
 	/* for PPU */
-    uint8_t readPatternTableHigh(uint16_t addr);
-    void writePatternTableHigh(uint16_t addr, uint8_t val);
+	uint8_t readPatternTableHigh(uint16_t addr);
+	void writePatternTableHigh(uint16_t addr, uint8_t val);
 
-    uint8_t readPatternTableLow(uint16_t addr);
-    void writePatternTableLow(uint16_t addr, uint8_t val);
+	uint8_t readPatternTableLow(uint16_t addr);
+	void writePatternTableLow(uint16_t addr, uint8_t val);
 
 	/* for CPU */
 	uint8_t readBankHigh(uint16_t addr);

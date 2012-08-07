@@ -91,8 +91,8 @@ protected:
 	void run(uint16_t clockDelta);
 
 	/* for PPU */
-    uint8_t readPatternTableHigh(uint16_t addr);
-    uint8_t readPatternTableLow(uint16_t addr);
+	uint8_t readPatternTableHigh(uint16_t addr);
+	uint8_t readPatternTableLow(uint16_t addr);
 
 	/* for CPU */
 	uint8_t readBankHigh(uint16_t addr);

@@ -1,21 +1,21 @@
 #include "VirtualMachine.h"
 
 Audio::Audio(VirtualMachine& vm, AudioFairy& audioFairy):
-    VM(vm),
-    audioFairy(audioFairy),
-    //---
+	VM(vm),
+	audioFairy(audioFairy),
+	//---
 	rectangle1(true),
 	rectangle2(false),
 	triangle(),
 	noize(),
 	digital(vm)
 {
-    //ctor
+	//ctor
 }
 
 Audio::~Audio()
 {
-    //dtor
+	//dtor
 }
 
 void Audio::run(uint16_t clockDelta)

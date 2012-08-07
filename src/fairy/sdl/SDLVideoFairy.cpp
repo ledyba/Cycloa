@@ -20,8 +20,11 @@ nextTime(0),
 fpsTime(0),
 fpsCnt(0)
 {
-	this->window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-	this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED);
+	if(SDL_CreateWindowAndRenderer(width, height, 0, &this->window, &this->renderer) <0)
+	{
+		throw EmulatorException("Failed to initialize window and renderer.");
+	}
+	SDL_SetWindowTitle(this->window, windowTitle.c_str());
 	SDL_RendererInfo info;
 	SDL_GetRendererInfo(this->renderer, &info);
 	this->tex = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, Video::screenWidth, Video::screenHeight);
@@ -38,7 +41,7 @@ SDLVideoFairy::~SDLVideoFairy()
 void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
 {
 	SDL_Event e;
-	if (SDL_PollEvent(&e)) {
+	while (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {
 				exit(0);
 			}else if(e.type == SDL_KEYDOWN && e.key.repeat == 0){

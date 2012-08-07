@@ -2,7 +2,7 @@
  * Mapper4.h
  *
  *  Created on: 2011/09/20
- *      Author: psi
+ *	  Author: psi
  */
 
 #ifndef MAPPER4_H_
@@ -16,9 +16,9 @@ public:
 	Mapper4(VirtualMachine& vm, const NesFile* nesFile);
 	virtual ~Mapper4();
 	/* for PPU */
-    uint8_t readPatternTableHigh(uint16_t addr);
+	uint8_t readPatternTableHigh(uint16_t addr);
 	void writePatternTableHigh(uint16_t addr, uint8_t val);
-    uint8_t readPatternTableLow(uint16_t addr);
+	uint8_t readPatternTableLow(uint16_t addr);
 	void writePatternTableLow(uint16_t addr, uint8_t val);
 
 	/* for CPU */
