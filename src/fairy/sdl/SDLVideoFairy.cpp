@@ -29,7 +29,9 @@ fpsCnt(0)
 	SDL_GetRendererInfo(this->renderer, &info);
 	this->tex = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_STREAMING, Video::screenWidth, Video::screenHeight);
 #elif defined(CYCLOA_SDL)
-	SDL_SetVideoMode(width, height, 24, 0);
+	putenv(strdup("SDL_VIDEO_CENTERED=1"));
+	SDL_SetVideoMode(Video::screenWidth, Video::screenHeight, 24, 0);
+	SDL_WM_SetCaption("Cycloa", NULL);
 	this->screenSurface = SDL_GetVideoSurface();
 	this->nesSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, Video::screenWidth, Video::screenHeight, 32,
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
