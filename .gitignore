@@ -6,3 +6,4 @@ SDL.dll
 /gmon.out
 /LinuxRelease
 /LinuxDebug
+*.swp

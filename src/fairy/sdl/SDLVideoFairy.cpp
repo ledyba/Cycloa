@@ -4,7 +4,6 @@
  *  Created on: 2011/08/23
  *	  Author: psi
  */
-#include <SDL2/SDL.h>
 #include "../../emulator/VirtualMachine.h"
 #include "SDLVideoFairy.h"
 #include <stdint.h>

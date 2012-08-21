@@ -25,10 +25,14 @@ set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 file(GLOB_RECURSE cycloa_base_SRCS ${SRC_DIR}/emulator/*.cpp)
 
 #ソースフォルダの設定
-file(GLOB_RECURSE cycloa_sdl2_SRCS ${SRC_DIR}/fairy/sdl2/*.cpp)
+file(GLOB_RECURSE cycloa_sdl_SRCS ${SRC_DIR}/fairy/sdl/*.cpp)
 
 #実行バイナリ
-add_executable(CycloaSDL2 ${cycloa_base_SRCS} ${cycloa_sdl2_SRCS})
+add_executable(CycloaSDL2 ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
+add_executable(CycloaSDL  ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
+
+SET_TARGET_PROPERTIES(CycloaSDL2 PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL2")
+SET_TARGET_PROPERTIES(CycloaSDL  PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL")
 
 find_package(PkgConfig)
 
