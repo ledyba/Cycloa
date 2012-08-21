@@ -7,10 +7,10 @@
 //============================================================================
 
 #include <iostream>
-#include "fairy/sdl/SDL3DVideoFairy.h"
-#include "fairy/sdl/SDLAudioFairy.h"
-#include "fairy/sdl/SDLGamepadFairy.h"
-#include "emulator/VirtualMachine.h"
+#include "SDLVideoFairy.h"
+#include "SDLAudioFairy.h"
+#include "SDLGamepadFairy.h"
+#include "../../emulator/VirtualMachine.h"
 
 int main(int argc, char** argv) {
 	if(argc <= 1){

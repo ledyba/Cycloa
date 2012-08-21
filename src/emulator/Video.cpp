@@ -455,7 +455,7 @@ inline void Video::writeSpriteDataRegister(uint8_t value)
 
 void Video::executeDMA(uint8_t value)
 {
-	uint16_t addrMask = value << 8;
+	const uint16_t addrMask = value << 8;
 	for(uint16_t i=0;i<256;i++){
 		writeSpriteDataRegister(VM.read(addrMask | i));
 	}

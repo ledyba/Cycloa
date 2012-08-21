@@ -430,7 +430,9 @@ inline void Rectangle::onHardReset()
 	volumeOrDecayRate = 0;
 	decayReloaded = false;
 	decayEnabled = false;
+	decayVolume = 0;
 	dutyRatio = 0;
+	dutyCounter = 0;
 	decayCounter = 0;
 	sweepEnabled = 0;
 	sweepShiftAmount = 0;
@@ -438,6 +440,7 @@ inline void Rectangle::onHardReset()
 	sweepUpdateRatio = 0;
 	sweepCounter = 0;
 	frequency = 0;
+	freqCounter = 0;
 	loopEnabled = false;
 	lengthCounter = 0;
 }
