@@ -7,3 +7,6 @@ SDL.dll
 /LinuxRelease
 /LinuxDebug
 *.swp
+CMakeCache.txt
+cmake_install.cmake
+Makefile

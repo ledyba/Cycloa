@@ -22,41 +22,44 @@ project (CYCLOA)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/Modules ${CMAKE_MODULE_PATH})
 set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
 
+#エミュレータコアのソースコード
 file(GLOB_RECURSE cycloa_base_SRCS ${SRC_DIR}/emulator/*.cpp)
 
-#ソースフォルダの設定
+#ターゲット別ソースコードの指定
 file(GLOB_RECURSE cycloa_sdl_SRCS ${SRC_DIR}/fairy/sdl/*.cpp)
 
 #実行バイナリ
-add_executable(CycloaSDL2 ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
-add_executable(CycloaSDL  ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
-
-SET_TARGET_PROPERTIES(CycloaSDL2 PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL2")
-SET_TARGET_PROPERTIES(CycloaSDL  PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL")
 
 find_package(PkgConfig)
 
 pkg_check_modules(CAIRO REQUIRED cairo)
 include_directories(${CAIRO_INCLUDE_DIRS})
 link_directories(${CAIRO_LIBRARY_DIRS})
-target_link_libraries(CycloaSDL2 ${CAIRO_LIBRARIES})
 
 pkg_check_modules(FREETYPE REQUIRED freetype2)
 include_directories(${FREETYPE_INCLUDE_DIRS})
 link_directories(${FREETYPE_LIBRARY_DIRS})
-target_link_libraries(CycloaSDL2 ${FREETYPE_LIBRARIES})
 
 pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
 include_directories(${FONTCONFIG_INCLUDE_DIRS})
 link_directories(${FONTCONFIG_LIBRARY_DIRS})
-target_link_libraries(CycloaSDL2 ${FONTCONFIG_LIBRARIES})
 
-pkg_check_modules(SDL2 REQUIRED sdl2)
-include_directories(${SDL2_INCLUDE_DIRS})
-link_directories(${SDL2_LIBRARY_DIRS})
-target_link_libraries(CycloaSDL2 ${SDL2_LIBRARIES})
+# ライブラリのあるなしに合わせてコンパイルするバイナリを決定
 
 pkg_check_modules(SDL REQUIRED sdl)
 include_directories(${SDL_INCLUDE_DIRS})
 link_directories(${SDL_LIBRARY_DIRS})
-target_link_libraries(CycloaSDL ${SDL_LIBRARIES})
+if (SDL_FOUND)
+	add_executable(CycloaSDL  ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
+	SET_TARGET_PROPERTIES(CycloaSDL PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL")
+	target_link_libraries(CycloaSDL ${SDL_LIBRARIES})
+endif()
+
+pkg_check_modules(SDL2 REQUIRED sdl2)
+include_directories(${SDL2_INCLUDE_DIRS})
+link_directories(${SDL2_LIBRARY_DIRS})
+if (SDL2_FOUND)
+	add_executable(CycloaSDL2 ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
+	SET_TARGET_PROPERTIES(CycloaSDL2 PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL2")
+	target_link_libraries(CycloaSDL2 ${SDL2_LIBRARIES})
+endif()
