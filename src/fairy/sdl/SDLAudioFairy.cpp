@@ -5,6 +5,12 @@
  *      Author: psi
  */
 
+#if defined(CYCLOA_SDL2)
+#include <SDL2/SDL.h>
+#elif defined(CYCLOA_SDL)
+#include <SDL/SDL.h>
+#endif
+
 #include "SDLAudioFairy.h"
 #include <string.h>
 

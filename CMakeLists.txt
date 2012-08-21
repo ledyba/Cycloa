@@ -56,3 +56,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 link_directories(${SDL2_LIBRARY_DIRS})
 target_link_libraries(CycloaSDL2 ${SDL2_LIBRARIES})
 
+pkg_check_modules(SDL REQUIRED sdl)
+include_directories(${SDL_INCLUDE_DIRS})
+link_directories(${SDL_LIBRARY_DIRS})
+target_link_libraries(CycloaSDL ${SDL_LIBRARIES})

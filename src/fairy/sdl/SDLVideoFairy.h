@@ -28,25 +28,26 @@ public:
 	int getHeight(){
 		return this->width;
 	}
-protected:
-	virtual void dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
-	SDL_Renderer* getRenderer(){
-		return this->renderer;
-	}
-	SDL_Window* getWindow(){
-		return this->window;
-	}
 private:
 	const int width;
 	const int height;
 	bool isFullscreen;
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	SDL_Texture* tex;
 	uint32_t nextTime;
 
 	uint32_t fpsTime;
 	uint32_t fpsCnt;
+#if defined(CYCLOA_SDL2)
+	SDL_Window* window;
+	SDL_Renderer* renderer;
+	SDL_Texture* tex;
+protected:
+	virtual void dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
+#elif defined(CYCLOA_SDL)
+	SDL_Surface* screenSurface;
+	SDL_Surface* nesSurface;
+protected:
+	void dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface);
+#endif
 };
 
 
