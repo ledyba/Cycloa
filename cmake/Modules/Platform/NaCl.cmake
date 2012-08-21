@@ -19,8 +19,8 @@ set(NACL_PATH $ENV{NACL_SDK_ROOT} CACHE PATH "NaCl ROOT")
 
 set(NACL_HOST)
 set(NACL_TARGET x86_64)
-set(NACL_LIB glibc)
-#set(NACL_LIB newlib)
+#set(NACL_LIB glibc)
+set(NACL_LIB newlib)
 set(NACL_PEPPER pepper_21)
 
 if (APPLE)

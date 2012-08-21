@@ -27,6 +27,7 @@ file(GLOB_RECURSE cycloa_base_SRCS ${SRC_DIR}/emulator/*.cpp)
 
 #ターゲット別ソースコードの指定
 file(GLOB_RECURSE cycloa_sdl_SRCS ${SRC_DIR}/fairy/sdl/*.cpp)
+file(GLOB_RECURSE cycloa_nacl_SRCS ${SRC_DIR}/fairy/nacl/*.cpp)
 
 #実行バイナリ
 
@@ -48,8 +49,27 @@ link_directories(${FONTCONFIG_LIBRARY_DIRS})
 
 if(CMAKE_CROSSCOMPILING)
 	if(NACL_ENABLED)
-		add_executable(CycloaNaCl ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
-		SET_TARGET_PROPERTIES(CycloaNaCl PROPERTIES CMAKE_TOOLCHAIN_FILE ${CMAKE_SOURCE_DIR}/cmake/Platform/NaCl.cmake)
+		add_executable(CycloaNexe64 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
+		add_executable(CycloaNexe32 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
+		
+		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/x86_64-nacl/usr/bin/sdl-config --static-libs OUTPUT_VARIABLE SDL64_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/x86_64-nacl/usr/bin/sdl-config --cflags OUTPUT_VARIABLE SDL64_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/i686-nacl/usr/bin/sdl-config --static-libs OUTPUT_VARIABLE SDL32_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/i686-nacl/usr/bin/sdl-config --cflags OUTPUT_VARIABLE SDL32_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+		SET_TARGET_PROPERTIES(CycloaNexe64 PROPERTIES COMPILE_FLAGS "-m64 ${SDL64_CFLAGS} -DCYCLOA_SDL -g -pthread -Wall")
+		SET_TARGET_PROPERTIES(CycloaNexe32 PROPERTIES COMPILE_FLAGS "-m32 ${SDL32_CFLAGS} -DCYCLOA_SDL -g -pthread -Wall")
+		
+		SET_TARGET_PROPERTIES(CycloaNexe64 PROPERTIES LINKER_FLAGS "${SDL64_LDFLAGS} -g -pthread -lppapi_cpp -lppapi")
+		SET_TARGET_PROPERTIES(CycloaNexe32 PROPERTIES LINKER_FLAGS "${SDL32_LDFLAGS} -g -pthread -lppapi_cpp -lppapi")
+		message("${SDL32_CFLAGS}")
+		message("${SDL32_LDFLAGS}")
+		message("${SDL64_CFLAGS}")
+		message("${SDL64_LDFLAGS}")
+
+
+
 	endif()
 
 else() #Platform-Native
