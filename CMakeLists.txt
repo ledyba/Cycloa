@@ -33,24 +33,27 @@ file(GLOB_RECURSE cycloa_nacl_SRCS ${SRC_DIR}/fairy/nacl/*.cpp)
 
 find_package(PkgConfig)
 
-pkg_check_modules(CAIRO REQUIRED cairo)
-include_directories(${CAIRO_INCLUDE_DIRS})
-link_directories(${CAIRO_LIBRARY_DIRS})
-
-pkg_check_modules(FREETYPE REQUIRED freetype2)
-include_directories(${FREETYPE_INCLUDE_DIRS})
-link_directories(${FREETYPE_LIBRARY_DIRS})
-
-pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
-include_directories(${FONTCONFIG_INCLUDE_DIRS})
-link_directories(${FONTCONFIG_LIBRARY_DIRS})
+#pkg_check_modules(CAIRO REQUIRED cairo)
+#include_directories(${CAIRO_INCLUDE_DIRS})
+#link_directories(${CAIRO_LIBRARY_DIRS})
+#
+#pkg_check_modules(FREETYPE REQUIRED freetype2)
+#include_directories(${FREETYPE_INCLUDE_DIRS})
+#link_directories(${FREETYPE_LIBRARY_DIRS})
+#
+#pkg_check_modules(FONTCONFIG REQUIRED fontconfig)
+#include_directories(${FONTCONFIG_INCLUDE_DIRS})
+#link_directories(${FONTCONFIG_LIBRARY_DIRS})
 
 # ライブラリのあるなしに合わせてコンパイルするバイナリを決定
 
 if(CMAKE_CROSSCOMPILING)
 	if(NACL_ENABLED)
-		add_executable(CycloaNexe64 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
-		add_executable(CycloaNexe32 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
+		ADD_EXECUTABLE(CycloaNaCl_64 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
+		SET_TARGET_PROPERTIES(CycloaNaCl_64 PROPERTIES SUFFIX ".nexe" PREFIX "")
+
+		ADD_EXECUTABLE(CycloaNaCl_32 ${cycloa_base_SRCS} ${cycloa_nacl_SRCS})
+		SET_TARGET_PROPERTIES(CycloaNaCl_32 PROPERTIES SUFFIX ".nexe" PREFIX "")
 		
 		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/x86_64-nacl/usr/bin/sdl-config --static-libs OUTPUT_VARIABLE SDL64_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/x86_64-nacl/usr/bin/sdl-config --cflags OUTPUT_VARIABLE SDL64_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -58,18 +61,16 @@ if(CMAKE_CROSSCOMPILING)
 		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/i686-nacl/usr/bin/sdl-config --static-libs OUTPUT_VARIABLE SDL32_LDFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 		execute_process(COMMAND ${NACL_TOOLCHAIN_PATH}/i686-nacl/usr/bin/sdl-config --cflags OUTPUT_VARIABLE SDL32_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-		SET_TARGET_PROPERTIES(CycloaNexe64 PROPERTIES COMPILE_FLAGS "-m64 ${SDL64_CFLAGS} -DCYCLOA_SDL -g -pthread -Wall")
-		SET_TARGET_PROPERTIES(CycloaNexe32 PROPERTIES COMPILE_FLAGS "-m32 ${SDL32_CFLAGS} -DCYCLOA_SDL -g -pthread -Wall")
+		SET_TARGET_PROPERTIES(CycloaNaCl_64 PROPERTIES COMPILE_FLAGS "-m64 -g -pthread -Wall")
+		SET_TARGET_PROPERTIES(CycloaNaCl_32 PROPERTIES COMPILE_FLAGS "-m32 -g -pthread -Wall")
 		
-		SET_TARGET_PROPERTIES(CycloaNexe64 PROPERTIES LINKER_FLAGS "${SDL64_LDFLAGS} -g -pthread -lppapi_cpp -lppapi")
-		SET_TARGET_PROPERTIES(CycloaNexe32 PROPERTIES LINKER_FLAGS "${SDL32_LDFLAGS} -g -pthread -lppapi_cpp -lppapi")
-		message("${SDL32_CFLAGS}")
-		message("${SDL32_LDFLAGS}")
-		message("${SDL64_CFLAGS}")
-		message("${SDL64_LDFLAGS}")
+		SET_TARGET_PROPERTIES(CycloaNaCl_64 PROPERTIES LINK_FLAGS "-Wl,-as-needed -m64 -g -pthread")
+		SET_TARGET_PROPERTIES(CycloaNaCl_32 PROPERTIES LINK_FLAGS "-Wl,-as-needed -m32 -g -pthread")
+		
+		TARGET_LINK_LIBRARIES(CycloaNaCl_64 ppapi_cpp ppapi)
+		TARGET_LINK_LIBRARIES(CycloaNaCl_32 ppapi_cpp ppapi)
 
-
-
+		ADD_CUSTOM_TARGET(CycloaNaCl.nmf ALL COMMAND ${CMAKE_NMF} -D ${CMAKE_OBJDUMP} -o Cycloa.nmf ./CycloaNaCl_32.nexe ./CycloaNaCl_64.nexe -t ${NACL_LIB} -s ${CMAKE_BINARY_DIR} DEPENDS CycloaNaCl_64 CycloaNaCl_32)
 	endif()
 
 else() #Platform-Native

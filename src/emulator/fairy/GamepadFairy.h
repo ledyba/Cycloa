@@ -8,6 +8,8 @@
 #ifndef GAMEPADFAIRY_H_
 #define GAMEPADFAIRY_H_
 
+#include <stdint.h>
+
 class GamepadFairy
 {
 public:
@@ -34,8 +36,8 @@ public:
 	GamepadFairy(){}
 	virtual ~GamepadFairy(){}
 	virtual void onVBlank(){};
-	virtual void onUpdate(){};
-	virtual bool isPressed(uint8_t keyIdx){return false;}
+	virtual void onUpdate() = 0;
+	virtual bool isPressed(uint8_t keyIdx) = 0;
 private:
 };
 
@@ -44,6 +46,8 @@ class DummyGamepadFairy : public GamepadFairy
 public:
 	DummyGamepadFairy(){}
 	virtual ~DummyGamepadFairy(){}
+	virtual void onUpdate(){};
+	virtual bool isPressed(uint8_t keyIdx){return false;};
 };
 
 #endif /* GAMEPADFAIRY_H_ */
