@@ -21,6 +21,7 @@ public:
 	SDLGamepadFairy(SDLGamepadInfo& info);
 	virtual ~SDLGamepadFairy();
 	virtual void onVBlank();
+	virtual void onUpdate();
 	virtual bool isPressed(uint8_t keyIdx);
 private:
 	SDL_Joystick& joystick;

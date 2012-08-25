@@ -114,3 +114,6 @@ bool SDLGamepadFairy::isPressed(uint8_t keyIdx)
 {
 	return ((state >> keyIdx) & 1) == 1;
 }
+
+void SDLGamepadFairy::onUpdate(){
+}
