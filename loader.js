@@ -3,6 +3,7 @@ if(!cycloa) cycloa={};
 
 cycloa.NesController = function(module){
 	this.module_ = module;
+	this.zoomed_ = false;
 };
 cycloa.NesController.prototype.load = function(data){
 	this.module_.postMessage(data);
@@ -20,6 +21,15 @@ cycloa.NesController.prototype.hardReset = function(){
 cycloa.NesController.prototype.reset = function(){
 	this.module_.postMessage("reset");
 };
+cycloa.NesController.prototype.zoom = function(){
+	if(this.zoomed_){
+		$("#nes_nacl").animate({width: 256, height: 240});
+	}else{
+		$("#nes_nacl").animate({width: 512, height: 480});
+	}
+	this.zoomed_ = !this.zoomed_;
+}
+
 
 cycloa.log = function(){
 	var msg = "";
