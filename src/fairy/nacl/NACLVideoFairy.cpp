@@ -18,13 +18,22 @@
 
 #include "NACLVideoFairy.h"
 #include <ppapi/cpp/completion_callback.h>
+#include <string.h>
+#include <stdio.h>
 
 NACLVideoFairy::NACLVideoFairy(pp::InstanceHandle& instance) :
 VideoFairy(),
 gfx(instance, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true),
 img(instance, PP_IMAGEDATAFORMAT_RGBA_PREMUL, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true)
 {
+	const uint32_t stride = this->img.stride();
+	uint8_t* pixel8 = reinterpret_cast<uint8_t*>(this->img.data());
+	memset(pixel8, 0, this->img.size().height() * stride);
 
+	this->gfx.ReplaceContents(&this->img);
+	this->gfx.Flush(pp::CompletionCallback());
+
+	printf("initialized video");
 }
 
 NACLVideoFairy::~NACLVideoFairy()

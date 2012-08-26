@@ -139,12 +139,11 @@ void Cartridge::releaseIRQ()
 	VM.releaseIRQ(VirtualMachine::DEVICE_CARTRIDGE);
 }
 
-
-Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const char* filename)
+Cartridge* Cartridge::loadCartridge(VirtualMachine& vm, const uint8_t* data, const uint32_t size, const std::string& name)
 {
 	NesFile* nesFile = NULL;
 	try{
-		nesFile = new NesFile(filename);
+		nesFile = new NesFile(data, size, name);
 		const uint8_t mapperNo = nesFile->getMapperNo();
 		switch(mapperNo)
 		{

@@ -18,7 +18,9 @@
 
 #include "./NACLGamepadFairy.h"
 
-NACLGamepadFairy::NACLGamepadFairy()
+NACLGamepadFairy::NACLGamepadFairy(pp::InstanceHandle& instance) :
+GamepadFairy(),
+state(0)
 {
 	// TODO Auto-generated constructor stub
 
@@ -35,5 +37,72 @@ void NACLGamepadFairy::onUpdate()
 }
 bool NACLGamepadFairy::isPressed(uint8_t keyIdx)
 {
-	return false;
+	return ((this->state >> keyIdx) & 0x1) == 0x1;
+}
+
+bool NACLGamepadFairy::transInputEvent(const pp::InputEvent& event)
+{
+	const PP_InputEvent_Type type = event.GetType();
+	if(type != PP_INPUTEVENT_TYPE_KEYUP && type != PP_INPUTEVENT_TYPE_KEYDOWN){
+		return false;
+	}
+	const bool push = type == PP_INPUTEVENT_TYPE_KEYDOWN;
+	pp::KeyboardInputEvent evt(event);
+	const uint32_t code = evt.GetKeyCode();
+	if(push){
+		switch (code) {
+		case 38:
+			this->state |= GamepadFairy::MASK_UP;
+			break;
+		case 40:
+			this->state |= GamepadFairy::MASK_DOWN;
+			break;
+		case 37:
+			this->state |= GamepadFairy::MASK_LEFT;
+			break;
+		case 39:
+			this->state |= GamepadFairy::MASK_RIGHT;
+			break;
+		case 90:
+			this->state |= GamepadFairy::MASK_A;
+			break;
+		case 88:
+			this->state |= GamepadFairy::MASK_B;
+			break;
+		case 32:
+			this->state |= GamepadFairy::MASK_SELECT;
+			break;
+		case 13:
+			this->state |= GamepadFairy::MASK_START;
+			break;
+		}
+	}else{
+		switch (code) {
+		case 38:
+			this->state &= ~GamepadFairy::MASK_UP;
+			break;
+		case 40:
+			this->state &= ~GamepadFairy::MASK_DOWN;
+			break;
+		case 37:
+			this->state &= ~GamepadFairy::MASK_LEFT;
+			break;
+		case 39:
+			this->state &= ~GamepadFairy::MASK_RIGHT;
+			break;
+		case 90:
+			this->state &= ~GamepadFairy::MASK_A;
+			break;
+		case 88:
+			this->state &= ~GamepadFairy::MASK_B;
+			break;
+		case 32:
+			this->state &= ~GamepadFairy::MASK_SELECT;
+			break;
+		case 13:
+			this->state &= ~GamepadFairy::MASK_START;
+			break;
+		}
+	}
+	return true;
 }

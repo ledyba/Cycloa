@@ -4,45 +4,20 @@
 #include "./NesFile.h"
 #include "../exception/EmulatorException.h"
 
-NesFile::NesFile(const char* filename) :
-filename(filename),
+NesFile::NesFile(const uint8_t* data, const uint32_t size, const std::string& name) :
+filename(name),
+mapperNo(0),
 prgRom(NULL),
-chrRom(NULL)
+chrRom(NULL),
+mirrorType(HORIZONTAL),
+trainerFlag(false),
+sramFlag(false),
+prgSize(0),
+chrSize(0),
+prgPageCnt(0),
+chrPageCnt(0)
 {
-	std::ifstream in(filename, std::fstream::binary);
-	in.seekg(0, std::ifstream::end);
-	const std::ifstream::pos_type endPos = in.tellg();
-	in.seekg(0, std::ifstream::beg);
-	const std::ifstream::pos_type startPos = in.tellg();
-	const uint32_t size = static_cast<uint32_t>(endPos - startPos);
-
-	if(size <= NES_FORMAT_SIZE){
-		throw EmulatorException("[FIXME] Invalid file format: ") << filename;
-	}
-
-	//read header
-	uint8_t header[NES_FORMAT_SIZE];
-	in.read(reinterpret_cast<char*>(header), NES_FORMAT_SIZE);
-	if(in.gcount() != NES_FORMAT_SIZE){
-		throw EmulatorException("[FIXME] Invalid file: ") << filename;
-	}
-	//left
-	const int32_t contentSize = size-NES_FORMAT_SIZE;
-	uint8_t* data = new uint8_t[contentSize]; //VisualC++はこうしないと通らない
-	in.read(reinterpret_cast<char*>(data), contentSize);
-	if(in.gcount() != contentSize){
-		throw EmulatorException("[FIXME] Invalid file: ") << filename;
-	}
-
-	this->analyzeFile(header, contentSize, data);
-	delete [] data;
-}
-NesFile::NesFile(const uint32_t filesize, const uint8_t* data) :
-filename("\\ON_MEMORY"),
-prgRom(NULL),
-chrRom(NULL)
-{
-	const uint32_t contentSize = filesize - NES_FORMAT_SIZE;
+	const uint32_t contentSize = size - NES_FORMAT_SIZE;
 	this->analyzeFile(data, contentSize, &data[NES_FORMAT_SIZE]);
 }
 

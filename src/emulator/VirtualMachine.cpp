@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <stdio.h>
+#include <fstream>
 #include "exception/EmulatorException.h"
 #include "VirtualMachine.h"
 
@@ -10,6 +11,7 @@ audio(*this, audioFairy),
 video(*this, videoFairy),
 cartridge(NULL),
 ioPort(*this, player1, player2),
+clockDelta(0),
 resetFlag(false),
 hardResetFlag(false),
 irqLine(0)
@@ -112,9 +114,31 @@ void VirtualMachine::sendReset()
 
 void VirtualMachine::loadCartridge(const char* filename)
 {
+	std::ifstream in(filename, std::fstream::binary);
+	in.seekg(0, std::ifstream::end);
+	const std::ifstream::pos_type endPos = in.tellg();
+	in.seekg(0, std::ifstream::beg);
+	const std::ifstream::pos_type startPos = in.tellg();
+	const uint32_t size = static_cast<uint32_t>(endPos - startPos);
+
+	uint8_t* const data = new uint8_t[size];
+	try{
+		in.read(reinterpret_cast<char*>(data), size);
+		if(in.gcount() != static_cast<int32_t>(size)){
+			throw EmulatorException("[FIXME] Invalid file format: ") << filename;
+		}
+		VirtualMachine::loadCartridge(data, size);
+		delete data;
+	} catch (...) {
+		delete data;
+		throw;
+	}
+}
+void VirtualMachine::loadCartridge(const uint8_t* data, const uint32_t size,  const std::string& name)
+{
 	if(this->cartridge){
 		delete this->cartridge;
 	}
-	this->cartridge = Cartridge::loadCartridge(*this, filename);
+	this->cartridge = Cartridge::loadCartridge(*this, data, size, name);
 	this->video.connectCartridge(this->cartridge);
 }

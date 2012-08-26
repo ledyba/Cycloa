@@ -19,15 +19,24 @@
 #ifndef CycloaNaCl_NACLGAMEPADFAIRY_H__CPP_
 #define CycloaNaCl_NACLGAMEPADFAIRY_H__CPP_
 
+#include <ppapi/cpp/instance.h>
+#include <ppapi/cpp/input_event.h>
 #include "../../emulator/fairy/GamepadFairy.h"
 
 class NACLGamepadFairy: public GamepadFairy
 {
-public:
+private:
+	uint32_t state;
 	NACLGamepadFairy();
+	NACLGamepadFairy(const NACLGamepadFairy& other);
+	NACLGamepadFairy& operator= (const NACLGamepadFairy& other);
+public:
+	NACLGamepadFairy(pp::InstanceHandle& instance);
 	virtual ~NACLGamepadFairy();
 	virtual void onUpdate();
 	virtual bool isPressed(uint8_t keyIdx);
+public:
+	bool transInputEvent(const pp::InputEvent& event);
 };
 
 #endif /* INCLUDE_GUARD */

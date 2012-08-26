@@ -22,8 +22,7 @@ public:
 		CHR_ROM_PAGE_SIZE = 8 * 1024,
 	};
 public:
-	explicit NesFile(const char* filename);
-	explicit NesFile(const uint32_t filesize, const uint8_t* data);
+	explicit NesFile(const uint8_t* data, const uint32_t size, const std::string& name="MEMORY");
 	~NesFile();
 	inline MirrorType getMirrorType() const
 	{

@@ -3,6 +3,7 @@
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/module.h>
 #include <ppapi/cpp/var.h>
+#include <ppapi/cpp/var_array_buffer.h>
 #include <ppapi/utility/completion_callback_factory.h>
 #include "NACLVideoFairy.h"
 #include "NACLAudioFairy.h"
@@ -19,15 +20,28 @@ private:
 	pthread_t gameMainThread;
 	int width;
 	int height;
+	bool running;
 private:
-	NACLVideoFairy* videoFairy;
-	NACLAudioFairy* audioFairy;
-	NACLGamepadFairy* gamepadFairy;
+	pp::InstanceHandle handle;
+	NACLVideoFairy videoFairy;
+	NACLAudioFairy audioFairy;
+	NACLGamepadFairy gamepadFairy;
+	DummyGamepadFairy dummyPlayer;
+	VirtualMachine vm;
+	std::string error;
 public:
 	explicit CycloaInstance(PP_Instance instance)
 	: pp::Instance(instance),
 	gameMainThread(NULL),
-	width(0), height(0)
+	width(0), height(0),
+	running(false),
+	handle(this),
+	videoFairy(handle),
+	audioFairy(handle),
+	gamepadFairy(handle),
+	dummyPlayer(),
+	vm(this->videoFairy, this->audioFairy, &this->gamepadFairy, &this->dummyPlayer),
+	error("")
 	{
 		this->RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE | PP_INPUTEVENT_CLASS_KEYBOARD);
 		nInstances++;
@@ -38,31 +52,51 @@ public:
 		if(gameMainThread) {
 			pthread_join(gameMainThread, NULL);
 		}
-		if(this->videoFairy){
-			delete this->videoFairy;
-		}
-		this->videoFairy = 0;
-		if(this->audioFairy){
-			delete this->audioFairy;
-		}
-		this->audioFairy = 0;
-		if(this->gamepadFairy){
-			delete this->gamepadFairy;
-		}
-		this->gamepadFairy = 0;
 	}
 public:
-	virtual bool Init(uint32_t argc, const char* argn[], const char* argv[])
-	{
-		
-	}
 	virtual bool HandleInputEvent(const pp::InputEvent& event)
 	{
+		return this->gamepadFairy.transInputEvent(event);
+	}
 
+	void* start(){
+		try{
+			this->running = true;
+			while(this->running){
+				this->vm.run();
+			}
+			this->error="";
+		} catch (EmulatorException& e){
+			this->error = e.getMessage();
+		}
+		return 0;
+	}
+	static void* start(void* ptr){
+		return reinterpret_cast<CycloaInstance*>(ptr)->start();
 	}
 	virtual void HandleMessage(const pp::Var& var_message)
 	{
-		
+		if(var_message.is_array_buffer()) {
+			// load
+			pp::VarArrayBuffer ab(var_message);
+			this->vm.loadCartridge(reinterpret_cast<const uint8_t*>(ab.Map()), ab.ByteLength(), "ArrayBuffer");
+			this->vm.sendHardReset();
+			ab.Unmap();
+			this->PostMessage(pp::Var("Loaded."));
+		}else if(var_message.is_string()){
+			std::string msg = var_message.AsString();
+			if(msg == "start"){
+				pthread_create(&this->gameMainThread, NULL, CycloaInstance::start,this);
+				this->PostMessage(pp::Var("Start running."));
+			}else if(msg == "stop"){
+				this->running = false;
+				pthread_join(gameMainThread, NULL);
+				if(!this->error.empty()){
+					this->PostMessage(this->error);
+				}
+				this->gameMainThread = 0;
+			}
+		}
 	}
 	virtual void DidChangeView(const pp::Rect& position, const pp::Rect& clip)
 	{
