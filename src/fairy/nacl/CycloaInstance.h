@@ -35,6 +35,7 @@ private:
 	int height;
 private:
 	bool running;
+	double lastTime;
 	pthread_t thread;
 	NACLVideoFairy videoFairy;
 	NACLAudioFairy audioFairy;
@@ -54,7 +55,6 @@ public:
 	void start();
 	void stop();
 	void loop(int32_t result);
-	void onVBLank();
 public:
 	static void* run(void* self);
 	static void loop(void* user_data, int32_t result);

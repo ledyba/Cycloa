@@ -12,12 +12,18 @@ audio(cycloa, this->config, NACLAudioFairy::callback, this)
 void NACLAudioFairy::callback(void* sample_buffer, uint32_t buffer_size_in_bytes)
 {
 	int16_t* const buffer = reinterpret_cast<int16_t*>(sample_buffer);
-	const int maxLen = buffer_size_in_bytes/sizeof(int16_t);
+	const int maxLen = buffer_size_in_bytes/sizeof(int16_t)/2;
 
-	const int copiedLength = this->popAudio(buffer, maxLen);
-	const int16_t fill = copiedLength > 0 ? buffer[copiedLength-1] : 0;
+	int16_t monoBuffer[maxLen];
+	const int copiedLength = this->popAudio(monoBuffer, maxLen);
+	for(int i=0;i<copiedLength;++i){
+		buffer[(i<<1)+0]=monoBuffer[i];
+		buffer[(i<<1)+1]=monoBuffer[i];
+	}
+	const int16_t fill = copiedLength > 0 ? monoBuffer[copiedLength-1] : 0;
 	for(int i=copiedLength;i<maxLen;i++){
-		buffer[i]=fill;
+		buffer[(i<<1)+0]=fill;
+		buffer[(i<<1)+1]=fill;
 	}
 }
 

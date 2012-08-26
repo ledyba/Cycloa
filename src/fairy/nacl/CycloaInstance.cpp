@@ -28,6 +28,7 @@ CycloaInstance::CycloaInstance(pp::Core* core, PP_Instance instance)
 : pp::Instance(instance),
 width(0), height(0),
 running(false),
+lastTime(-1),
 thread(0),
 videoFairy(this),
 audioFairy(this),
@@ -57,7 +58,7 @@ void CycloaInstance::start(){
 	this->audioFairy.start();
 	pthread_create(&this->thread, NULL, CycloaInstance::run, this);
 	this->PostMessage(pp::Var("Game started."));
-	this->core->CallOnMainThread(14, pp::CompletionCallback(CycloaInstance::frameLoop, this), 0);
+	this->core->CallOnMainThread(16, pp::CompletionCallback(CycloaInstance::frameLoop, this), 0);
 }
 void CycloaInstance::stop(){
 	this->PostMessage(pp::Var("Stopped."));
@@ -90,8 +91,6 @@ void* CycloaInstance::run(void* self)
 	return reinterpret_cast<CycloaInstance*>(self)->run();
 }
 
-void CycloaInstance::onVBLank(){
-}
 void CycloaInstance::HandleMessage(const pp::Var& var_message)
 {
 	if(var_message.is_array_buffer()) {
@@ -132,10 +131,20 @@ void CycloaInstance::frameWait()
 void CycloaInstance::frameLoop(void* _self, int32_t val)
 {
 	CycloaInstance* const self = reinterpret_cast<CycloaInstance*>(_self);
+	if(self->running){
+		self->core->CallOnMainThread(16, pp::CompletionCallback(CycloaInstance::frameLoop, _self), (val + 1) % 60);
+	}
+	if(val == 0){
+		const double now = self->core->GetTimeTicks();
+		if(self->lastTime > 0){
+			const double elapsed = now-self->lastTime;
+			self->PostMessage(60/elapsed);
+		}
+		self->lastTime = now;
+	}
 	pthread_mutex_lock(&self->frameMutex);
 	pthread_cond_signal(&self->frameCond);
 	pthread_mutex_unlock(&self->frameMutex);
-	self->core->CallOnMainThread(16, pp::CompletionCallback(CycloaInstance::frameLoop, _self), 0);
 }
 
 int CycloaInstance::nInstances = 0;
