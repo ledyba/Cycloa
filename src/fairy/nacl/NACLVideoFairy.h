@@ -23,21 +23,31 @@
 
 #include <ppapi/cpp/graphics_2d.h>
 #include <ppapi/cpp/image_data.h>
+#include <pthread.h>
+
+class CycloaInstance;
 
 class NACLVideoFairy : public VideoFairy
 {
 private:
+	CycloaInstance* cycloa;
 	pp::Graphics2D gfx;
 	pp::ImageData img;
+	pthread_cond_t waitSync;
+	pthread_mutex_t waitMutex;
 private:
 	NACLVideoFairy();
 	NACLVideoFairy(const NACLVideoFairy& other);
 	NACLVideoFairy& operator = (const NACLVideoFairy& other);
 public:
-	NACLVideoFairy(pp::InstanceHandle& instance);
+	NACLVideoFairy(CycloaInstance* cycloa);
 public:
 	virtual ~NACLVideoFairy();
 	virtual void dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask);
+	pp::Graphics2D& getGraphic2D(){return gfx;};
+public:
+	static void onFlushEnd(void* _self, int32_t val);
+	static void dispatchRenderingRemote(void* _self, int32_t val);
 };
 
 #endif /* INCLUDE_GUARD */

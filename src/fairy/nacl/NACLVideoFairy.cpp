@@ -18,26 +18,39 @@
 
 #include "NACLVideoFairy.h"
 #include <ppapi/cpp/completion_callback.h>
+#include "CycloaInstance.h"
 #include <string.h>
 #include <stdio.h>
+#include <sstream>
 
-NACLVideoFairy::NACLVideoFairy(pp::InstanceHandle& instance) :
+NACLVideoFairy::NACLVideoFairy(CycloaInstance* cycloa) :
 VideoFairy(),
-gfx(instance, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true),
-img(instance, PP_IMAGEDATAFORMAT_RGBA_PREMUL, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true)
+cycloa(cycloa),
+gfx(cycloa, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true),
+img(cycloa, PP_IMAGEDATAFORMAT_RGBA_PREMUL, pp::Size(VideoFairy::screenWidth, VideoFairy::screenHeight), true)
 {
-	const uint32_t stride = this->img.stride();
-	uint8_t* pixel8 = reinterpret_cast<uint8_t*>(this->img.data());
-	memset(pixel8, 0, this->img.size().height() * stride);
-
-	this->gfx.ReplaceContents(&this->img);
-	this->gfx.Flush(pp::CompletionCallback());
-
-	printf("initialized video");
+	cycloa->BindGraphics(this->gfx);
 }
 
 NACLVideoFairy::~NACLVideoFairy()
 {
+}
+void NACLVideoFairy::onFlushEnd(void* _self, int32_t val)
+{
+	NACLVideoFairy* const self = reinterpret_cast<NACLVideoFairy*>(_self);
+	pthread_cond_signal(&self->waitSync);
+	pthread_mutex_unlock(&self->waitMutex);
+}
+
+void NACLVideoFairy::dispatchRenderingRemote(void* _self, int32_t val)
+{
+	NACLVideoFairy* const self = reinterpret_cast<NACLVideoFairy*>(_self);
+	pthread_mutex_lock(&self->waitMutex);
+	self->gfx.PaintImageData(self->img, pp::Point(0,0));
+	if(self->gfx.Flush(pp::CompletionCallback(NACLVideoFairy::onFlushEnd, self)) != PP_OK){
+		pthread_cond_signal(&self->waitSync);
+		pthread_mutex_unlock(&self->waitMutex);
+	}
 }
 
 void NACLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
@@ -48,11 +61,16 @@ void NACLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][scr
 	for(uint32_t h = 0;h<VideoFairy::screenHeight; ++h){
 		uint32_t* const line = reinterpret_cast<uint32_t*>(pixel8);
 		for(uint32_t w = 0;w<VideoFairy::screenWidth; ++w){
-			line[w] = VideoFairy::nesPalette[nesBuffer[h][w] & paletteMask];
+			const uint32_t c = VideoFairy::nesPalette[nesBuffer[h][w] & paletteMask];
+			line[w] = (c & 0xff) << 16 | (c & 0xff00) | ((c & 0xff0000) >> 16);
 		}
 		pixel8 += stride;
 	}
 
-	this->gfx.ReplaceContents(&this->img);
-	this->gfx.Flush(pp::CompletionCallback());
+	pthread_mutex_lock(&this->waitMutex);
+	this->cycloa->CallOnMainThread(NACLVideoFairy::dispatchRenderingRemote, this);
+	pthread_cond_wait(&this->waitSync, &this->waitMutex);
+	pthread_mutex_unlock(&this->waitMutex);
+
+	this->cycloa->frameWait();
 }

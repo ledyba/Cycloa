@@ -18,7 +18,7 @@
 
 #include "./NACLGamepadFairy.h"
 
-NACLGamepadFairy::NACLGamepadFairy(pp::InstanceHandle& instance) :
+NACLGamepadFairy::NACLGamepadFairy(CycloaInstance* cycloa) :
 GamepadFairy(),
 state(0)
 {

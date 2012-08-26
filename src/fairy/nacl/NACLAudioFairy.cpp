@@ -1,9 +1,11 @@
 #include "NACLAudioFairy.h"
+#include "CycloaInstance.h"
 
-NACLAudioFairy::NACLAudioFairy(pp::InstanceHandle& instance):
+NACLAudioFairy::NACLAudioFairy(CycloaInstance* cycloa) :
 AudioFairy(),
-config(instance, PP_AUDIOSAMPLERATE_44100, NACLAudioFairy::BUFFER_SIZE),
-audio(instance, this->config, NACLAudioFairy::callback, this)
+cycloa(cycloa),
+config(cycloa, PP_AUDIOSAMPLERATE_44100, NACLAudioFairy::BUFFER_SIZE),
+audio(cycloa, this->config, NACLAudioFairy::callback, this)
 {
 }
 

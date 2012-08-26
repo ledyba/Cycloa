@@ -3,6 +3,7 @@
 
 #include <ppapi/cpp/audio.h>
 #include "../../emulator/fairy/AudioFairy.h"
+class CycloaInstance;
 
 class NACLAudioFairy : public AudioFairy{
 private:
@@ -13,11 +14,12 @@ private:
 	NACLAudioFairy(const NACLAudioFairy& other);
 	const NACLAudioFairy& operator=(const NACLAudioFairy& other);
 private:
+	CycloaInstance* cycloa;
 	pp::AudioConfig config;
 	pp::Audio audio;
 	void callback(void* sample_buffer, uint32_t buffer_size_in_bytes);
 public:
-	NACLAudioFairy(pp::InstanceHandle& instance);
+	NACLAudioFairy(CycloaInstance* cycloa);
 	void start();
 	void stop();
 public:
