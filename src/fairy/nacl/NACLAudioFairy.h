@@ -8,7 +8,7 @@ class CycloaInstance;
 class NACLAudioFairy : public AudioFairy{
 private:
 	enum{
-		BUFFER_SIZE=10000
+		BUFFER_SIZE=4410
 	};
 private:
 	NACLAudioFairy(const NACLAudioFairy& other);
