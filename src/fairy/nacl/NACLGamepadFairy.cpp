@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "/home/psi/Dropbox/src/Cycloa/src/fairy/nacl/NACLGamepadFairy.h"
+#include "./NACLGamepadFairy.h"
 
 NACLGamepadFairy::NACLGamepadFairy()
 {
