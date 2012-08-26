@@ -23,12 +23,16 @@
 #include <ppapi/cpp/var_array_buffer.h>
 #include <ppapi/utility/completion_callback_factory.h>
 #include "CycloaInstance.h"
+#include <stdio.h>
+
+const double CycloaInstance::kFrameInterval = (1.0f/60.0f);
 
 CycloaInstance::CycloaInstance(pp::Core* core, PP_Instance instance)
 : pp::Instance(instance),
 width(0), height(0),
 running(false),
 lastTime(-1),
+nextTime(-1),
 thread(0),
 videoFairy(this),
 audioFairy(this),
@@ -58,6 +62,9 @@ void CycloaInstance::start(){
 	this->audioFairy.start();
 	pthread_create(&this->thread, NULL, CycloaInstance::run, this);
 	this->PostMessage(pp::Var("Game started."));
+	const double now = this->core->GetTimeTicks();
+	this->lastTime = now;
+	this->nextTime = now+CycloaInstance::kFrameInterval;
 	this->core->CallOnMainThread(16, pp::CompletionCallback(CycloaInstance::frameLoop, this), 0);
 }
 void CycloaInstance::stop(){
@@ -131,15 +138,16 @@ void CycloaInstance::frameWait()
 void CycloaInstance::frameLoop(void* _self, int32_t val)
 {
 	CycloaInstance* const self = reinterpret_cast<CycloaInstance*>(_self);
+	const double now = self->core->GetTimeTicks();
+	self->nextTime += CycloaInstance::kFrameInterval;
 	if(self->running){
-		self->core->CallOnMainThread(16, pp::CompletionCallback(CycloaInstance::frameLoop, _self), (val + 1) % 60);
+		self->core->CallOnMainThread(static_cast<uint32_t>((self->nextTime-now)*1000), pp::CompletionCallback(CycloaInstance::frameLoop, _self), (val + 1) % 60);
 	}
 	if(val == 0){
-		const double now = self->core->GetTimeTicks();
-		if(self->lastTime > 0){
-			const double elapsed = now-self->lastTime;
-			self->PostMessage(60/elapsed);
-		}
+		const double elapsed = now-self->lastTime;
+		char buff[8192];
+		snprintf(buff, sizeof(buff), "FPS: %02.02f", 60/elapsed);
+		self->PostMessage(buff);
 		self->lastTime = now;
 	}
 	pthread_mutex_lock(&self->frameMutex);

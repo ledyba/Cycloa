@@ -31,11 +31,13 @@ class CycloaInstance : public pp::Instance
 {
 private:
 	static int nInstances;
+	static const double kFrameInterval;
 	int width;
 	int height;
 private:
 	bool running;
 	double lastTime;
+	double nextTime;
 	pthread_t thread;
 	NACLVideoFairy videoFairy;
 	NACLAudioFairy audioFairy;
