@@ -88,15 +88,29 @@ cycloa.handleMessage = function(msg){
 (function(){
 	$(document).ready(function(){
 		cycloa.log("page loaded.");
+		// モジュールのロード処理。これをつけないと、かなりの確率でロードに失敗してしまうみたい。
+		// Googleのサンプルでもそうなっております
+		var embed = $('<embed>');
+		embed.attr('name','nacl_module');
+		embed.attr('id', 'nes_nacl');
+		embed.attr('width', '256');
+		embed.attr('height', '240');
+		embed.attr('type', 'application/x-nacl');
+		embed.attr('src', './Cycloa.nmf');
+		$('#nes_screen').append(embed);
+		
+		// モジュールがロードされた時の処理
 		$("#nes_screen")[0].addEventListener('load', cycloa.moduleLoaded, true);
 		$("#nes_screen")[0].addEventListener('message', cycloa.handleMessage, true);
-		
+		// ハードリセット
 		$("#nes_hardreset").bind("click", function(){
 			cycloa.nesController.hardReset();
 		});
+		// リセット
 		$("#nes_reset").bind("click", function(){
 			cycloa.nesController.reset();
 		});
+		// スタートとストップの切り替え
 		$("#nes_stop").bind("click", function(){
 			if(cycloa.nesController.stop()){
 				$("#nes_start").removeClass("disable");
@@ -109,11 +123,11 @@ cycloa.handleMessage = function(msg){
 				$("#nes_start").addClass("disable");
 			}
 		});
-
+		// スクリーンズーム機能
 		$("#screen_zoom").bind("click", function(){
 			cycloa.nesController.zoom();
 		});
-
+		// ROMセレクタをデフォルトにする（Firefoxで必要）
 		$("#rom_sel")[0].selectedIndex  = 0;
 		$("#nes_stop").removeClass("disable");
 		$("#nes_start").addClass("disable");
