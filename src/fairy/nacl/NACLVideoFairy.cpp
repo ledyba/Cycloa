@@ -61,7 +61,7 @@ void NACLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][scr
 	for(uint32_t h = 0;h<VideoFairy::screenHeight; ++h){
 		uint32_t* const line = reinterpret_cast<uint32_t*>(pixel8);
 		for(uint32_t w = 0;w<VideoFairy::screenWidth; ++w){
-			const uint32_t c = VideoFairy::nesPalette[nesBuffer[h][w] & paletteMask];
+			const uint32_t c = VideoFairy::nesPaletteARGB[nesBuffer[h][w] & paletteMask];
 			line[w] = (c & 0xff) << 16 | (c & 0xff00) | ((c & 0xff0000) >> 16);
 		}
 		pixel8 += stride;
