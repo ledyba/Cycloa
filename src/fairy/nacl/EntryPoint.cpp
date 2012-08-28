@@ -10,7 +10,7 @@ public:
 	virtual ~CycloaModule() {}
 
 	virtual pp::Instance* CreateInstance(PP_Instance instance) {
-		return new CycloaInstance(this->core(), instance);
+		return new CycloaInstance(this, instance);
 	}
 };
 

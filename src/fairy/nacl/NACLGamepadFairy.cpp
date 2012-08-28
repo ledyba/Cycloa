@@ -17,18 +17,16 @@
  */
 
 #include "./NACLGamepadFairy.h"
+#include "CycloaInstance.h"
 
 NACLGamepadFairy::NACLGamepadFairy(CycloaInstance* cycloa) :
-GamepadFairy(),
-state(0)
+		GamepadFairy(), cycloa(cycloa), state(0), gamepad(0)
 {
-	// TODO Auto-generated constructor stub
-
+	this->gamepad = reinterpret_cast<const PPB_Gamepad*>(cycloa->GetBrowserInterface(PPB_GAMEPAD_INTERFACE));
 }
 
 NACLGamepadFairy::~NACLGamepadFairy()
 {
-	// TODO Auto-generated destructor stub
 }
 
 void NACLGamepadFairy::onUpdate()
@@ -43,13 +41,14 @@ bool NACLGamepadFairy::isPressed(uint8_t keyIdx)
 bool NACLGamepadFairy::transInputEvent(const pp::InputEvent& event)
 {
 	const PP_InputEvent_Type type = event.GetType();
-	if(type != PP_INPUTEVENT_TYPE_KEYUP && type != PP_INPUTEVENT_TYPE_KEYDOWN){
+	if (type != PP_INPUTEVENT_TYPE_KEYUP
+			&& type != PP_INPUTEVENT_TYPE_KEYDOWN) {
 		return false;
 	}
 	const bool push = type == PP_INPUTEVENT_TYPE_KEYDOWN;
 	pp::KeyboardInputEvent evt(event);
 	const uint32_t code = evt.GetKeyCode();
-	if(push){
+	if (push) {
 		switch (code) {
 		case 38:
 			this->state |= GamepadFairy::MASK_UP;
@@ -76,7 +75,7 @@ bool NACLGamepadFairy::transInputEvent(const pp::InputEvent& event)
 			this->state |= GamepadFairy::MASK_START;
 			break;
 		}
-	}else{
+	} else {
 		switch (code) {
 		case 38:
 			this->state &= ~GamepadFairy::MASK_UP;
@@ -106,3 +105,42 @@ bool NACLGamepadFairy::transInputEvent(const pp::InputEvent& event)
 	}
 	return true;
 }
+
+void NACLGamepadFairy::onVBlank()
+{
+	this->cycloa->CallOnMainThread(NACLGamepadFairy::updateCallback, this);
+}
+
+void NACLGamepadFairy::updateCallback(void* _self, int32_t val)
+{
+	NACLGamepadFairy* self = reinterpret_cast<NACLGamepadFairy*>(_self);
+	/* GamepadのAPIにはC++のものは提供されてないみたい */
+	if (!self->gamepad) {
+		return;
+	}
+	self->gamepad = 0;
+	PP_GamepadsSampleData gamepad_data;
+	self->gamepad->Sample(self->cycloa->pp_instance(), &gamepad_data);
+	for (uint32_t i = 0; i < gamepad_data.length; ++i) {
+		PP_GamepadSampleData& pad = gamepad_data.items[i];
+		const float x = pad.axes[0];
+		const float y = pad.axes[1];
+		if (x > 0.5f) {
+			self->state |= GamepadFairy::MASK_RIGHT;
+		} else if (x < -0.5f) {
+			self->state |= GamepadFairy::MASK_LEFT;
+		}
+
+		if (y > 0.5f) {
+			self->state |= GamepadFairy::MASK_DOWN;
+		} else if (y < -0.5f) {
+			self->state |= GamepadFairy::MASK_UP;
+		}
+
+		self->state |= (pad.buttons[0] > 0.5f) << GamepadFairy::A;
+		self->state |= (pad.buttons[1] > 0.5f) << GamepadFairy::B;
+		self->state |= (pad.buttons[2] > 0.5f) << GamepadFairy::START;
+		self->state |= (pad.buttons[3] > 0.5f) << GamepadFairy::SELECT;
+	}
+}
+

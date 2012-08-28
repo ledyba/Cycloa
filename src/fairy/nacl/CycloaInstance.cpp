@@ -27,8 +27,10 @@
 
 const double CycloaInstance::kFrameInterval = (1.0f/60.0f);
 
-CycloaInstance::CycloaInstance(pp::Core* core, PP_Instance instance)
+CycloaInstance::CycloaInstance(pp::Module* module, PP_Instance instance)
 : pp::Instance(instance),
+core(module->core()),
+module(module),
 width(0), height(0),
 running(false),
 lastTime(-1),
@@ -38,8 +40,7 @@ videoFairy(this),
 audioFairy(this),
 gamepadFairy(this),
 dummyPlayer(),
-vm(this->videoFairy, this->audioFairy, &this->gamepadFairy, &this->dummyPlayer),
-core(core)
+vm(this->videoFairy, this->audioFairy, &this->gamepadFairy, &this->dummyPlayer)
 {
 	this->RequestInputEvents(PP_INPUTEVENT_CLASS_MOUSE | PP_INPUTEVENT_CLASS_KEYBOARD);
 	nInstances++;
@@ -126,6 +127,11 @@ void CycloaInstance::HandleMessage(const pp::Var& var_message)
 void CycloaInstance::CallOnMainThread(PP_CompletionCallback_Func func, void* data)
 {
 	this->core->CallOnMainThread(0, pp::CompletionCallback(func, data));
+}
+
+const void* CycloaInstance::GetBrowserInterface(const char* name)
+{
+	return 	this->module->GetBrowserInterface(name);
 }
 
 void CycloaInstance::frameWait()

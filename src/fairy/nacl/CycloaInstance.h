@@ -30,6 +30,11 @@
 class CycloaInstance : public pp::Instance
 {
 private:
+	pp::Core* core;
+	pp::Module* module;
+	pthread_mutex_t frameMutex;
+	pthread_cond_t frameCond;
+private:
 	static int nInstances;
 	static const double kFrameInterval;
 	int width;
@@ -44,12 +49,8 @@ private:
 	NACLGamepadFairy gamepadFairy;
 	DummyGamepadFairy dummyPlayer;
 	VirtualMachine vm;
-private:
-	pp::Core* core;
-	pthread_mutex_t frameMutex;
-	pthread_cond_t frameCond;
 public:
-	explicit CycloaInstance(pp::Core* core, PP_Instance instance);
+	explicit CycloaInstance(pp::Module* module, PP_Instance instance);
 	virtual ~CycloaInstance();
 private:
 	void* run();
@@ -64,6 +65,7 @@ public:
 	virtual bool HandleInputEvent(const pp::InputEvent& event);
 	virtual void HandleMessage(const pp::Var& var_message);
 	void CallOnMainThread(PP_CompletionCallback_Func func, void* data);
+	const void* GetBrowserInterface(const char* name);
 private:
 	static void frameLoop(void* _self, int32_t val);
 public:

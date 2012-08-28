@@ -21,13 +21,17 @@
 
 #include <ppapi/cpp/instance.h>
 #include <ppapi/cpp/input_event.h>
+#include <ppapi/c/ppb_gamepad.h>
+
 class CycloaInstance;
 #include "../../emulator/fairy/GamepadFairy.h"
 
 class NACLGamepadFairy: public GamepadFairy
 {
 private:
+	CycloaInstance* cycloa;
 	uint32_t state;
+	const PPB_Gamepad* gamepad;
 	NACLGamepadFairy();
 	NACLGamepadFairy(const NACLGamepadFairy& other);
 	NACLGamepadFairy& operator= (const NACLGamepadFairy& other);
@@ -36,8 +40,11 @@ public:
 	virtual ~NACLGamepadFairy();
 	virtual void onUpdate();
 	virtual bool isPressed(uint8_t keyIdx);
+	virtual void onVBlank();
 public:
 	bool transInputEvent(const pp::InputEvent& event);
+public:
+	static void updateCallback(void* _self, int32_t val);
 };
 
 #endif /* INCLUDE_GUARD */

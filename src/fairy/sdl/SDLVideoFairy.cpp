@@ -83,6 +83,8 @@ void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][scre
 					exit(0);
 				}
 			}
+#else
+			{}
 #endif
 	}
 
@@ -123,7 +125,7 @@ void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][
 	for(int y=0;y<screenHeight;y++){
 		line = reinterpret_cast<uint32_t*>(line8);
 		for(int x=0;x<screenWidth; x++){
-			line[x] = nesPalette[nesBuffer[y][x] & paletteMask];
+			line[x] = VideoFairy::nesPaletteARGB[nesBuffer[y][x] & paletteMask];
 		}
 		line8+=pitch;
 	}
@@ -147,7 +149,7 @@ void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][
 	for(int y=0;y<screenHeight;y++){
 		line = reinterpret_cast<uint32_t*>(line8);
 		for(int x=0;x<screenWidth; x++){
-			line[x] = nesPalette[nesBuffer[y][x] & paletteMask];
+			line[x] = VideoFairy::nesPaletteARGB[nesBuffer[y][x] & paletteMask];
 		}
 		line8+=pitch;
 	}
