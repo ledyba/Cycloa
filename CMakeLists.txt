@@ -28,6 +28,7 @@ file(GLOB_RECURSE cycloa_base_SRCS ${SRC_DIR}/emulator/*.cpp)
 #ターゲット別ソースコードの指定
 file(GLOB_RECURSE cycloa_sdl_SRCS ${SRC_DIR}/fairy/sdl/*.cpp)
 file(GLOB_RECURSE cycloa_nacl_SRCS ${SRC_DIR}/fairy/nacl/*.cpp)
+file(GLOB_RECURSE cycloa_nacl_MISC ${CMAKE_SOURCE_DIR}/misc/nacl/*)
 
 #実行バイナリ
 
@@ -70,7 +71,16 @@ if(CMAKE_CROSSCOMPILING)
 		TARGET_LINK_LIBRARIES(CycloaNaCl_64 ppapi_cpp ppapi)
 		TARGET_LINK_LIBRARIES(CycloaNaCl_32 ppapi_cpp ppapi)
 
-		ADD_CUSTOM_TARGET(CycloaNaCl.nmf ALL COMMAND ${CMAKE_NMF} -D ${CMAKE_OBJDUMP} -o Cycloa.nmf ./CycloaNaCl_32.nexe ./CycloaNaCl_64.nexe -t ${NACL_LIB} -s ${CMAKE_BINARY_DIR} DEPENDS CycloaNaCl_64 CycloaNaCl_32)
+		ADD_CUSTOM_TARGET(Cycloa.nmf ALL COMMAND ${CMAKE_NMF} -D ${CMAKE_OBJDUMP} -o Cycloa.nmf ./CycloaNaCl_32.nexe ./CycloaNaCl_64.nexe -t ${NACL_LIB} -s ${CMAKE_BINARY_DIR} DEPENDS CycloaNaCl_64 CycloaNaCl_32)
+		list(APPEND custom_targets Cycloa.nmf)
+		
+		foreach(miscFile ${cycloa_nacl_MISC})
+			get_filename_component(name ${miscFile} NAME)
+			ADD_CUSTOM_TARGET(${name} ALL COMMAND cp ${miscFile} ${name} DEPENDS CycloaNaCl_64 CycloaNaCl_32)
+			list(APPEND custom_targets ${name})
+		endforeach()
+		# いっぺんに指定しないと、前指定した内容は失われてしまうみたい
+		set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${custom_targets}")
 	endif()
 
 else() #Platform-Native
