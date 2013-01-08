@@ -41,7 +41,7 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Texture* tex;
 protected:
-	virtual void dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
+	virtual void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
 #elif defined(CYCLOA_SDL)
 	SDL_Surface* screenSurface;
 	SDL_Surface* nesSurface;

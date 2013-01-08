@@ -53,7 +53,7 @@ void NACLVideoFairy::dispatchRenderingRemote(void* _self, int32_t val)
 	}
 }
 
-void NACLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
+void NACLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask)
 {
 	const uint32_t stride = this->img.stride();
 	uint8_t* pixel8 = reinterpret_cast<uint8_t*>(this->img.data());

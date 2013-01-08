@@ -43,7 +43,7 @@ public:
 	NACLVideoFairy(CycloaInstance* cycloa);
 public:
 	virtual ~NACLVideoFairy();
-	virtual void dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask);
+	virtual void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask);
 	pp::Graphics2D& getGraphic2D(){return gfx;};
 public:
 	static void onFlushEnd(void* _self, int32_t val);

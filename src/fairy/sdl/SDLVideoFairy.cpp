@@ -57,7 +57,7 @@ SDLVideoFairy::~SDLVideoFairy()
 
 
 
-void SDLVideoFairy::dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask)
+void SDLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask)
 {
 
 	SDL_Event e;
