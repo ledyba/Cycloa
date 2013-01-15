@@ -21,7 +21,7 @@ class SDLVideoFairy : public VideoFairy
 public:
 	explicit SDLVideoFairy(std::string windowTitle, int width = Video::screenWidth*2, int height = Video::screenHeight*2);
 	virtual ~SDLVideoFairy();
-	void dispatchRendering(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask);
+	virtual void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask) override final;
 	int getWidth(){
 		return this->width;
 	}
@@ -41,12 +41,12 @@ private:
 	SDL_Renderer* renderer;
 	SDL_Texture* tex;
 protected:
-	virtual void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
+	void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
 #elif defined(CYCLOA_SDL)
 	SDL_Surface* screenSurface;
 	SDL_Surface* nesSurface;
 protected:
-	void dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface);
+	void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface);
 #endif
 };
 

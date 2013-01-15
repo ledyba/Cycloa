@@ -116,7 +116,7 @@ void SDLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][s
 }
 
 #if defined(CYCLOA_SDL2)
-void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer *renderer, SDL_Texture* tex)
+void SDLVideoFairy::dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer *renderer, SDL_Texture* tex)
 {
 	uint32_t* line;
 	uint8_t* line8;
