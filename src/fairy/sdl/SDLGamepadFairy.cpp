@@ -37,22 +37,22 @@ void SDLGamepadFairy::onVBlank()
 	const int16_t x = SDL_JoystickGetAxis(&joystick, 0);
 	const int16_t y = SDL_JoystickGetAxis(&joystick, 1);
 #endif
-	if(x > 100){
+	if(x > 16384){
 		state |= GamepadFairy::MASK_RIGHT;
-	}else if(x < -100){
+	}else if(x < -16384){
 		state |= GamepadFairy::MASK_LEFT;
 	}
 
-	if(y > 100){
+	if(y > 16384){
 		state |= GamepadFairy::MASK_DOWN;
-	}else if(y < -100){
+	}else if(y < -16384){
 		state |= GamepadFairy::MASK_UP;
 	}
 
-	state |= (SDL_JoystickGetButton(&joystick, 2)) << GamepadFairy::A;
+	state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::A;
 	state |= (SDL_JoystickGetButton(&joystick, 1)) << GamepadFairy::B;
-	state |= (SDL_JoystickGetButton(&joystick, 8)) << GamepadFairy::START;
-	state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::SELECT;
+	state |= (SDL_JoystickGetButton(&joystick, 7)) << GamepadFairy::START;
+	state |= (SDL_JoystickGetButton(&joystick, 6)) << GamepadFairy::SELECT;
 
 	/* Key Board */
 #if defined(CYCLOA_SDL2)
