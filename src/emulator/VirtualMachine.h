@@ -125,151 +125,151 @@ private:
 #include "AudioChannel.h"
 
 class Audio {
-	public:
-		explicit Audio(VirtualMachine& vm, AudioFairy& audioFairy);
-		~Audio();
-		void run(uint16_t clockDelta);
-		void onHardReset();
-		void onReset();
-		uint8_t readReg(uint16_t addr);
-		void writeReg(uint16_t addr, uint8_t value);
-		void onVSync();
-		enum{
-			AUDIO_CLOCK = 21477272/12,//21.28MHz(NTSC)
-			SAMPLE_RATE = 44100,
-			FRAME_IRQ_RATE = 240
-		};
-	protected:
-	private:
-		VirtualMachine& VM;
-		AudioFairy& audioFairy;
-		//
-		unsigned int clockCnt;
-		unsigned int leftClock;
-		unsigned int frameCnt;
-		//--
-		bool isNTSCmode;
-		bool frameIRQenabled;
-		uint8_t frameIRQCnt;
-		//---
-		Rectangle rectangle1;
-		Rectangle rectangle2;
-		Triangle triangle;
-		Noize noize;
-		Digital digital;
-		//---
-		inline void analyzeStatusRegister(uint8_t value);
-		inline void analyzeLowFrequentryRegister(uint8_t value);
+public:
+	explicit Audio(VirtualMachine& vm, AudioFairy& audioFairy);
+	~Audio();
+	void run(uint16_t clockDelta);
+	void onHardReset();
+	void onReset();
+	uint8_t readReg(uint16_t addr);
+	void writeReg(uint16_t addr, uint8_t value);
+	void onVSync();
+	enum{
+		AUDIO_CLOCK = 21477272/12,//21.28MHz(NTSC)
+		SAMPLE_RATE = 44100,
+		FRAME_IRQ_RATE = 240
+	};
+protected:
+private:
+	VirtualMachine& VM;
+	AudioFairy& audioFairy;
+	//
+	unsigned int clockCnt;
+	unsigned int leftClock;
+	unsigned int frameCnt;
+	//--
+	bool isNTSCmode;
+	bool frameIRQenabled;
+	uint8_t frameIRQCnt;
+	//---
+	Rectangle rectangle1;
+	Rectangle rectangle2;
+	Triangle triangle;
+	Noize noize;
+	Digital digital;
+	//---
+	inline void analyzeStatusRegister(uint8_t value);
+	inline void analyzeLowFrequentryRegister(uint8_t value);
 
 };
 
 class Video
 {
-	public:
-		explicit Video(VirtualMachine& vm, VideoFairy& videoFairy);
-		~Video();
-		void run(uint16_t clockDelta);
-		void onHardReset();
-		void onReset();
-		uint8_t readReg(uint16_t addr);
-		void writeReg(uint16_t addr, uint8_t value);
-		void executeDMA(uint8_t value);
-		void connectCartridge(Cartridge* cartridge);
-		enum{
-			screenWidth = 256,
-			screenHeight = 240,
-			EmptyBit = 0x00,
-			BackSpriteBit = 0x40,
-			BackgroundBit = 0x80,
-			FrontSpriteBit = 0xc0,
-			SpriteLayerBit = 0x40,
-			LayerBitMask = 0xc0
-		};
-	protected:
-	private:
-		enum{
-			clockPerScanline = 341,
-			scanlinePerScreen = 262,
-			defaultSpriteCnt = 8
-		};
-		VirtualMachine& VM;
-		Cartridge* cartridge;
-	   VideoFairy& videoFairy;
-		bool isEven;
-		uint16_t nowY;
-		uint16_t nowX;
-		uint8_t spRam[256];
-		uint8_t internalVram[2048];
-		uint8_t palette[9][4];
-		uint8_t screenBuffer[screenHeight][screenWidth];
+public:
+	explicit Video(VirtualMachine& vm, VideoFairy& videoFairy);
+	~Video();
+	void run(uint16_t clockDelta);
+	void onHardReset();
+	void onReset();
+	uint8_t readReg(uint16_t addr);
+	void writeReg(uint16_t addr, uint8_t value);
+	void executeDMA(uint8_t value);
+	void connectCartridge(Cartridge* cartridge);
+	enum{
+		screenWidth = 256,
+		screenHeight = 240,
+		EmptyBit = 0x00,
+		BackSpriteBit = 0x40,
+		BackgroundBit = 0x80,
+		FrontSpriteBit = 0xc0,
+		SpriteLayerBit = 0x40,
+		LayerBitMask = 0xc0
+	};
+protected:
+private:
+	enum{
+		clockPerScanline = 341,
+		scanlinePerScreen = 262,
+		defaultSpriteCnt = 8
+	};
+	VirtualMachine& VM;
+	Cartridge* cartridge;
+   VideoFairy& videoFairy;
+	bool isEven;
+	uint16_t nowY;
+	uint16_t nowX;
+	uint8_t spRam[256];
+	uint8_t internalVram[2048];
+	uint8_t palette[9][4];
+	uint8_t screenBuffer[screenHeight][screenWidth];
 
-		/* Rendering */
-		struct SpriteSlot {
-			uint8_t idx;
-			uint8_t y;
-			uint8_t x;
-			uint8_t paletteNo;
-			uint16_t tileAddr;
-			bool isForeground;
-			bool flipHorizontal;
-			bool flipVertical;
-		} spriteTable[defaultSpriteCnt];
-		uint16_t spriteHitCnt;
-		inline void spriteEval();
-		inline void buildSpriteLine();
-		inline void buildBgLine();
+	/* Rendering */
+	struct SpriteSlot {
+		uint8_t idx;
+		uint8_t y;
+		uint8_t x;
+		uint8_t paletteNo;
+		uint16_t tileAddr;
+		bool isForeground;
+		bool flipHorizontal;
+		bool flipVertical;
+	} spriteTable[defaultSpriteCnt];
+	uint16_t spriteHitCnt;
+	inline void spriteEval();
+	inline void buildSpriteLine();
+	inline void buildBgLine();
 
-		/* IO */
-		inline uint8_t readVram(uint16_t addr) const;
-		inline void writeVram(uint16_t addr, uint8_t value);
-		inline uint8_t readVramExternal(uint16_t addr) const;
-		inline void writeVramExternal(uint16_t addr, uint8_t value);
-		inline uint8_t readPalette(uint16_t addr) const;
-		inline void writePalette(uint16_t addr, uint8_t value);
-		inline uint8_t readSprite(uint16_t addr) const;
-		inline void writeSprite(uint16_t addr, uint8_t value);
+	/* IO */
+	inline uint8_t readVram(uint16_t addr) const;
+	inline void writeVram(uint16_t addr, uint8_t value);
+	inline uint8_t readVramExternal(uint16_t addr) const;
+	inline void writeVramExternal(uint16_t addr, uint8_t value);
+	inline uint8_t readPalette(uint16_t addr) const;
+	inline void writePalette(uint16_t addr, uint8_t value);
+	inline uint8_t readSprite(uint16_t addr) const;
+	inline void writeSprite(uint16_t addr, uint8_t value);
 
-		/* PPU Control Register 1 */
-		bool executeNMIonVBlank;
-		uint8_t spriteHeight;
-		uint16_t patternTableAddressBackground;
-		uint16_t patternTableAddress8x8Sprites;
-		uint8_t vramIncrementSize;
+	/* PPU Control Register 1 */
+	bool executeNMIonVBlank;
+	uint8_t spriteHeight;
+	uint16_t patternTableAddressBackground;
+	uint16_t patternTableAddress8x8Sprites;
+	uint8_t vramIncrementSize;
 
-		/* PPU Control Register 2 */
-		uint8_t colorEmphasis;
-		bool spriteVisibility;
-		bool backgroundVisibility;
-		bool spriteClipping;
-		bool backgroundClipping;
-		uint8_t paletteMask;
+	/* PPU Control Register 2 */
+	uint8_t colorEmphasis;
+	bool spriteVisibility;
+	bool backgroundVisibility;
+	bool spriteClipping;
+	bool backgroundClipping;
+	uint8_t paletteMask;
 
-		/* PPU Status Register */
-		bool nowOnVBnank;
-		bool sprite0Hit;
-		bool lostSprites;
+	/* PPU Status Register */
+	bool nowOnVBnank;
+	bool sprite0Hit;
+	bool lostSprites;
 
-		/* addressControl */
-		uint8_t vramBuffer;
-		uint8_t spriteAddr;
-		uint16_t vramAddrRegister;
-		uint16_t vramAddrReloadRegister;
-		uint8_t horizontalScrollBits;
-		bool scrollRegisterWritten;
-		bool vramAddrRegisterWritten;
+	/* addressControl */
+	uint8_t vramBuffer;
+	uint8_t spriteAddr;
+	uint16_t vramAddrRegister;
+	uint16_t vramAddrReloadRegister;
+	uint8_t horizontalScrollBits;
+	bool scrollRegisterWritten;
+	bool vramAddrRegisterWritten;
 
-		inline void analyzePPUControlRegister1(uint8_t value);
-		inline void analyzePPUControlRegister2(uint8_t value);
-		inline void analyzePPUBackgroundScrollingOffset(uint8_t value);
-		inline uint8_t buildPPUStatusRegister();
-		inline uint8_t readVramDataRegister();
-		inline uint8_t readSpriteDataRegister();
-		inline void analyzeVramAddrRegister(uint8_t value);
-		inline void analyzeSpriteAddrRegister(uint8_t value);
-		inline void writeVramDataRegister(uint8_t value);
-		inline void writeSpriteDataRegister(uint8_t value);
+	inline void analyzePPUControlRegister1(uint8_t value);
+	inline void analyzePPUControlRegister2(uint8_t value);
+	inline void analyzePPUBackgroundScrollingOffset(uint8_t value);
+	inline uint8_t buildPPUStatusRegister();
+	inline uint8_t readVramDataRegister();
+	inline uint8_t readSpriteDataRegister();
+	inline void analyzeVramAddrRegister(uint8_t value);
+	inline void analyzeSpriteAddrRegister(uint8_t value);
+	inline void writeVramDataRegister(uint8_t value);
+	inline void writeSpriteDataRegister(uint8_t value);
 
-		inline void startVBlank();
+	inline void startVBlank();
 };
 
 class Ram
@@ -310,253 +310,253 @@ private:
 
 class Processor
 {
-	public:
-		explicit Processor(VirtualMachine& vm);
-		~Processor();
-		void run(uint16_t clockDelta);
-		void onHardReset();
-		void onReset();
-		void sendNMI();
-		void reserveIRQ();
-		void releaseIRQ();
-	protected:
-	private:
-		inline uint8_t read(uint16_t addr);
-		inline void write(uint16_t addr, uint8_t value);
-		//定数
-		enum{
-			FLAG_C = 1,
-			FLAG_Z = 2,
-			FLAG_I = 4,
-			FLAG_D = 8,
-			FLAG_B = 16, //not used in NES
-			FLAG_ALWAYS_SET = 32,
-			FLAG_V = 64,
-			FLAG_N = 128,
-		};
-		static const uint8_t ZNFlagCache[0x100];
-		static const uint8_t CycleTable[0x100];
-		//
-		VirtualMachine& VM;
-		uint8_t A;
-		uint8_t X;
-		uint8_t Y;
-		uint16_t PC;
-		uint8_t SP;
-		uint8_t P;
-		//
-		bool NMI;
-		bool IRQ;
-		bool needStatusRewrite;
-		uint8_t newStatus;
-		//
-		inline void push(uint8_t val);
-		inline uint8_t pop();
-		inline void consumeClock(uint8_t clock);
-		inline void updateFlagZN(const uint8_t val);
-		//ハードウェア☆割り込み
-		inline void onNMI();
-		inline void onIRQ();
+public:
+	explicit Processor(VirtualMachine& vm);
+	~Processor();
+	void run(uint16_t clockDelta);
+	void onHardReset();
+	void onReset();
+	void sendNMI();
+	void reserveIRQ();
+	void releaseIRQ();
+protected:
+private:
+	inline uint8_t read(uint16_t addr);
+	inline void write(uint16_t addr, uint8_t value);
+	//定数
+	enum{
+		FLAG_C = 1,
+		FLAG_Z = 2,
+		FLAG_I = 4,
+		FLAG_D = 8,
+		FLAG_B = 16, //not used in NES
+		FLAG_ALWAYS_SET = 32,
+		FLAG_V = 64,
+		FLAG_N = 128,
+	};
+	static const uint8_t ZNFlagCache[0x100];
+	static const uint8_t CycleTable[0x100];
+	//
+	VirtualMachine& VM;
+	uint8_t A;
+	uint8_t X;
+	uint8_t Y;
+	uint16_t PC;
+	uint8_t SP;
+	uint8_t P;
+	//
+	bool NMI;
+	bool IRQ;
+	bool needStatusRewrite;
+	uint8_t newStatus;
+	//
+	inline void push(uint8_t val);
+	inline uint8_t pop();
+	inline void consumeClock(uint8_t clock);
+	inline void updateFlagZN(const uint8_t val);
+	//ハードウェア☆割り込み
+	inline void onNMI();
+	inline void onIRQ();
 
-		//アドレッシングモード
-		inline uint16_t addrImmediate();
-		inline uint16_t addrAbsolute();
-		inline uint16_t addrZeroPage();
-		inline uint16_t addrZeroPageIdxX();
-		inline uint16_t addrZeroPageIdxY();
-		inline uint16_t addrAbsoluteIdxX();
-		inline uint16_t addrAbsoluteIdxY();
-		inline uint16_t addrRelative();
-		inline uint16_t addrIndirectX();
-		inline uint16_t addrIndirectY();
-		inline uint16_t addrAbsoluteIndirect();
+	//アドレッシングモード
+	inline uint16_t addrImmediate();
+	inline uint16_t addrAbsolute();
+	inline uint16_t addrZeroPage();
+	inline uint16_t addrZeroPageIdxX();
+	inline uint16_t addrZeroPageIdxY();
+	inline uint16_t addrAbsoluteIdxX();
+	inline uint16_t addrAbsoluteIdxY();
+	inline uint16_t addrRelative();
+	inline uint16_t addrIndirectX();
+	inline uint16_t addrIndirectY();
+	inline uint16_t addrAbsoluteIndirect();
 
-		//命令一覧 from http://nesdev.parodius.com/opcodes.txt
-		inline void BCC(uint16_t addr);
-		inline void BCS(uint16_t addr);
-		inline void BEQ(uint16_t addr);
-		inline void BNE(uint16_t addr);
-		inline void BVC(uint16_t addr);
-		inline void BVS(uint16_t addr);
-		inline void BPL(uint16_t addr);
-		inline void BMI(uint16_t addr);
+	//命令一覧 from http://nesdev.parodius.com/opcodes.txt
+	inline void BCC(uint16_t addr);
+	inline void BCS(uint16_t addr);
+	inline void BEQ(uint16_t addr);
+	inline void BNE(uint16_t addr);
+	inline void BVC(uint16_t addr);
+	inline void BVS(uint16_t addr);
+	inline void BPL(uint16_t addr);
+	inline void BMI(uint16_t addr);
 
-		inline void LDA(uint16_t addr);
-		inline void LDY(uint16_t addr);
-		inline void LDX(uint16_t addr);
-		inline void STA(uint16_t addr);
-		inline void STY(uint16_t addr);
-		inline void STX(uint16_t addr);
+	inline void LDA(uint16_t addr);
+	inline void LDY(uint16_t addr);
+	inline void LDX(uint16_t addr);
+	inline void STA(uint16_t addr);
+	inline void STY(uint16_t addr);
+	inline void STX(uint16_t addr);
 
-		inline void TXA();
-		inline void TYA();
-		inline void TXS();
-		inline void TAY();
-		inline void TAX();
-		inline void TSX();
+	inline void TXA();
+	inline void TYA();
+	inline void TXS();
+	inline void TAY();
+	inline void TAX();
+	inline void TSX();
 
-		inline void PHP();
-		inline void PLP();
-		inline void PHA();
-		inline void PLA();
+	inline void PHP();
+	inline void PLP();
+	inline void PHA();
+	inline void PLA();
 
-		inline void ADC(uint16_t addr);
-		inline void SBC(uint16_t addr);
-		inline void CPX(uint16_t addr);
-		inline void CPY(uint16_t addr);
-		inline void CMP(uint16_t addr);
+	inline void ADC(uint16_t addr);
+	inline void SBC(uint16_t addr);
+	inline void CPX(uint16_t addr);
+	inline void CPY(uint16_t addr);
+	inline void CMP(uint16_t addr);
 
-		inline void AND(uint16_t addr);
-		inline void EOR(uint16_t addr);
-		inline void ORA(uint16_t addr);
-		inline void BIT(uint16_t addr);
+	inline void AND(uint16_t addr);
+	inline void EOR(uint16_t addr);
+	inline void ORA(uint16_t addr);
+	inline void BIT(uint16_t addr);
 
-		inline void ASL();
-		inline void ASL(uint16_t addr);
-		inline void LSR();
-		inline void LSR(uint16_t addr);
-		inline void ROL();
-		inline void ROL(uint16_t addr);
-		inline void ROR();
-		inline void ROR(uint16_t addr);
+	inline void ASL();
+	inline void ASL(uint16_t addr);
+	inline void LSR();
+	inline void LSR(uint16_t addr);
+	inline void ROL();
+	inline void ROL(uint16_t addr);
+	inline void ROR();
+	inline void ROR(uint16_t addr);
 
-		inline void INX();
-		inline void INY();
-		inline void INC(uint16_t addr);
-		inline void DEX();
-		inline void DEY();
-		inline void DEC(uint16_t addr);
+	inline void INX();
+	inline void INY();
+	inline void INC(uint16_t addr);
+	inline void DEX();
+	inline void DEY();
+	inline void DEC(uint16_t addr);
 
-		inline void CLC();
-		inline void CLI();
-		inline void CLV();
-		inline void CLD();
-		inline void SEC();
-		inline void SEI();
-		inline void SED();
+	inline void CLC();
+	inline void CLI();
+	inline void CLV();
+	inline void CLD();
+	inline void SEC();
+	inline void SEI();
+	inline void SED();
 
-		inline void NOP();
-		inline void BRK();
+	inline void NOP();
+	inline void BRK();
 
-		inline void JSR(uint16_t addr);
-		inline void JMP(uint16_t addr);
-		inline void RTI();
-		inline void RTS();
+	inline void JSR(uint16_t addr);
+	inline void JMP(uint16_t addr);
+	inline void RTI();
+	inline void RTS();
 };
 
 class VirtualMachine
 {
-	public:
-		explicit VirtualMachine(VideoFairy& videoFairy, AudioFairy& audioFairy, GamepadFairy* player1, GamepadFairy* player2);
-		~VirtualMachine();
-		void run();
-		void sendNMI(); //from video to processor
-		enum{
-			DEVICE_FRAMECNT = 1,
-			DEVICE_DMC = 2,
-			DEVICE_CARTRIDGE = 4
-		};
-		void reserveIRQ(uint8_t device); //from cartridge and audio to processor.
-		void releaseIRQ(uint8_t device); //from cartridge and audio to processor.
-		bool isIRQpending(uint8_t device);
+public:
+	explicit VirtualMachine(VideoFairy& videoFairy, AudioFairy& audioFairy, GamepadFairy* player1, GamepadFairy* player2);
+	~VirtualMachine();
+	void run();
+	void sendNMI(); //from video to processor
+	enum{
+		DEVICE_FRAMECNT = 1,
+		DEVICE_DMC = 2,
+		DEVICE_CARTRIDGE = 4
+	};
+	void reserveIRQ(uint8_t device); //from cartridge and audio to processor.
+	void releaseIRQ(uint8_t device); //from cartridge and audio to processor.
+	bool isIRQpending(uint8_t device);
 
-		void sendVBlank(); //from video
-		void sendHardReset(); //from user to all subsystems.
-		void sendReset(); //from user to all subsystems.
-		void loadCartridge(const char* filename);
-		void loadCartridge(const uint8_t* data, const uint32_t size, const std::string& name="MEMORY"); //from user
-		inline void consumeCpuClock(uint32_t clock)
-		{
-			consumeClock(clock * CPU_CLOCK_FACTOR);
-		}
-		inline uint8_t read(uint16_t addr) //from processor to subsystems.
-		{
-			switch(addr & 0xE000){
-				case 0x0000:
-					return ram.read(addr);
-				case 0x2000:
-					return video.readReg(addr);
-				case 0x4000:
-					//このへんは込み入ってるので、仕方ないからここで振り分け。
-					if(addr == 0x4015){
-						return audio.readReg(addr);
-					}else if(addr == 0x4016){
-						return ioPort.readInputReg1();
-					}else if(addr == 0x4017){
-						return ioPort.readInputReg2();
-					}else if(addr < 0x4018){
-						throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-					}else{
-						return cartridge->readRegisterArea(addr);
-					}
-				case 0x6000:
-					return cartridge->readSaveArea(addr);
-				case 0x8000:
-				case 0xA000:
-					return cartridge->readBankLow(addr);
-				case 0xC000:
-				case 0xE000:
-					return cartridge->readBankHigh(addr);
-				default:
+	void sendVBlank(); //from video
+	void sendHardReset(); //from user to all subsystems.
+	void sendReset(); //from user to all subsystems.
+	void loadCartridge(const char* filename);
+	void loadCartridge(const uint8_t* data, const uint32_t size, const std::string& name="MEMORY"); //from user
+	inline void consumeCpuClock(uint32_t clock)
+	{
+		consumeClock(clock * CPU_CLOCK_FACTOR);
+	}
+	inline uint8_t read(uint16_t addr) //from processor to subsystems.
+	{
+		switch(addr & 0xE000){
+			case 0x0000:
+				return ram.read(addr);
+			case 0x2000:
+				return video.readReg(addr);
+			case 0x4000:
+				//このへんは込み入ってるので、仕方ないからここで振り分け。
+				if(addr == 0x4015){
+					return audio.readReg(addr);
+				}else if(addr == 0x4016){
+					return ioPort.readInputReg1();
+				}else if(addr == 0x4017){
+					return ioPort.readInputReg2();
+				}else if(addr < 0x4018){
 					throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-			}
+				}else{
+					return cartridge->readRegisterArea(addr);
+				}
+			case 0x6000:
+				return cartridge->readSaveArea(addr);
+			case 0x8000:
+			case 0xA000:
+				return cartridge->readBankLow(addr);
+			case 0xC000:
+			case 0xE000:
+				return cartridge->readBankHigh(addr);
+			default:
+				throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
 		}
-		inline void write(uint16_t addr, uint8_t value) // from processor to subsystems.
-		{
-			switch(addr & 0xE000){
-				case 0x0000:
-					ram.write(addr, value);
-					break;
-				case 0x2000:
-					video.writeReg(addr, value);
-					break;
-				case 0x4000:
-					if(addr == 0x4014){
-						video.executeDMA(value);
-					}else if(addr == 0x4016){
-						ioPort.writeOutReg(value);
-					}else if(addr < 0x4018){
-						audio.writeReg(addr, value);
-					}else{
-						cartridge->writeRegisterArea(addr, value);
-					}
-					break;
-				case 0x6000:
-					cartridge->writeSaveArea(addr, value);
-					break;
-				case 0x8000:
-				case 0xA000:
-					cartridge->writeBankLow(addr, value);
-					break;
-				case 0xC000:
-				case 0xE000:
-					cartridge->writeBankHigh(addr, value);
-					break;
-				default:
-					throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
-			}
+	}
+	inline void write(uint16_t addr, uint8_t value) // from processor to subsystems.
+	{
+		switch(addr & 0xE000){
+			case 0x0000:
+				ram.write(addr, value);
+				break;
+			case 0x2000:
+				video.writeReg(addr, value);
+				break;
+			case 0x4000:
+				if(addr == 0x4014){
+					video.executeDMA(value);
+				}else if(addr == 0x4016){
+					ioPort.writeOutReg(value);
+				}else if(addr < 0x4018){
+					audio.writeReg(addr, value);
+				}else{
+					cartridge->writeRegisterArea(addr, value);
+				}
+				break;
+			case 0x6000:
+				cartridge->writeSaveArea(addr, value);
+				break;
+			case 0x8000:
+			case 0xA000:
+				cartridge->writeBankLow(addr, value);
+				break;
+			case 0xC000:
+			case 0xE000:
+				cartridge->writeBankHigh(addr, value);
+				break;
+			default:
+				throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr;
 		}
-	protected:
-	private:
-		enum{
-			MAIN_CLOCK = 21477272, //21.28MHz(NTSC)
-			CPU_CLOCK_FACTOR = 12,
-			VIDEO_CLOCK_FACTOR = 4,
-		};
-		void consumeClock(uint32_t clock);
-		Ram ram;
-		Processor processor;
-		Audio audio;
-		Video video;
-		Cartridge* cartridge;
-		IOPort ioPort;
+	}
+protected:
+private:
+	enum{
+		MAIN_CLOCK = 21477272, //21.28MHz(NTSC)
+		CPU_CLOCK_FACTOR = 12,
+		VIDEO_CLOCK_FACTOR = 4,
+	};
+	void consumeClock(uint32_t clock);
+	Ram ram;
+	Processor processor;
+	Audio audio;
+	Video video;
+	Cartridge* cartridge;
+	IOPort ioPort;
 
-		uint32_t clockDelta;
+	uint32_t clockDelta;
 
-		bool resetFlag;
-		bool hardResetFlag;
+	bool resetFlag;
+	bool hardResetFlag;
 
-		uint8_t irqLine;
+	uint8_t irqLine;
 
 };
 
