@@ -90,7 +90,7 @@ else() #Platform-Native
 		add_executable(CycloaSDL  ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
 		include_directories(${SDL_INCLUDE_DIRS})
 		link_directories(${SDL_LIBRARY_DIRS})
-		SET_TARGET_PROPERTIES(CycloaSDL PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL")
+		SET_TARGET_PROPERTIES(CycloaSDL PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL -std=gnu++11")
 		target_link_libraries(CycloaSDL ${SDL_LIBRARIES})
 	endif()
 	
@@ -100,7 +100,7 @@ else() #Platform-Native
 		add_executable(CycloaSDL2 ${cycloa_base_SRCS} ${cycloa_sdl_SRCS})
 		include_directories(${SDL2_INCLUDE_DIRS})
 		link_directories(${SDL2_LIBRARY_DIRS})
-		SET_TARGET_PROPERTIES(CycloaSDL2 PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL2")
+		SET_TARGET_PROPERTIES(CycloaSDL2 PROPERTIES COMPILE_FLAGS "-DCYCLOA_SDL2 -std=gnu++11")
 		target_link_libraries(CycloaSDL2 ${SDL2_LIBRARIES})
 	endif()
 endif()

@@ -140,7 +140,7 @@ void SDLVideoFairy::dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeigh
 	SDL_RenderPresent(renderer);
 }
 #elif defined(CYCLOA_SDL)
-void SDLVideoFairy::dispatchRenderingImpl(const uint8_t nesBuffer[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface)
+void SDLVideoFairy::dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface)
 {
 	uint32_t* line;
 	SDL_LockSurface(nesSurface);
