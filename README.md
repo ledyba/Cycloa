@@ -1,4 +1,4 @@
-# Cycloa
+# Cycloa - a NES emulator
 
 Cycloa is a NES emulator implemented in C++. the documents "How to make a NES emulator without hardware reverse-engineering" is available on [/book/](https://github.com/ledyba/Cycloa/tree/master/book) (in Japanese)
 
