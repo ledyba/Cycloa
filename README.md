@@ -10,7 +10,7 @@ The JavaScript version of Cycloa is available:
 
 このエミュレータのJavaScriptバージョンもあります。
 
- - http://ledyba.org/utl/CycloaJS/ (Demo)
+ - https://app.7io.org/CycloaJS/ (Demo)
  - https://github.com/ledyba/CycloaJS (Sourcecode)
 
 # License
