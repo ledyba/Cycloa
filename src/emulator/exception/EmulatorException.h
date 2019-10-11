@@ -1,3 +1,4 @@
+#pragma once
 /*
  * EmulatorException.h
  *
@@ -5,30 +6,30 @@
  *      Author: psi
  */
 
-#ifndef EMULATOREXCEPTION_H_
-#define EMULATOREXCEPTION_H_
-
 #include <iostream>
 #include <string>
 #include <sstream>
 
-class EmulatorException
-{
-	public:
-		EmulatorException();
-		EmulatorException(const char* fmsg);
-		EmulatorException(const std::string& fmsg);
-		EmulatorException(const EmulatorException& src);
-		~EmulatorException();
-	private:
-		std::stringstream msg;
-	public:
-		const std::string getMessage() const;
-		template<typename T> EmulatorException& operator<<(T& val)
-		{
-			this->msg << val;
-			return *this;
-		}
-};
+class EmulatorException final : public std::exception {
+public:
+  EmulatorException();
 
-#endif /* EMULATOREXCEPTION_H_ */
+  explicit EmulatorException(const char *fmsg);
+
+  explicit EmulatorException(const std::string &fmsg);
+
+  EmulatorException(EmulatorException const &src);
+
+  ~EmulatorException() override = default;
+
+private:
+  std::stringstream msg;
+public:
+  const std::string getMessage() const;
+
+  template<typename T>
+  EmulatorException &operator<<(T &val) {
+    this->msg << val;
+    return *this;
+  }
+};

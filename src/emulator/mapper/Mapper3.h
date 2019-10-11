@@ -1,3 +1,5 @@
+#pragma once
+
 /*
  * Mapper3.h
  *
@@ -5,30 +7,32 @@
  *	  Author: psi
  */
 
-#ifndef MAPPER3_H_
-#define MAPPER3_H_
-
 #include "../VirtualMachine.h"
 #include "../file/NesFile.h"
 
-class Mapper3 : public Cartridge
-{
+class Mapper3 : public Cartridge {
 public:
-	Mapper3(VirtualMachine& vm, const NesFile* nesFile);
-	virtual ~Mapper3();
-	/* for PPU */
-	uint8_t readPatternTableHigh(uint16_t addr);
-	uint8_t readPatternTableLow(uint16_t addr);
+  Mapper3(VirtualMachine &vm, const NesFile *nesFile);
 
-	/* for CPU */
-	uint8_t readBankHigh(uint16_t addr);
-	void writeBankHigh(uint16_t addr, uint8_t val);
-	uint8_t readBankLow(uint16_t addr);
-	void writeBankLow(uint16_t addr, uint8_t val);
+  virtual ~Mapper3();
+
+  /* for PPU */
+  uint8_t readPatternTableHigh(uint16_t addr);
+
+  uint8_t readPatternTableLow(uint16_t addr);
+
+  /* for CPU */
+  uint8_t readBankHigh(uint16_t addr);
+
+  void writeBankHigh(uint16_t addr, uint8_t val);
+
+  uint8_t readBankLow(uint16_t addr);
+
+  void writeBankLow(uint16_t addr, uint8_t val);
+
 private:
-	inline void writeReg(uint16_t addr, uint8_t val);
-	const uint32_t prgHighBankAddrBase;
-	uint32_t chrBankAddrBase;
-};
+  inline void writeReg(uint16_t addr, uint8_t val);
 
-#endif /* MAPPER3_H_ */
+  const uint32_t prgHighBankAddrBase;
+  uint32_t chrBankAddrBase;
+};

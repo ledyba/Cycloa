@@ -1,3 +1,4 @@
+#pragma once
 /*
  * SDLAudioFairy.h
  *
@@ -5,17 +6,14 @@
  *      Author: psi
  */
 
-#ifndef SDLAUDIOFAIRY_H_
-#define SDLAUDIOFAIRY_H_
-
+#include <SDL2/SDL.h>
 #include "../../emulator/fairy/AudioFairy.h"
 
-class SDLAudioFairy: public AudioFairy
-{
+class SDLAudioFairy : public AudioFairy {
 public:
-	SDLAudioFairy();
-	~SDLAudioFairy();
-	static void callback(void* data, Uint8 *stream, int len);
-};
+  SDLAudioFairy();
 
-#endif /* SDLAUDIOFAIRY_H_ */
+  ~SDLAudioFairy();
+
+  static void callback(void *data, Uint8 *stream, int len);
+};

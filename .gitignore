@@ -11,3 +11,4 @@ Makefile
 .cproject
 *.project
 *.nmf
+cmake-build-*

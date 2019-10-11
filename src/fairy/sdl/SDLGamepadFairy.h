@@ -1,3 +1,4 @@
+#pragma once
 /*
  * SDLGamePadFairy.h
  *
@@ -5,27 +6,26 @@
  *      Author: psi
  */
 
-#ifndef SDLGAMEPADFAIRY_H_
-#define SDLGAMEPADFAIRY_H_
-
+#include <SDL_joystick.h>
 #include "../../emulator/fairy/GamepadFairy.h"
 
-class SDLGamepadInfo
-{
+class SDLGamepadInfo {
 
 };
 
-class SDLGamepadFairy: public GamepadFairy
-{
+class SDLGamepadFairy : public GamepadFairy {
 public:
-	SDLGamepadFairy(SDLGamepadInfo& info);
-	virtual ~SDLGamepadFairy();
-	virtual void onVBlank();
-	virtual void onUpdate();
-	virtual bool isPressed(uint8_t keyIdx);
-private:
-	SDL_Joystick& joystick;
-	uint8_t state;
-};
+  SDLGamepadFairy(SDLGamepadInfo &info);
 
-#endif /* SDLGAMEPADFAIRY_H_ */
+  virtual ~SDLGamepadFairy();
+
+  virtual void onVBlank();
+
+  virtual void onUpdate();
+
+  virtual bool isPressed(uint8_t keyIdx);
+
+private:
+  SDL_Joystick &joystick;
+  uint8_t state;
+};

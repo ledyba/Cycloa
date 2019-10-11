@@ -1,3 +1,4 @@
+#pragma once
 /*
  * Mapper25.h
  *
@@ -5,20 +6,18 @@
  *      Author: psi
  */
 
-#ifndef MAPPER25_H_
-#define MAPPER25_H_
-
 #include "board/VRC4.h"
 
-class Mapper25 : public VRC4
-{
+class Mapper25 : public VRC4 {
 public:
-	Mapper25(VirtualMachine& vm, const NesFile* nesFile);
-	virtual ~Mapper25();
+  Mapper25(VirtualMachine &vm, const NesFile *nesFile);
 
-	/* for CPU */
-	void writeBankHigh(uint16_t addr, uint8_t val);
-	void writeBankLow(uint16_t addr, uint8_t val);
+  virtual ~Mapper25();
+
+  /* for CPU */
+  void writeBankHigh(uint16_t addr, uint8_t val);
+
+  void writeBankLow(uint16_t addr, uint8_t val);
 };
 
-#endif /* MAPPER25_H_ */
+#pragma once

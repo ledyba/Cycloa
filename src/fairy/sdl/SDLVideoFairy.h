@@ -1,3 +1,4 @@
+#pragma once
 /*
  * SDLVideoFairy.h
  *
@@ -5,50 +6,39 @@
  *      Author: psi
  */
 
-#ifndef SDLVIDEOFAIRY_H_
-#define SDLVIDEOFAIRY_H_
-
-#if defined(CYCLOA_SDL2)
 #include <SDL2/SDL.h>
-#elif defined(CYCLOA_SDL)
-#include <SDL/SDL.h>
-#endif
 #include "../../emulator/VirtualMachine.h"
 #include "../../emulator/fairy/VideoFairy.h"
 
-class SDLVideoFairy : public VideoFairy
-{
+class SDLVideoFairy final : public VideoFairy {
 public:
-	explicit SDLVideoFairy(std::string windowTitle, int width = Video::screenWidth*2, int height = Video::screenHeight*2);
-	virtual ~SDLVideoFairy();
-	virtual void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask) override final;
-	int getWidth(){
-		return this->width;
-	}
-	int getHeight(){
-		return this->width;
-	}
+  explicit SDLVideoFairy(std::string const &windowTitle, int width = Video::screenWidth * 2,
+                         int height = Video::screenHeight * 2);
+
+  ~SDLVideoFairy() override;
+
+  void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], uint8_t paletteMask) override;
+
+  int getWidth() {
+    return this->width;
+  }
+
+  int getHeight() {
+    return this->width;
+  }
+
 private:
-	const int width;
-	const int height;
-	bool isFullscreen;
-	uint32_t nextTime;
+  const int width;
+  const int height;
+  bool isFullscreen;
+  uint32_t nextTime;
 
-	uint32_t fpsTime;
-	uint32_t fpsCnt;
-#if defined(CYCLOA_SDL2)
-	SDL_Window* window;
-	SDL_Renderer* renderer;
-	SDL_Texture* tex;
+  uint32_t fpsTime;
+  uint32_t fpsCnt;
+  SDL_Window *window;
+  SDL_Renderer *renderer;
+  SDL_Texture *tex;
 protected:
-	void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Renderer* renderer, SDL_Texture* tex);
-#elif defined(CYCLOA_SDL)
-	SDL_Surface* screenSurface;
-	SDL_Surface* nesSurface;
-protected:
-	void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask, SDL_Surface* nesSurface, SDL_Surface* screenSurface);
-#endif
+  void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], uint8_t paletteMask,
+                             SDL_Renderer *renderer, SDL_Texture *tex);
 };
-
-
-#endif /* SDLVIDEOFAIRY_H_ */
