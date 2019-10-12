@@ -21,16 +21,13 @@ project (Cycloa)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-#Main src directory
-set(SRC_DIR ${CMAKE_SOURCE_DIR}/src)
+## sources
+file(GLOB_RECURSE SRCS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-#エミュレータコアのソースコード
-file(GLOB_RECURSE SRCS ${SRC_DIR}/*.cpp)
+## libraries (nowadays, just vendored SDL2)
+add_subdirectory(external/SDL)
+include_directories(external/SDL/include)
 
-#実行バイナリ
-
-find_package(SDL2)
+## executes
 add_executable(Cycloa ${SRCS})
-include_directories(${SDL2_INCLUDE_DIRS})
-link_directories(${SDL2_LIBRARY_DIRS})
-target_link_libraries(Cycloa ${SDL2_LIBRARIES})
+target_link_libraries(Cycloa SDL2-static)
