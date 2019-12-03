@@ -6,7 +6,7 @@
  *      Author: psi
  */
 
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include "../../emulator/fairy/AudioFairy.h"
 
 class SDLAudioFairy : public AudioFairy {

@@ -21,6 +21,12 @@ project (Cycloa)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if (WIN32)
+    # https://stackoverflow.com/questions/47690822/possible-to-force-cmake-msvc-to-use-utf-8-encoding-for-source-files-without-a-bo
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+endif(WIN32)
+
 ## sources
 file(GLOB_RECURSE SRCS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
@@ -31,3 +37,4 @@ include_directories(external/SDL/include)
 ## executes
 add_executable(Cycloa ${SRCS})
 target_link_libraries(Cycloa SDL2-static)
+target_link_libraries(Cycloa SDL2main)

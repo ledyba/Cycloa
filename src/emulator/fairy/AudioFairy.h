@@ -8,8 +8,9 @@
  */
 
 #include "../exception/EmulatorException.h"
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
+#include <algorithm>
 
 class AudioFairy {
 private:
@@ -48,7 +49,7 @@ protected:
     const int nowLastIndex = lastIndex;
     const int available =
         firstIndex <= nowLastIndex ? nowLastIndex - firstIndex : INTERNAL_BUFFER_SIZE - (firstIndex - nowLastIndex);
-    const int copiedLength = std::min(available, maxLength);
+    const int copiedLength = std::min<int>(available, maxLength);
     if (firstIndex + copiedLength < INTERNAL_BUFFER_SIZE) {
       memcpy(buff, &soundBuffer[firstIndex], sizeof(int16_t) * copiedLength);
       firstIndex += copiedLength;
