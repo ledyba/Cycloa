@@ -1,6 +1,6 @@
 #include <cstddef>
 #include <stdio.h>
-#include <fstream>
+#include <filesystem>
 #include "exception/EmulatorException.h"
 #include "VirtualMachine.h"
 
@@ -104,32 +104,37 @@ void VirtualMachine::sendReset() {
   this->resetFlag = true;
 }
 
-void VirtualMachine::loadCartridge(const char *filename) {
-  std::ifstream in(filename, std::fstream::binary);
-  in.seekg(0, std::ifstream::end);
-  const std::ifstream::pos_type endPos = in.tellg();
-  in.seekg(0, std::ifstream::beg);
-  const std::ifstream::pos_type startPos = in.tellg();
-  const uint32_t size = static_cast<uint32_t>(endPos - startPos);
+namespace {
 
-  uint8_t *const data = new uint8_t[size];
-  try {
-    in.read(reinterpret_cast<char *>(data), size);
-    if (in.gcount() != static_cast<int32_t>(size)) {
-      throw EmulatorException("[FIXME] Invalid file format: ") << filename;
-    }
-    VirtualMachine::loadCartridge(data, size);
-    delete data;
-  } catch (...) {
-    delete data;
-    throw;
+std::vector<uint8_t> readAllFromFile(std::string const &fileName) noexcept(false) {
+  std::uintmax_t const fileSize = std::filesystem::file_size(fileName);
+  FILE *const file = fopen(fileName.c_str(), "rb");
+  if (!file) {
+    std::error_code err = std::make_error_code(static_cast<std::errc>(errno));
+    throw std::filesystem::filesystem_error("Error to open file", fileName, err);
   }
+  std::vector<uint8_t> dat;
+  dat.resize(fileSize);
+  size_t readed = fread(dat.data(), 1, fileSize, file);
+  if (readed < fileSize) {
+    std::error_code err = std::make_error_code(static_cast<std::errc>(errno));
+    fclose(file);
+    throw std::filesystem::filesystem_error("Error to read all contents from the file", fileName, err);
+  }
+  fclose(file);
+  return std::move(dat);
 }
 
-void VirtualMachine::loadCartridge(const uint8_t *data, const uint32_t size, const std::string &name) {
-  if (this->cartridge) {
+}
+
+void VirtualMachine::loadCartridge(std::string const& filename) {
+  VirtualMachine::loadCartridge(std::move(readAllFromFile(filename)), filename);
+}
+
+void VirtualMachine::loadCartridge(std::vector<uint8_t> data, const std::string &name) {
+  if(this->cartridge) {
     delete this->cartridge;
   }
-  this->cartridge = Cartridge::loadCartridge(*this, data, size, name);
+  this->cartridge = Cartridge::loadCartridge(*this, std::move(data), name);
   this->video.connectCartridge(this->cartridge);
 }

@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <stdint.h>
 #include <stdio.h>
+#include <vector>
 
 class NesFile {
 public:
@@ -23,7 +24,7 @@ public:
     CHR_ROM_PAGE_SIZE = 8 * 1024,
   };
 public:
-  explicit NesFile(const uint8_t *data, const uint32_t size, const std::string &name = "MEMORY");
+  explicit NesFile(std::vector<uint8_t> data, const std::string &name = "MEMORY");
 
   ~NesFile();
 

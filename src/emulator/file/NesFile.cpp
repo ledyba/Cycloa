@@ -4,11 +4,11 @@
 #include "./NesFile.h"
 #include "../exception/EmulatorException.h"
 
-NesFile::NesFile(const uint8_t *data, const uint32_t size, const std::string &name) :
+NesFile::NesFile(std::vector<uint8_t> data, const std::string &name) :
     filename(name),
     mapperNo(0),
-    prgRom(NULL),
-    chrRom(NULL),
+    prgRom(nullptr),
+    chrRom(nullptr),
     mirrorType(HORIZONTAL),
     trainerFlag(false),
     sramFlag(false),
@@ -16,15 +16,15 @@ NesFile::NesFile(const uint8_t *data, const uint32_t size, const std::string &na
     chrSize(0),
     prgPageCnt(0),
     chrPageCnt(0) {
-  const uint32_t contentSize = size - NES_FORMAT_SIZE;
-  this->analyzeFile(data, contentSize, &data[NES_FORMAT_SIZE]);
+  const uint32_t contentSize = data.size() - NES_FORMAT_SIZE;
+  this->analyzeFile(data.data(), contentSize, &data[NES_FORMAT_SIZE]);
 }
 
 NesFile::~NesFile() {
-  if (this->chrRom) {
+  if(this->chrRom) {
     delete[] this->chrRom;
   }
-  if (this->prgRom) {
+  if(this->prgRom) {
     delete[] this->prgRom;
   }
 }

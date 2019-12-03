@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     SDLAudioFairy audioFairy;
     SDLGamepadInfo info;
     SDLGamepadFairy player1(info);
-    VirtualMachine vm(videoFairy, audioFairy, &player1, 0);
+    VirtualMachine vm(videoFairy, audioFairy, &player1, nullptr);
     vm.loadCartridge(argv[1]);
     vm.sendHardReset();
     while (true) {
@@ -38,6 +38,11 @@ int main(int argc, char **argv) {
     SDL_Quit();
   } catch (EmulatorException &e) {
     std::cerr << "Error: " << e.getMessage();
+    std::cerr << std::endl;
+    std::cerr.flush();
+    return -1;
+  } catch (std::exception &e) {
+    std::cerr << "Standard Error: " << e.what();
     std::cerr << std::endl;
     std::cerr.flush();
     return -1;

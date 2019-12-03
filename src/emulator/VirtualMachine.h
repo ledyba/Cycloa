@@ -17,8 +17,8 @@ public:
     SRAM_SIZE = 8192
   };
 
-  static Cartridge *
-  loadCartridge(VirtualMachine &vm, const uint8_t *data, const uint32_t size, const std::string &name = "MEMORY");
+  static Cartridge*
+  loadCartridge(VirtualMachine &vm, std::vector<uint8_t> data, std::string const& name = "MEMORY");
 
 public:
   explicit Cartridge(VirtualMachine &vm, const NesFile *nesFile = 0);
@@ -594,9 +594,9 @@ public:
   void sendVBlank(); //from video
   void sendHardReset(); //from user to all subsystems.
   void sendReset(); //from user to all subsystems.
-  void loadCartridge(const char *filename);
+  void loadCartridge(std::string const& filename);
 
-  void loadCartridge(const uint8_t *data, const uint32_t size, const std::string &name = "MEMORY"); //from user
+  void loadCartridge(std::vector<uint8_t> data, const std::string &name = "MEMORY"); //from user
   inline void consumeCpuClock(uint32_t clock) {
     consumeClock(clock * CPU_CLOCK_FACTOR);
   }
