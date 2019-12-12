@@ -11,15 +11,16 @@
 #include <stdio.h>
 #include <cstdlib>
 
-SDLVideoFairy::SDLVideoFairy(std::string const &windowTitle, int width, int height) :
-    width(width),
-    height(height),
-    isFullscreen(false),
-    nextTime(0),
-    fpsTime(0),
-    fpsCnt(0),
-    window(nullptr),
-    renderer(nullptr) {
+SDLVideoFairy::SDLVideoFairy(std::string const &windowTitle, int width, int height)
+:width(width)
+,height(height)
+,isFullscreen(false)
+,nextTime(0)
+,fpsTime(0)
+,fpsCnt(0)
+,window(nullptr)
+,renderer(nullptr)
+{
   if (SDL_CreateWindowAndRenderer(width, height, 0, &this->window, &this->renderer) < 0) {
     throw EmulatorException("Failed to initialize window and renderer.");
   }
@@ -30,16 +31,13 @@ SDLVideoFairy::SDLVideoFairy(std::string const &windowTitle, int width, int heig
                                 Video::screenHeight);
 }
 
-SDLVideoFairy::~SDLVideoFairy() {
+SDLVideoFairy::~SDLVideoFairy() noexcept {
   SDL_DestroyTexture(this->tex);
   SDL_DestroyRenderer(this->renderer);
   SDL_DestroyWindow(this->window);
 }
 
-
-void
-SDLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask) {
-
+void SDLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask) {
   SDL_Event e;
   while (SDL_PollEvent(&e)) {
     if (e.type == SDL_QUIT) {

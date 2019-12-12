@@ -12,10 +12,12 @@
 
 class SDLVideoFairy final : public VideoFairy {
 public:
-  explicit SDLVideoFairy(std::string const &windowTitle, int width = Video::screenWidth * 2,
-                         int height = Video::screenHeight * 2);
+  explicit SDLVideoFairy(
+      std::string const &windowTitle,
+      int width = Video::screenWidth * 2,
+      int height = Video::screenHeight * 2);
 
-  ~SDLVideoFairy() override;
+  ~SDLVideoFairy() noexcept override;
 
   void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], uint8_t paletteMask) override;
 
