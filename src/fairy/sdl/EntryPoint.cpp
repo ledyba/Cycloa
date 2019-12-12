@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
     SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "false");
     //
-    SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDLVideoFairy videoFairy("Cycloa");
     SDLAudioFairy audioFairy;
     SDLGamepadInfo info;
