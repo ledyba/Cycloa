@@ -5,16 +5,12 @@
  *      Author: psi
  */
 
-#if defined(CYCLOA_SDL2)
-#include <SDL2/SDL.h>
-#elif defined(CYCLOA_SDL)
-#include <SDL/SDL.h>
-#endif
-
+#include <SDL.h>
 #include "SDLAudioFairy.h"
-#include <string.h>
 
-SDLAudioFairy::SDLAudioFairy() {
+SDLAudioFairy::SDLAudioFairy()
+:deviceId_(0)
+{
   SDL_AudioSpec desired, obtained;
   desired.callback = SDLAudioFairy::callback;
   desired.channels = 1;
@@ -22,19 +18,22 @@ SDLAudioFairy::SDLAudioFairy() {
   desired.freq = 44100;
   desired.samples = 4096;
   desired.userdata = this;
-  if (SDL_OpenAudio(&desired, &obtained) < 0) {
+  int const numDevices = SDL_GetNumAudioDevices(SDL_FALSE);
+  for(int i = 0; i < numDevices; ++i){
+    char const*const name = SDL_GetAudioDeviceName(i, SDL_FALSE);
+    this->deviceId_ = SDL_OpenAudioDevice(name, SDL_FALSE, &desired, &obtained, 0);
+    if(this->deviceId_ != 0) {
+      break;
+    }
+  }
+  if(this->deviceId_ == 0) {
     throw EmulatorException("Cannot open audio device");
   }
-  if (desired.format != obtained.format
-      || desired.channels != obtained.channels
-      || desired.freq != obtained.freq) {
-    throw EmulatorException("Cannot fill audio spec.");
-  }
-  SDL_PauseAudio(0);
+  SDL_PauseAudioDevice(this->deviceId_, 0);
 }
 
-SDLAudioFairy::~SDLAudioFairy() {
-  // TODO Auto-generated destructor stub
+SDLAudioFairy::~SDLAudioFairy() noexcept {
+  SDL_CloseAudioDevice(this->deviceId_);
 }
 
 void SDLAudioFairy::callback(void *data, Uint8 *stream, int len) {

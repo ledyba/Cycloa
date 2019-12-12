@@ -21,14 +21,14 @@ private:
   int lastIndex;
   int firstIndex;
 public:
-  AudioFairy() :
-      lastIndex(0),
-      firstIndex(0) {
+  AudioFairy()
+  :soundBuffer{}
+  ,lastIndex(0)
+  ,firstIndex(0)
+  {
   }
 
-  virtual ~AudioFairy() {
-
-  }
+  virtual ~AudioFairy() noexcept = default;
 
   inline bool pushAudio(int16_t sound) {
     const int nowFirstIndex = firstIndex;
