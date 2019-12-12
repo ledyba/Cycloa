@@ -6,20 +6,16 @@
  */
 
 
-#if defined(CYCLOA_SDL2)
-#include <SDL2/SDL.h>
-#elif defined(CYCLOA_SDL)
-#include <SDL/SDL.h>
-#endif
-
+#include <SDL.h>
 #include "SDLGamepadFairy.h"
 
-SDLGamepadFairy::SDLGamepadFairy(SDLGamepadInfo &info) :
-    joystick(*SDL_JoystickOpen(0)),
-    state(0) {
+SDLGamepadFairy::SDLGamepadFairy(SDLGamepadInfo &info)
+:joystick(*SDL_JoystickOpen(0))
+,state(0)
+{
 }
 
-SDLGamepadFairy::~SDLGamepadFairy() {
+SDLGamepadFairy::~SDLGamepadFairy() noexcept {
   SDL_JoystickClose(&joystick);
 }
 
@@ -52,7 +48,6 @@ void SDLGamepadFairy::onVBlank() {
   state |= (SDL_JoystickGetButton(&joystick, 6)) << GamepadFairy::SELECT;
 
   /* Key Board */
-#if defined(CYCLOA_SDL2)
   const uint8_t *keyboard = SDL_GetKeyboardState(NULL);
   if(keyboard[SDL_SCANCODE_UP]){
     state |= GamepadFairy::MASK_UP;
@@ -78,33 +73,6 @@ void SDLGamepadFairy::onVBlank() {
   if(keyboard[SDL_SCANCODE_S]){
     state |= GamepadFairy::MASK_SELECT;
   }
-#elif defined(CYCLOA_SDL)
-  const uint8_t* keyboard = SDL_GetKeyState(NULL);
-  if(keyboard[SDLK_UP]){
-    state |= GamepadFairy::MASK_UP;
-  }
-  if(keyboard[SDLK_DOWN]){
-    state |= GamepadFairy::MASK_DOWN;
-  }
-  if(keyboard[SDLK_LEFT]){
-    state |= GamepadFairy::MASK_LEFT;
-  }
-  if(keyboard[SDLK_RIGHT]){
-    state |= GamepadFairy::MASK_RIGHT;
-  }
-  if(keyboard[SDLK_z]){
-    state |= GamepadFairy::MASK_A;
-  }
-  if(keyboard[SDLK_x]){
-    state |= GamepadFairy::MASK_B;
-  }
-  if(keyboard[SDLK_a]){
-    state |= GamepadFairy::MASK_START;
-  }
-  if(keyboard[SDLK_s]){
-    state |= GamepadFairy::MASK_SELECT;
-  }
-#endif
 }
 
 bool SDLGamepadFairy::isPressed(uint8_t keyIdx) {

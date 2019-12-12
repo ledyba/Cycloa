@@ -32,9 +32,9 @@ public:
     MASK_ALL = 255,
   };
 
-  GamepadFairy() {}
+  GamepadFairy() = default;
 
-  virtual ~GamepadFairy() {}
+  virtual ~GamepadFairy() noexcept = default;
 
   virtual void onVBlank() {};
 
@@ -45,13 +45,13 @@ public:
 private:
 };
 
-class DummyGamepadFairy : public GamepadFairy {
+class DummyGamepadFairy final : public GamepadFairy {
 public:
-  DummyGamepadFairy() {}
+  DummyGamepadFairy() = default;
 
-  virtual ~DummyGamepadFairy() {}
+  ~DummyGamepadFairy() noexcept override = default;
 
-  virtual void onUpdate() {};
+  void onUpdate() override {};
 
-  virtual bool isPressed(uint8_t keyIdx) { return false; };
+  bool isPressed(uint8_t keyIdx) override { return false; };
 };
