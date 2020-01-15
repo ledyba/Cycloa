@@ -19,10 +19,6 @@ int main(int argc, char **argv) {
     return -1;
   }
   try {
-    // FIXME: こうしないとここで落ちる
-    // https://github.com/SDL-mirror/SDL/blob/9f39b048121dc3dbff573c0b189d4424d514d0c7/src/video/SDL_video.c#L186-L242
-    SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
-    SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "false");
     //
     SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDLVideoFairy videoFairy("Cycloa");
