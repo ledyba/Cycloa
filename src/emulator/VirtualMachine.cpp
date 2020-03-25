@@ -122,7 +122,7 @@ std::vector<uint8_t> readAllFromFile(std::string const &fileName) noexcept(false
     throw std::filesystem::filesystem_error("Error to read all contents from the file", fileName, err);
   }
   fclose(file);
-  return std::move(dat);
+  return dat;
 }
 
 }
