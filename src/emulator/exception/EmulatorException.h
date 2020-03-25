@@ -13,19 +13,15 @@
 class EmulatorException final : public std::exception {
 public:
   EmulatorException();
-
-  explicit EmulatorException(const char *fmsg);
-
   explicit EmulatorException(const std::string &fmsg);
-
-  EmulatorException(EmulatorException const &src);
+  explicit EmulatorException(EmulatorException const &src);
 
   ~EmulatorException() override = default;
 
 private:
-  std::stringstream msg;
+  std::string msg;
 public:
-  const std::string getMessage() const;
+  [[ nodiscard ]] std::string getMessage() const;
 
   template<typename T>
   EmulatorException &operator<<(T &val) {

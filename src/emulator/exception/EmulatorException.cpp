@@ -3,18 +3,16 @@
 EmulatorException::EmulatorException() {
 }
 
-EmulatorException::EmulatorException(const char *fmsg) {
-  this->msg << fmsg;
+EmulatorException::EmulatorException(std::string const& fmsg)
+:msg(fmsg)
+{
 }
 
-EmulatorException::EmulatorException(const std::string &fmsg) {
-  this->msg << fmsg;
+EmulatorException::EmulatorException(EmulatorException const& src)
+:msg(src.getMessage())
+{
 }
 
-EmulatorException::EmulatorException(const EmulatorException &src) {
-  this->msg << src.msg.str();
-}
-
-const std::string EmulatorException::getMessage() const {
-  return this->msg.str();
+std::string EmulatorException::getMessage() const {
+  return this->msg;
 }
