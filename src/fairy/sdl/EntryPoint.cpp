@@ -11,7 +11,6 @@
 #include "SDLVideoFairy.h"
 #include "SDLAudioFairy.h"
 #include "SDLGamepadFairy.h"
-#include "../../emulator/VirtualMachine.h"
 
 int main(int argc, char **argv) {
   if (argc <= 1) {
@@ -33,7 +32,7 @@ int main(int argc, char **argv) {
     }
     SDL_Quit();
   } catch (EmulatorException &e) {
-    std::cerr << "Error: " << e.getMessage();
+    std::cerr << "Error: " << e.what();
     std::cerr << std::endl;
     std::cerr.flush();
     return -1;

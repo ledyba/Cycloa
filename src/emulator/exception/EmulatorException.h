@@ -6,26 +6,23 @@
  *      Author: psi
  */
 
-#include <iostream>
 #include <string>
-#include <sstream>
+#include <fmt/format.h>
 
 class EmulatorException final : public std::exception {
 public:
   EmulatorException();
-  explicit EmulatorException(const std::string &fmsg);
-  explicit EmulatorException(EmulatorException const &src);
+  template <typename ...Args> explicit EmulatorException(std::string const& fmt, Args ...args)
+  : EmulatorException(fmt::format(fmt, std::forward<Args>(args)...)){
+
+  }
+  explicit EmulatorException(std::string const& msg):msg_(msg){}
+  EmulatorException(EmulatorException const& other):msg_(other.msg_){}
 
   ~EmulatorException() override = default;
 
 private:
-  std::string msg;
+  std::string msg_;
 public:
-  [[ nodiscard ]] std::string getMessage() const;
-
-  template<typename T>
-  EmulatorException &operator<<(T &val) {
-    this->msg << val;
-    return *this;
-  }
+  [[ nodiscard ]] char const* what() const override;
 };

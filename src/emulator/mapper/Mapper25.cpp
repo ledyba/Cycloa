@@ -78,7 +78,7 @@ void Mapper25::writeBankHigh(uint16_t addr, uint8_t val) {
       ackIRQ();
       break;
     default:
-      throw EmulatorException("[Mapper23] Invalid addr!! 0x") << std::hex << addr;
+      throw EmulatorException("[Mapper25] Invalid addr!! {:#06x}", addr);
   }
 }
 
@@ -129,6 +129,6 @@ void Mapper25::writeBankLow(uint16_t addr, uint8_t val) {
       setChrBankHigh(1, val);
       break;
     default:
-      throw EmulatorException("[Mapper23] Invalid addr!! 0x") << std::hex << addr;
+      throw EmulatorException("[Mapper25] Invalid addr!! {:#06x}", addr);
   }
 }

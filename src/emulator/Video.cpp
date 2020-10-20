@@ -94,7 +94,7 @@ void Video::run(uint16_t clockDelta) {
         this->vramAddrRegister = (vramAddrRegister & 0x041F) | (vramAddrReloadRegister & 0x7BE0);
       }
     } else {
-      throw EmulatorException("Invalid scanline") << this->nowY;
+      throw EmulatorException("Invalid scanline: nowY={}", this->nowY);
     }
   }
 }
@@ -357,7 +357,7 @@ void Video::writeReg(uint16_t addr, uint8_t value) {
       writeVramDataRegister(value);
       break;
     default:
-      throw EmulatorException() << "Invalid addr: 0x" << std::hex << addr;
+      throw EmulatorException("Invalid addr: {:#06x}", addr);
   }
 }
 

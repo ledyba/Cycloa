@@ -166,7 +166,7 @@ void Audio::onVSync() {
 
 uint8_t Audio::readReg(uint16_t addr) {
   if (addr != 0x4015) {
-    throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr << "for APU.";
+    throw EmulatorException("[FIXME] Invalid addr: {:#06x} for APU", addr);
   }
   // Clears the frame interrupt flag after being read (but not the DMC interrupt flag).
   // If an interrupt flag was set at the same moment of the read, it will read back as 1 but it will not be cleared.
@@ -254,7 +254,7 @@ void Audio::writeReg(uint16_t addr, uint8_t value) {
       analyzeLowFrequentryRegister(value);
       break;
     default:
-      throw EmulatorException("[FIXME] Invalid addr: 0x") << std::hex << addr << "for APU.";
+      throw EmulatorException("[FIXME] Invalid addr: {:#06x} for APU", addr);
   }
 }
 

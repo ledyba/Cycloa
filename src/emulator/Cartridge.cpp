@@ -153,8 +153,7 @@ Cartridge::loadCartridge(VirtualMachine &vm, std::vector<uint8_t> data, std::str
       case 25: //mapper 25 = VRC4bd
         return new Mapper25(vm, nesFile);
       default: {
-        const uint32_t mapperNo32 = static_cast<uint32_t>(mapperNo);
-        throw EmulatorException("Not Supported Mapper: ") << mapperNo32 << "!";
+        throw EmulatorException("Unsupported Mapper: ", mapperNo);
       }
     }
   } catch (...) {

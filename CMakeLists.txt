@@ -30,11 +30,20 @@ endif(WIN32)
 ## sources
 file(GLOB_RECURSE SRCS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 
-## libraries (nowadays, just vendored SDL2)
+###############################################################################
+## libraries
+###############################################################################
+# SDL2
 add_subdirectory(external/SDL)
 include_directories(external/SDL/include)
+# fmt
+set(FMT_TEST OFF CACHE BOOL "" FORCE)
+set(FMT_FUZZ OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/fmt)
+###############################################################################
 
 ## executes
 add_executable(Cycloa ${SRCS})
-target_link_libraries(Cycloa SDL2-static)
-target_link_libraries(Cycloa SDL2main)
+target_link_libraries(Cycloa PRIVATE fmt::fmt)
+target_link_libraries(Cycloa PRIVATE SDL2-static)
+target_link_libraries(Cycloa PRIVATE SDL2main)

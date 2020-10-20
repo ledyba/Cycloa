@@ -657,7 +657,7 @@ void Processor::run(uint16_t clockDelta) {
     default:
       uint16_t opcodeBig = opcode;
       uint16_t opcodePC = this->PC - 1;
-      throw EmulatorException("[FIXME] Invalid opcode: 0x") << std::hex << opcodeBig << " in 0x" << opcodePC;
+      throw EmulatorException("[FIXME] Invalid opcode: {:#06x} in {#:06x}", opcodeBig, opcodePC);
   }
   consumeClock(CycleTable[opcode]);
 }
