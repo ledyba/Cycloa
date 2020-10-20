@@ -1,3 +1,6 @@
 [submodule "external/SDL"]
 	path = external/SDL
 	url = https://github.com/SDL-mirror/SDL.git
+[submodule "external/fmt"]
+	path = external/fmt
+	url = https://github.com/fmtlib/fmt.git
