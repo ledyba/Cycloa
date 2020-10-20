@@ -13,6 +13,18 @@ The JavaScript version of Cycloa is available:
  - https://app.7io.org/CycloaJS/ (Demo)
  - https://github.com/ledyba/CycloaJS (Sourcecode)
 
+# How to build
+
+## UNIX-like systems
+
+```bash
+git clone --recurse-submodules --recursive git@github.com:ledyba/Cycloa.git
+cd Cycloa
+mkdir build && cd build
+cmake ..
+make Cycloa
+```
+
 # License
 
 Cycloa is licensed under GPL v3 or later.
