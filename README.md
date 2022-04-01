@@ -27,4 +27,4 @@ make Cycloa
 
 # License
 
-Cycloa is licensed under GPL v3 or later.
+Cycloa is licensed under AGPL v3 or later.
