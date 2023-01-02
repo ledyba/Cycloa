@@ -5,7 +5,6 @@
  *      Author: psi
  */
 
-#include <SDL3/SDL.h>
 #include "SDLAudioFairy.h"
 
 SDLAudioFairy::SDLAudioFairy()

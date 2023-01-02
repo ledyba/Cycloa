@@ -6,8 +6,6 @@
  */
 #include "../../emulator/VirtualMachine.h"
 #include "SDLVideoFairy.h"
-#include <cstddef>
-#include <cstdlib>
 
 SDLVideoFairy::SDLVideoFairy(std::string const &windowTitle, int width, int height)
 :width(width)
