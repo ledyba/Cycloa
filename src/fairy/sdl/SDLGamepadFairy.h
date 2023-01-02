@@ -6,7 +6,7 @@
  *      Author: psi
  */
 
-#include <SDL_joystick.h>
+#include <SDL3/SDL_gamepad.h>
 #include "../../emulator/fairy/GamepadFairy.h"
 
 class SDLGamepadInfo {
@@ -15,15 +15,15 @@ class SDLGamepadInfo {
 
 class SDLGamepadFairy final : public GamepadFairy {
 public:
-  SDLGamepadFairy(SDLGamepadInfo &info);
+  explicit SDLGamepadFairy(SDLGamepadInfo &info);
 
-  virtual ~SDLGamepadFairy() noexcept;
+  ~SDLGamepadFairy() noexcept override;
 
-  virtual void onVBlank();
+  void onVBlank() override;
 
-  virtual void onUpdate();
+  void onUpdate() override;
 
-  virtual bool isPressed(uint8_t keyIdx);
+  bool isPressed(uint8_t keyIdx) override;
 
 private:
   SDL_Joystick &joystick;

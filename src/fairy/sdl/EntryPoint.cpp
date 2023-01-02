@@ -7,7 +7,7 @@
 //============================================================================
 
 #include <iostream>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "SDLVideoFairy.h"
 #include "SDLAudioFairy.h"
 #include "SDLGamepadFairy.h"
@@ -19,7 +19,7 @@ int main(int argc, char **argv) {
   }
   try {
     //
-    SDL_Init(SDL_INIT_GAMECONTROLLER | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    SDL_Init(SDL_INIT_GAMEPAD | SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDLVideoFairy videoFairy("Cycloa");
     SDLAudioFairy audioFairy;
     SDLGamepadInfo info;

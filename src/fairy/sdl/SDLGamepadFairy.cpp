@@ -6,25 +6,25 @@
  */
 
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "SDLGamepadFairy.h"
 
 SDLGamepadFairy::SDLGamepadFairy(SDLGamepadInfo &info)
-:joystick(*SDL_JoystickOpen(0))
+:joystick(*SDL_OpenJoystick(0))
 ,state(0)
 {
 }
 
 SDLGamepadFairy::~SDLGamepadFairy() noexcept {
-  SDL_JoystickClose(&joystick);
+  SDL_CloseJoystick(&joystick);
 }
 
 void SDLGamepadFairy::onVBlank() {
   /* Joystick */
-  SDL_JoystickUpdate();
+  SDL_UpdateJoysticks();
   state = 0;
-  const int16_t x = SDL_JoystickGetAxis(&joystick, 0);
-  const int16_t y = SDL_JoystickGetAxis(&joystick, 1);
+  const int16_t x = SDL_GetJoystickAxis(&joystick, 0);
+  const int16_t y = SDL_GetJoystickAxis(&joystick, 1);
   if (x > 16384) {
     state |= GamepadFairy::MASK_RIGHT;
   } else if (x < -16384) {
@@ -37,10 +37,10 @@ void SDLGamepadFairy::onVBlank() {
     state |= GamepadFairy::MASK_UP;
   }
 
-  state |= (SDL_JoystickGetButton(&joystick, 0)) << GamepadFairy::A;
-  state |= (SDL_JoystickGetButton(&joystick, 1)) << GamepadFairy::B;
-  state |= (SDL_JoystickGetButton(&joystick, 7)) << GamepadFairy::START;
-  state |= (SDL_JoystickGetButton(&joystick, 6)) << GamepadFairy::SELECT;
+  state |= (SDL_GetJoystickButton(&joystick, 0)) << GamepadFairy::A;
+  state |= (SDL_GetJoystickButton(&joystick, 1)) << GamepadFairy::B;
+  state |= (SDL_GetJoystickButton(&joystick, 7)) << GamepadFairy::START;
+  state |= (SDL_GetJoystickButton(&joystick, 6)) << GamepadFairy::SELECT;
 
   /* Key Board */
   const uint8_t *keyboard = SDL_GetKeyboardState(NULL);

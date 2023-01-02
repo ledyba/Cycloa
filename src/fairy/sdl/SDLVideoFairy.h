@@ -6,7 +6,7 @@
  *      Author: psi
  */
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "../../emulator/VirtualMachine.h"
 #include "../../emulator/fairy/VideoFairy.h"
 
@@ -21,14 +21,6 @@ public:
 
   void dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][screenWidth], uint8_t paletteMask) override;
 
-  int getWidth() {
-    return this->width;
-  }
-
-  int getHeight() {
-    return this->width;
-  }
-
 private:
   const int width;
   const int height;
@@ -42,5 +34,5 @@ private:
   SDL_Texture *tex;
 protected:
   void dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], uint8_t paletteMask,
-                             SDL_Renderer *renderer, SDL_Texture *tex);
+                             SDL_Renderer *renderer, SDL_Texture *tex) const;
 };

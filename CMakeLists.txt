@@ -33,7 +33,7 @@ file(GLOB_RECURSE SRCS ${CMAKE_SOURCE_DIR}/src/*.cpp)
 ###############################################################################
 ## libraries
 ###############################################################################
-# SDL2
+# SDL3
 add_subdirectory(external/SDL)
 include_directories(external/SDL/include)
 # fmt
@@ -45,5 +45,4 @@ add_subdirectory(external/fmt)
 ## executes
 add_executable(Cycloa ${SRCS})
 target_link_libraries(Cycloa PRIVATE fmt::fmt)
-target_link_libraries(Cycloa PRIVATE SDL2-static)
-target_link_libraries(Cycloa PRIVATE SDL2main)
+target_link_libraries(Cycloa PRIVATE SDL3-static)

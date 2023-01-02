@@ -6,9 +6,7 @@
  */
 #include "../../emulator/VirtualMachine.h"
 #include "SDLVideoFairy.h"
-#include <stdint.h>
 #include <cstddef>
-#include <stdio.h>
 #include <cstdlib>
 
 SDLVideoFairy::SDLVideoFairy(std::string const &windowTitle, int width, int height)
@@ -76,7 +74,7 @@ void SDLVideoFairy::dispatchRendering(const uint8_t (&nesBuffer)[screenHeight][s
 
 void
 SDLVideoFairy::dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][screenWidth], const uint8_t paletteMask,
-                                     SDL_Renderer *renderer, SDL_Texture *tex) {
+                                     SDL_Renderer* renderer, SDL_Texture* tex) const {
   uint32_t *line;
   uint8_t *line8;
   int pitch;
@@ -93,8 +91,8 @@ SDLVideoFairy::dispatchRenderingImpl(const uint8_t (&nesBuffer)[screenHeight][sc
   SDL_RenderClear(renderer);
   SDL_Rect rect;
   rect.x = rect.y = 0;
-  rect.w = this->getWidth();
-  rect.h = this->getHeight();
-  SDL_RenderCopy(renderer, tex, &rect, NULL);
+  rect.w = this->width;
+  rect.h = this->height;
+  SDL_RenderTexture(renderer, tex, &rect, nullptr);
   SDL_RenderPresent(renderer);
 }
